@@ -719,44 +719,44 @@ export default function FordWarnesApp({ user, onLogout }){
       {role==='employee'&&<FloatingHead state={botState} hidden={chatOpen}/>}
 
       {/* HEADER */}
-      <header className="fw-header" style={{background:"#fff",borderBottom:"1px solid #e8e8e8",padding:"0 20px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20}}>
-        <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{width:48,height:26,background:"linear-gradient(135deg,#003478,#0058e6)",borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,61,165,.35)"}}>
-            <span style={{color:"#fff",fontWeight:800,fontSize:13,fontStyle:"italic",fontFamily:"Georgia,serif"}}>Ford</span>
+      <header className="fw-header" style={{background:"#fff",borderBottom:"1px solid #e0e0e0",padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20,boxShadow:"0 1px 4px rgba(0,0,0,.06)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <div style={{width:56,height:30,background:"linear-gradient(135deg,#003478,#0050a0)",borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,52,120,.3)"}}>
+            <span style={{color:"#fff",fontWeight:800,fontSize:15,fontStyle:"italic",fontFamily:"Georgia,serif"}}>Ford</span>
           </div>
           <div className="fw-logo-text">
-            <div style={{fontWeight:700,fontSize:15,letterSpacing:"-.01em"}}>Ford de Warnes</div>
-            <div style={{fontSize:10,color:"#999",textTransform:"uppercase",letterSpacing:".07em"}}>Buscar Partes y Stock</div>
+            <div style={{fontWeight:800,fontSize:17,color:"#1a1a1a",letterSpacing:"-.02em"}}>La Ford de Warnes</div>
+            <div style={{fontSize:11,color:"#999",fontWeight:500}}>Repuestos y Stock</div>
           </div>
-          <div className="fw-role-badge" style={{background:esJefe?"rgba(234,179,8,.12)":role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.08)",border:`1px solid ${esJefe?"rgba(234,179,8,.3)":role==="employee"?"rgba(34,197,94,.25)":"rgba(102,153,255,.2)"}`,borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:700,color:esJefe?"#fbbf24":role==="employee"?"#22c55e":"#6699ff",textTransform:"uppercase",letterSpacing:".06em"}}>
+          <div className="fw-role-badge" style={{background:esJefe?"rgba(234,179,8,.12)":role==="employee"?"rgba(34,197,94,.1)":"rgba(0,52,120,.06)",border:`1px solid ${esJefe?"rgba(234,179,8,.3)":role==="employee"?"rgba(34,197,94,.25)":"rgba(0,52,120,.15)"}`,borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:700,color:esJefe?"#b8860b":role==="employee"?"#16a34a":"#003478",textTransform:"uppercase",letterSpacing:".04em"}}>
             {esJefe?"Jefe":role==="employee"?"Empleado":"Cliente"}
           </div>
         </div>
-        <div style={{display:"flex",gap:5,alignItems:"center"}}>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
           {[
             {id:"catalogo",label:"Catalogo",icon:"M4 6h16M4 10h16M4 14h16M4 18h16"},
             {id:"chat",label:"Buscar",icon:"M21 21l-4.35-4.35M11 3a8 8 0 100 16 8 8 0 000-16z"},
             ...(esJefe?[{id:"admin",label:"Panel",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
           ].map(t=>(
-            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":"transparent",border:`1px solid ${vista===t.id?"#1a5cc8":"#1c2030"}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:vista===t.id?"#fff":"#555870",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?600:400,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
+            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":"#fff",border:`2px solid ${vista===t.id?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":"#555",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
               {t.label}
             </button>
           ))}
-          {/* Chat button — for everyone */}
-          <button className="fw-juan-btn" onClick={()=>setChatOpen(o=>!o)} style={{position:"relative",display:"flex",alignItems:"center",gap:6,background:chatOpen?"rgba(0,61,165,.3)":"rgba(0,61,165,.1)",border:`1px solid ${chatOpen?"#1a5cc8":"rgba(0,61,165,.3)"}`,borderRadius:10,padding:"4px 12px",cursor:"pointer",fontFamily:"inherit",transition:"all .15s",marginLeft:2}}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={chatOpen?"#fff":"#6699ff"} strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            <span className="fw-juan-label" style={{fontSize:12,fontWeight:600,color:"#6699ff"}}>{esJefe?"Chats":"Juan"}</span>
+          {/* Chat button */}
+          <button className="fw-juan-btn" onClick={()=>setChatOpen(o=>!o)} style={{position:"relative",display:"flex",alignItems:"center",gap:8,background:chatOpen?"#003478":"#fff",border:`2px solid ${chatOpen?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 18px",cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={chatOpen?"#fff":"#003478"} strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            <span className="fw-juan-label" style={{fontSize:14,fontWeight:600,color:chatOpen?"#fff":"#003478"}}>{esJefe?"Chats":"Juan"}</span>
             {(esJefe?adminTotalUnread:chatUnread)>0&&(
-              <div style={{position:"absolute",top:-6,right:-6,minWidth:18,height:18,borderRadius:9,background:"#ef4444",border:"2px solid #0d0f15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:"#fff",padding:"0 4px",animation:"badge-pop .3s ease",zIndex:1}}>
+              <div style={{position:"absolute",top:-8,right:-8,minWidth:22,height:22,borderRadius:11,background:"#dc2626",border:"2px solid #fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:"#fff",padding:"0 5px",animation:"badge-pop .3s ease",zIndex:1}}>
                 {esJefe?adminTotalUnread:chatUnread}
-                <div style={{position:"absolute",inset:0,borderRadius:9,background:"#ef4444",animation:"ping 1.2s ease-out infinite",opacity:.6}}/>
+                <div style={{position:"absolute",inset:0,borderRadius:11,background:"#dc2626",animation:"ping 1.2s ease-out infinite",opacity:.5}}/>
               </div>
             )}
           </button>
-          <div className="fw-online-dot" style={{display:"flex",alignItems:"center",gap:4,marginLeft:2}}>
-            <div style={{width:6,height:6,borderRadius:"50%",background:"#22c55e"}}/>
-            <span style={{fontSize:10,color:"#2e5e3e"}}>Online</span>
+          <div className="fw-online-dot" style={{display:"flex",alignItems:"center",gap:5,marginLeft:4,background:"#f0f8f0",padding:"6px 12px",borderRadius:20}}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:"#22c55e"}}/>
+            <span style={{fontSize:12,color:"#16a34a",fontWeight:600}}>Online</span>
           </div>
         </div>
       </header>
