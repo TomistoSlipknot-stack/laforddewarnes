@@ -68,6 +68,14 @@ const IMGS_MODELO = {
   "kuga":"./img/modelos/kuga.jpg","bronco-sport":"./img/modelos/bronco-sport.jpg","f-250":"./img/modelos/f-250.jpg",
   "f-350":"./img/modelos/f-350.jpg","super-duty":"./img/modelos/super-duty.jpg","transit-connect":"./img/modelos/transit-connect.jpg",
   "everest":"./img/modelos/everest.jpg","falcon":"./img/modelos/falcon.jpg","sierra":"./img/modelos/sierra.jpg",
+  "nueva-ranger":"./img/modelos/nueva-ranger.jpg","ranger-raptor":"./img/modelos/ranger-raptor.jpg",
+  "f-100":"./img/modelos/f-100.jpg","kuga-hybrid":"./img/modelos/kuga-hybrid.jpg",
+  "mustang-gt":"./img/modelos/mustang-gt.jpg","mustang-mach-e":"./img/modelos/mustang-mach-e.jpg",
+  "mondeo-hybrid":"./img/modelos/mondeo-hybrid.jpg","s-max":"./img/modelos/s-max.jpg",
+  "escort":"./img/modelos/escort.jpg","transit-van":"./img/modelos/transit-van.jpg",
+  "transit-bus":"./img/modelos/transit-bus.jpg","transit-chasis":"./img/modelos/transit-chasis.jpg",
+  "cargo":"./img/modelos/cargo.jpg","courier":"./img/modelos/courier.jpg",
+  "f-4000":"./img/modelos/f-4000.jpg","f-14000":"./img/modelos/f-14000.jpg",
 };
 const IMGS_PARTE = {
   "motor":"./img/partes/motor.jpg","filtro":"./img/partes/filtro.jpg","freno":"./img/partes/freno.jpg",
