@@ -129,7 +129,6 @@ const MOCK_MODELOS = [
 ];
 function stockLabel(n){if(n===0)return"Sin stock";if(n===1)return"Ultimo disponible";if(n<=3)return`${n} disponibles`;if(n<=10)return`${n} en stock`;return`${n} disponibles`;}
 
-const MOCK_RESULTADOS = {};
 // ─── GENERADOR DE REPUESTOS POR MODELO ───────────────────────────────────────
 const IMGS_SUB={"junta":"./img/partes/junta.jpg","bomba-agua":"./img/partes/bomba-agua.jpg","bomba-aceite":"./img/partes/bomba-aceite.jpg","piston":"./img/partes/piston.jpg","ciguenal":"./img/partes/ciguenal.jpg","valvula":"./img/partes/valvula.jpg","disco-freno":"./img/partes/disco-freno.jpg","caliper":"./img/partes/caliper.jpg","pastilla":"./img/partes/pastilla.jpg","rotula":"./img/partes/rotula.jpg","espiral":"./img/partes/espiral.jpg","parrilla-susp":"./img/partes/parrilla-susp.jpg","arranque":"./img/partes/arranque.jpg","sonda-lambda":"./img/partes/sonda-lambda.jpg","cable-bujia":"./img/partes/cable-bujia.jpg","manguera":"./img/partes/manguera.jpg","electroventilador":"./img/partes/electroventilador.jpg","disco-embrague":"./img/partes/disco-embrague.jpg","semieje":"./img/partes/semieje.jpg","cremallera":"./img/partes/cremallera.jpg","catalizador":"./img/partes/catalizador.jpg","silenciador":"./img/partes/silenciador.jpg","deposito":"./img/partes/deposito.jpg","sensor":"./img/partes/sensor.jpg","rodamiento":"./img/partes/rodamiento.jpg"};
 // Catálogo cargado desde JSON real de tiendaford.ar (3332 productos)
@@ -162,88 +161,6 @@ MOCK_MODELOS.forEach(m=>{
   const parts=CATALOGO_COMPLETO[m.id];
   if(parts)m.total_repuestos=parts.length;
 });
-
-const _CATALOGO_BASE_REMOVED=[
-  // ══ FILTROS — Mantenimiento (N° pieza reales de tiendaford.ar) ══
-  {nombre:"ELEMENTO FILTRO DE ACEITE",cat:"Mantenimiento",precio_base:7000,oem:10565,nro:"655023",img:"filtro",desc:"Filtro de aceite original Ford. Retiene impurezas y particulas del aceite del motor para proteger los componentes internos. Cambio recomendado cada 10.000 km."},
-  {nombre:"FILTRO DE ACEITE DE MOTOR",cat:"Mantenimiento",precio_base:6900,oem:10565,nro:"655276",img:"filtro",desc:"Elemento filtrante de aceite de motor Ford. Garantiza la lubricacion limpia del motor. Pieza original con sello de calidad Ford."},
-  {nombre:"ELEMENTO FILTRO DE ACEITE",cat:"Mantenimiento",precio_base:6000,oem:9129,nro:"733925",img:"filtro",desc:"Filtro de aceite Ford para motorizaciones nafta y diesel. Maxima filtracion y flujo de aceite garantizado."},
-  {nombre:"ELEMENTO FILTRO DE ACEITE MOTORCRAFT",cat:"Mantenimiento",precio_base:13500,oem:20580,nro:"2037395",img:"filtro",desc:"Filtro de aceite premium Motorcraft. Marca oficial de repuestos Ford. Mayor duracion y rendimiento de filtracion."},
-  {nombre:"FILTRO DE AIRE",cat:"Mantenimiento",precio_base:15000,oem:23173,nro:"655104",img:"filtro",desc:"Filtro de aire del motor original Ford. Permite el ingreso de aire limpio al sistema de admision. Cambio recomendado cada 20.000 km."},
-  {nombre:"ELEMENTO FILTRO DE AIRE",cat:"Mantenimiento",precio_base:47500,oem:72857,nro:"1301992",img:"filtro",desc:"Elemento filtrante de aire de alta capacidad Ford. Para motorizaciones de mayor cilindrada. Filtracion superior de particulas."},
-  {nombre:"FILTRO DE HABITACULO",cat:"Mantenimiento",precio_base:8300,oem:12651,nro:"580010",img:"filtro",desc:"Filtro de cabina/habitaculo Ford. Purifica el aire que ingresa al interior del vehiculo. Retiene polen, polvo y particulas."},
-  {nombre:"FILTRO DE HABITACULO",cat:"Mantenimiento",precio_base:20000,oem:30556,nro:"1404231",img:"filtro",desc:"Filtro de habitaculo premium Ford con carbon activado. Elimina olores y gases nocivos ademas de particulas."},
-  {nombre:"FILTRO DE COMBUSTIBLE MOTORCRAFT",cat:"Mantenimiento",precio_base:8300,oem:12717,nro:"655282",img:"filtro",desc:"Filtro de combustible Motorcraft. Protege el sistema de inyeccion reteniendo impurezas del combustible."},
-  {nombre:"FILTRO DE COMBUSTIBLE FF05612",cat:"Mantenimiento",precio_base:33000,oem:50609,nro:"734126",img:"filtro",desc:"Filtro de combustible de alta eficiencia Ford. Para sistemas de inyeccion directa. Maxima retencion de particulas."},
-  {nombre:"ELEMENTO FILTRO DE GASOIL",cat:"Mantenimiento",precio_base:30500,oem:46713,nro:"658496",img:"filtro",desc:"Filtro separador de agua y gasoil Ford para motores diesel. Protege la bomba inyectora y los inyectores."},
-  // ══ FRENOS — Mecánica Ligera (N° pieza reales) ══
-  {nombre:"JUEGO PASTILLAS DE FRENO DELANTERAS",cat:"Frenos",precio_base:202000,oem:309756,nro:"658434",img:"pastilla",desc:"Juego de pastillas de freno delanteras originales Ford. Material ceramico de alta resistencia al calor. Frenado seguro y progresivo."},
-  {nombre:"JUEGO PASTILLAS DE FRENO DELANTERAS MOTORCRAFT",cat:"Frenos",precio_base:110000,oem:169177,nro:"1360311",img:"pastilla",desc:"Pastillas de freno delanteras marca Motorcraft. Repuesto oficial Ford con formulacion optimizada para cada modelo."},
-  {nombre:"KIT PASTILLAS DE FRENO RUEDAS DELANTERAS",cat:"Frenos",precio_base:73000,oem:111717,nro:"734128",img:"pastilla",desc:"Kit completo de pastillas para frenos delanteros. Incluye indicador de desgaste. Instalacion directa sin modificaciones."},
-  {nombre:"JUEGO DE PASTILLAS DE FRENO TRASERAS MOTORCRAFT",cat:"Frenos",precio_base:124000,oem:190155,nro:"821398",img:"pastilla",desc:"Pastillas de freno traseras Motorcraft. Diseñadas para el sistema de freno trasero de disco. Maxima duracion."},
-  {nombre:"JUEGO REPARACION AJUSTE ZAPATAS DE FRENO",cat:"Frenos",precio_base:106000,oem:163417,nro:"1457729",desc:"Kit de reparacion y ajuste de zapatas de freno trasero. Incluye resortes, pasadores y elementos de regulacion."},
-  {nombre:"CILINDRO MAESTRO DE FRENO",cat:"Frenos",precio_base:291000,oem:446705,nro:"10754270",desc:"Cilindro maestro del sistema de frenos. Genera la presion hidraulica necesaria para el frenado. Pieza critica de seguridad."},
-  {nombre:"CILINDRO DE FRENO TRASERO IZQUIERDO",cat:"Frenos",precio_base:283000,oem:435091,nro:"1457723",desc:"Cilindro de freno trasero lado izquierdo. Para sistemas de freno a tambor trasero. Original Ford."},
-  {nombre:"SERVO FRENO",cat:"Frenos",precio_base:644000,oem:989642,nro:"664692",desc:"Servofreno hidrovacuo. Amplifica la fuerza de frenado del conductor. Componente esencial del sistema de frenado."},
-  {nombre:"SERVOFRENO",cat:"Frenos",precio_base:972000,oem:1492796,nro:"644509",desc:"Servofreno de alta capacidad Ford. Para vehiculos con mayor peso o motorizacion potente. Asistencia de frenado premium."},
-  {nombre:"BOMBA FRENO CON RESERVORIO",cat:"Frenos",precio_base:204000,oem:312980,nro:"10754466",desc:"Bomba de freno con deposito de liquido incluido. Pieza completa lista para instalar. Original Ford."},
-  {nombre:"MODULADOR DEL FRENO ABS",cat:"Frenos",precio_base:1822000,oem:2803006,nro:"655305",desc:"Modulo ABS completo. Controla electronicamente la presion de frenado en cada rueda evitando el bloqueo. Pieza de seguridad critica."},
-  {nombre:"VALVULA CONTROL FRENO DE REMOLQUE",cat:"Frenos",precio_base:260000,oem:399625,nro:"1360270",desc:"Valvula de control para freno de remolque. Permite el frenado sincronizado del trailer. Para vehiculos con capacidad de remolque."},
-  // ══ AMORTIGUADORES — Mecánica Ligera (N° pieza reales) ══
-  {nombre:"AMORTIGUADOR DELANTERO - LADO DERECHO",cat:"Suspension",precio_base:340000,oem:523359,nro:"3454949",img:"amortiguador"},
-  {nombre:"AMORTIGUADOR DE SUSPENSION TRASERA",cat:"Suspension",precio_base:88000,oem:135674,nro:"734170",img:"amortiguador"},
-  {nombre:"PLACA MONTAJE AMORTIGUADOR",cat:"Suspension",precio_base:118000,oem:181689,nro:"619436"},
-  {nombre:"AMORTIGUADOR DE SUSPENSION DELANTERA MOTORCRAFT",cat:"Suspension",precio_base:139000,oem:212964,nro:"655247",img:"amortiguador"},
-  {nombre:"AMORTIGUADOR DELANTERO CABINA",cat:"Suspension",precio_base:121000,oem:185724,nro:"619480",img:"amortiguador"},
-  {nombre:"AMORTIGUADOR DELANTERO",cat:"Suspension",precio_base:221000,oem:339092,nro:"733458",img:"amortiguador"},
-  {nombre:"AMORTIGUADOR TRASERO 4X4",cat:"Suspension",precio_base:139000,oem:214309,nro:"655167",img:"amortiguador"},
-  {nombre:"AMORTIGUADOR DELANTERO",cat:"Suspension",precio_base:319000,oem:490683,nro:"655318",img:"amortiguador"},
-  {nombre:"AMORTIGUADOR DELANTERO",cat:"Suspension",precio_base:111000,oem:170881,nro:"821387",img:"amortiguador"},
-  {nombre:"AMORTIGUADOR DE LA SUSPENSION TRASERA",cat:"Suspension",precio_base:253000,oem:389233,nro:"10754600",img:"amortiguador"},
-  {nombre:"AMORTIGUADOR TRASERO",cat:"Suspension",precio_base:143000,oem:219581,nro:"734148",img:"amortiguador"},
-  // ══ MOTOR Y PERIFERICOS ══
-  {nombre:"JUNTA TAPA DE CILINDROS",cat:"Motor",precio_base:185000,oem:285000,img:"junta"},
-  {nombre:"BOMBA DE ACEITE",cat:"Motor",precio_base:320000,oem:490000,img:"bomba-aceite"},
-  {nombre:"CARTER DE ACEITE",cat:"Motor",precio_base:195000,oem:300000},
-  {nombre:"TAPA DE VALVULAS",cat:"Motor",precio_base:145000,oem:220000,img:"valvula"},
-  {nombre:"TENSOR DE CADENA",cat:"Motor",precio_base:95000,oem:145000},
-  {nombre:"CADENA DE DISTRIBUCION",cat:"Motor",precio_base:165000,oem:255000},
-  {nombre:"SOPORTE MOTOR DELANTERO",cat:"Motor",precio_base:110000,oem:170000},
-  {nombre:"SOPORTE MOTOR TRASERO",cat:"Motor",precio_base:95000,oem:145000},
-  {nombre:"SENSOR MAP",cat:"Motor",precio_base:72000,oem:110000,img:"sensor"},
-  // ══ TRANSMISION ══
-  {nombre:"CRUCETA DE TRANSMISION",cat:"Transmision",precio_base:85000,oem:130000},
-  {nombre:"ACEITE CAJA MANUAL 75W-90 (1L)",cat:"Transmision",precio_base:25000,oem:38000},
-  {nombre:"ACEITE CAJA AUTOMATICA ATF (1L)",cat:"Transmision",precio_base:32000,oem:50000},
-  {nombre:"SEMIEJE COMPLETO",cat:"Transmision",precio_base:465000,oem:715000,img:"semieje"},
-  // ══ ELECTRICO ══
-  {nombre:"BATERIA 12V 72AH",cat:"Electrico",precio_base:185000,oem:285000,img:"bateria"},
-  {nombre:"ALTERNADOR OEM",cat:"Electrico",precio_base:485000,oem:750000,img:"alternador"},
-  {nombre:"MOTOR DE ARRANQUE",cat:"Electrico",precio_base:385000,oem:590000,img:"arranque"},
-  {nombre:"SENSOR DE TEMPERATURA",cat:"Electrico",precio_base:45000,oem:70000,img:"sensor"},
-  {nombre:"SENSOR DE OXIGENO (SONDA LAMBDA)",cat:"Electrico",precio_base:135000,oem:210000,img:"sonda-lambda"},
-  {nombre:"BOBINA DE ENCENDIDO",cat:"Electrico",precio_base:105000,oem:160000},
-  {nombre:"BUJIA DE ENCENDIDO IRIDIUM",cat:"Electrico",precio_base:18000,oem:28000,img:"bujia"},
-  // ══ REFRIGERACION ══
-  {nombre:"RADIADOR COMPLETO",cat:"Refrigeracion",precio_base:420000,oem:650000,img:"radiador"},
-  {nombre:"TERMOSTATO OEM",cat:"Refrigeracion",precio_base:68000,oem:105000},
-  {nombre:"BOMBA DE AGUA",cat:"Refrigeracion",precio_base:175000,oem:270000,img:"bomba-agua"},
-  {nombre:"ELECTROVENTILADOR",cat:"Refrigeracion",precio_base:325000,oem:500000,img:"electroventilador"},
-  // ══ EMBRAGUE ══
-  {nombre:"KIT EMBRAGUE COMPLETO",cat:"Embrague",precio_base:580000,oem:890000,img:"disco-embrague"},
-  {nombre:"DISCO DE EMBRAGUE",cat:"Embrague",precio_base:250000,oem:385000,img:"disco-embrague"},
-  {nombre:"CILINDRO EMISOR EMBRAGUE",cat:"Embrague",precio_base:125000,oem:190000},
-  // ══ DIRECCION ══
-  {nombre:"CREMALLERA DE DIRECCION",cat:"Direccion",precio_base:280000,oem:430000,img:"cremallera"},
-  {nombre:"TERMINAL DE DIRECCION",cat:"Direccion",precio_base:55000,oem:85000},
-  // ══ LUBRICANTES ══
-  {nombre:"ACEITE MOTOR 5W-30 SINTETICO (4L)",cat:"Lubricantes",precio_base:32000,oem:49000},
-  {nombre:"ACEITE MOTOR 15W-40 DIESEL (5L)",cat:"Lubricantes",precio_base:28000,oem:43000},
-  {nombre:"REFRIGERANTE OAT (4L)",cat:"Lubricantes",precio_base:18000,oem:28000},
-  {nombre:"LIQUIDO DE FRENOS DOT4 (1L)",cat:"Lubricantes",precio_base:12000,oem:18500},
-];
-
-// Catalogo generado desde catalogo-ford.json (arriba)
 
 function mockBuscar(q){
   const ql=q.toLowerCase().trim();
