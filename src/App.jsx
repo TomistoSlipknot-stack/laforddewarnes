@@ -784,7 +784,7 @@ export default function FordWarnesApp({ user, onLogout }){
       {/* MAIN CONTENT + CHAT SIDEBAR */}
       <div style={{flex:1,display:"flex",overflow:"hidden",height:"calc(100vh - 64px)"}}>
       {/* LEFT: main content */}
-      <div style={{flex:1,display:"flex",flexDirection:"column",overflowY:"auto"}}>
+      <div style={{flex:1,display:"flex",flexDirection:"column",overflowY:"auto",marginRight:chatOpen?(esJefe?"min(480px,45vw)":"min(380px,100vw)"):0,transition:"margin .2s"}}>
       {vista==="chat"?(
         <>
           <div style={{flex:1,overflowY:"auto",padding:"16px 0"}}>
@@ -956,7 +956,7 @@ export default function FordWarnesApp({ user, onLogout }){
 
       {/* RIGHT: Chat Sidebar */}
       {chatOpen&&(
-        <div className="fw-chat-sidebar" style={{position:"fixed",right:0,top:64,bottom:0,width:esJefe?"min(480px,45vw)":"min(380px,100vw)",borderLeft:"1px solid #e0e0e0",display:"flex",flexDirection:"column",background:"#fafafa",overflow:"hidden",zIndex:30}}>
+        <div className="fw-chat-sidebar" style={{position:"fixed",right:0,top:64,bottom:0,width:esJefe?"min(480px,45vw)":"min(380px,100vw)",borderLeft:"2px solid #003478",display:"flex",flexDirection:"column",background:"#fff",overflow:"hidden",zIndex:30,boxShadow:"-4px 0 20px rgba(0,0,0,.1)"}}>
           {esJefe?(
             /* Juan sees AdminChats inline as sidebar */
             <AdminChats network={network}/>
