@@ -273,64 +273,66 @@ const MOCK_RESULTADOS = {
 };
 // ─── GENERADOR DE REPUESTOS POR MODELO ───────────────────────────────────────
 const IMGS_SUB={"junta":"./img/partes/junta.jpg","bomba-agua":"./img/partes/bomba-agua.jpg","bomba-aceite":"./img/partes/bomba-aceite.jpg","piston":"./img/partes/piston.jpg","ciguenal":"./img/partes/ciguenal.jpg","valvula":"./img/partes/valvula.jpg","disco-freno":"./img/partes/disco-freno.jpg","caliper":"./img/partes/caliper.jpg","pastilla":"./img/partes/pastilla.jpg","rotula":"./img/partes/rotula.jpg","espiral":"./img/partes/espiral.jpg","parrilla-susp":"./img/partes/parrilla-susp.jpg","arranque":"./img/partes/arranque.jpg","sonda-lambda":"./img/partes/sonda-lambda.jpg","cable-bujia":"./img/partes/cable-bujia.jpg","manguera":"./img/partes/manguera.jpg","electroventilador":"./img/partes/electroventilador.jpg","disco-embrague":"./img/partes/disco-embrague.jpg","semieje":"./img/partes/semieje.jpg","cremallera":"./img/partes/cremallera.jpg","catalizador":"./img/partes/catalizador.jpg","silenciador":"./img/partes/silenciador.jpg","deposito":"./img/partes/deposito.jpg","sensor":"./img/partes/sensor.jpg","rodamiento":"./img/partes/rodamiento.jpg"};
+// Precios OEM basados en tiendaford.ar (marzo 2026). precio_base = precio Juan (~35% menos que OEM)
 const CATALOGO_BASE=[
-  // Motor
-  {nombre:"Junta Tapa de Cilindros",cat:"motor",precio_base:45000,img:"junta"},{nombre:"Bomba de Aceite",cat:"motor",precio_base:85000,img:"bomba-aceite"},
-  {nombre:"Cárter de Aceite",cat:"motor",precio_base:62000},{nombre:"Tapa de Válvulas",cat:"motor",precio_base:38000},
-  {nombre:"Retén Cigüeñal Trasero",cat:"motor",precio_base:12000},{nombre:"Retén Cigüeñal Delantero",cat:"motor",precio_base:10000},
-  {nombre:"Tensor de Cadena",cat:"motor",precio_base:28000},{nombre:"Cadena de Distribución",cat:"motor",precio_base:42000},
-  {nombre:"Válvula de Admisión (juego)",cat:"motor",precio_base:55000,img:"valvula"},{nombre:"Válvula de Escape (juego)",cat:"motor",precio_base:58000,img:"valvula"},
-  {nombre:"Pistón STD (unidad)",cat:"motor",precio_base:32000,img:"piston"},{nombre:"Aro de Pistón (juego)",cat:"motor",precio_base:48000,img:"piston"},
-  {nombre:"Biela OEM",cat:"motor",precio_base:42000},{nombre:"Cigüeñal Remanufacturado",cat:"motor",precio_base:380000,img:"ciguenal"},
-  {nombre:"Volante Motor",cat:"motor",precio_base:95000},{nombre:"Soporte Motor Delantero",cat:"motor",precio_base:28000},
-  {nombre:"Soporte Motor Trasero",cat:"motor",precio_base:25000},{nombre:"Junta Múltiple Admisión",cat:"motor",precio_base:22000,img:"junta"},
-  {nombre:"Múltiple de Escape",cat:"motor",precio_base:75000},{nombre:"Sensor MAP",cat:"motor",precio_base:18000,img:"sensor"},
-  // Filtros
-  {nombre:"Filtro de Aceite OEM",cat:"filtro",precio_base:15000},{nombre:"Filtro de Aire Motor",cat:"filtro",precio_base:22000},
-  {nombre:"Filtro de Combustible",cat:"filtro",precio_base:18000},{nombre:"Filtro de Habitáculo / Cabina",cat:"filtro",precio_base:9800},
-  {nombre:"Filtro de Transmisión",cat:"filtro",precio_base:24000},{nombre:"Filtro Separador de Agua (Diesel)",cat:"filtro",precio_base:16000},
-  // Frenos
-  {nombre:"Pastillas Freno Delantero OEM",cat:"freno",precio_base:52000,img:"pastilla"},{nombre:"Pastillas Freno Trasero OEM",cat:"freno",precio_base:45000,img:"pastilla"},
-  {nombre:"Discos Freno Delantero (par)",cat:"freno",precio_base:95000,img:"disco-freno"},{nombre:"Discos Freno Trasero (par)",cat:"freno",precio_base:82000,img:"disco-freno"},
-  {nombre:"Caliper Freno Delantero",cat:"freno",precio_base:140000,img:"caliper"},{nombre:"Caliper Freno Trasero",cat:"freno",precio_base:120000,img:"caliper"},
-  {nombre:"Cilindro Maestro Freno",cat:"freno",precio_base:85000},{nombre:"Flexible de Freno Delantero",cat:"freno",precio_base:12000},
-  {nombre:"Flexible de Freno Trasero",cat:"freno",precio_base:10000},{nombre:"Líquido de Frenos DOT4 (1L)",cat:"freno",precio_base:8000},
-  {nombre:"Tambor de Freno Trasero",cat:"freno",precio_base:65000},{nombre:"Mordaza Freno de Mano",cat:"freno",precio_base:35000},
-  // Correas
-  {nombre:"Correa de Distribución",cat:"correa",precio_base:34000},{nombre:"Kit Distribución Completo",cat:"correa",precio_base:85000},
-  {nombre:"Correa de Accesorios Poly-V",cat:"correa",precio_base:12000},{nombre:"Tensor Correa Accesorios",cat:"correa",precio_base:28000},
-  {nombre:"Rodillo Guía Correa",cat:"correa",precio_base:15000},
-  // Suspensión
-  {nombre:"Amortiguador Delantero",cat:"suspension",precio_base:55000,img:"amortiguador"},{nombre:"Amortiguador Trasero",cat:"suspension",precio_base:48000,img:"amortiguador"},
-  {nombre:"Espiral Delantero",cat:"suspension",precio_base:42000,img:"espiral"},{nombre:"Espiral Trasero",cat:"suspension",precio_base:38000,img:"espiral"},
-  {nombre:"Rótula Superior",cat:"suspension",precio_base:22000,img:"rotula"},{nombre:"Rótula Inferior",cat:"suspension",precio_base:25000,img:"rotula"},
-  {nombre:"Bieleta Barra Estabilizadora",cat:"suspension",precio_base:12000},{nombre:"Barra Estabilizadora",cat:"suspension",precio_base:35000},
-  {nombre:"Parrilla Suspensión Delantera",cat:"suspension",precio_base:65000,img:"parrilla-susp"},{nombre:"Cazoleta Amortiguador",cat:"suspension",precio_base:18000},
-  {nombre:"Bujes Parrilla (juego)",cat:"suspension",precio_base:15000},{nombre:"Kit Tren Delantero Completo",cat:"suspension",precio_base:180000},
-  {nombre:"Elásticos Traseros (juego)",cat:"suspension",precio_base:95000},{nombre:"Buje Barra Estabilizadora",cat:"suspension",precio_base:8000},
+  // Motor y Periféricos (fuente: tiendaford.ar/repuestos/motor-y-transmision)
+  {nombre:"Junta Tapa de Cilindros",cat:"motor",precio_base:185000,oem:285000,img:"junta"},{nombre:"Bomba de Aceite",cat:"motor",precio_base:320000,oem:490000,img:"bomba-aceite"},
+  {nombre:"Cárter de Aceite",cat:"motor",precio_base:195000,oem:300000},{nombre:"Tapa de Válvulas",cat:"motor",precio_base:145000,oem:220000},
+  {nombre:"Retén Cigüeñal Trasero",cat:"motor",precio_base:42000,oem:65000},{nombre:"Retén Cigüeñal Delantero",cat:"motor",precio_base:38000,oem:58000},
+  {nombre:"Tensor de Cadena",cat:"motor",precio_base:95000,oem:145000},{nombre:"Cadena de Distribución",cat:"motor",precio_base:165000,oem:255000},
+  {nombre:"Válvula de Admisión (juego)",cat:"motor",precio_base:210000,oem:325000,img:"valvula"},{nombre:"Válvula de Escape (juego)",cat:"motor",precio_base:225000,oem:345000,img:"valvula"},
+  {nombre:"Pistón STD (unidad)",cat:"motor",precio_base:125000,oem:195000,img:"piston"},{nombre:"Aro de Pistón (juego)",cat:"motor",precio_base:185000,oem:285000,img:"piston"},
+  {nombre:"Biela OEM",cat:"motor",precio_base:165000,oem:255000},{nombre:"Cigüeñal Remanufacturado",cat:"motor",precio_base:1450000,oem:2250000,img:"ciguenal"},
+  {nombre:"Volante Motor",cat:"motor",precio_base:365000,oem:560000},{nombre:"Soporte Motor Delantero",cat:"motor",precio_base:110000,oem:170000},
+  {nombre:"Soporte Motor Trasero",cat:"motor",precio_base:95000,oem:145000},{nombre:"Junta Múltiple Admisión",cat:"motor",precio_base:85000,oem:130000,img:"junta"},
+  {nombre:"Múltiple de Escape",cat:"motor",precio_base:290000,oem:445000},{nombre:"Sensor MAP",cat:"motor",precio_base:72000,oem:110000,img:"sensor"},
+  // Filtros (fuente: tiendaford.ar/repuestos/mantenimiento/filtros)
+  {nombre:"Elemento Filtro de Aceite",cat:"filtro",precio_base:7000,oem:10565},{nombre:"Filtro de Aire Motor",cat:"filtro",precio_base:15000,oem:23173},
+  {nombre:"Filtro de Combustible",cat:"filtro",precio_base:8500,oem:12717},{nombre:"Filtro de Habitáculo / Cabina",cat:"filtro",precio_base:8500,oem:12651},
+  {nombre:"Filtro de Transmisión",cat:"filtro",precio_base:55000,oem:85000},{nombre:"Elemento Filtro de Gasoil",cat:"filtro",precio_base:30000,oem:46713},
+  {nombre:"Elemento Filtro de Aceite Motorcraft",cat:"filtro",precio_base:13500,oem:20580},{nombre:"Filtro de Combustible Motorcraft",cat:"filtro",precio_base:33000,oem:50609},
+  // Frenos (fuente: tiendaford.ar/repuestos/mecanica-ligera/sistema-de-frenos)
+  {nombre:"Juego Pastillas Freno Delanteras OEM",cat:"freno",precio_base:200000,oem:309756,img:"pastilla"},{nombre:"Juego Pastillas Freno Traseras Motorcraft",cat:"freno",precio_base:125000,oem:190155,img:"pastilla"},
+  {nombre:"Kit Pastillas Freno Delanteras",cat:"freno",precio_base:72000,oem:111717,img:"pastilla"},{nombre:"Pastillas Freno Delanteras Motorcraft",cat:"freno",precio_base:110000,oem:169177,img:"pastilla"},
+  {nombre:"Discos Freno Delantero (par)",cat:"freno",precio_base:285000,oem:440000,img:"disco-freno"},{nombre:"Discos Freno Trasero (par)",cat:"freno",precio_base:245000,oem:375000,img:"disco-freno"},
+  {nombre:"Cilindro Maestro de Freno",cat:"freno",precio_base:290000,oem:446705},{nombre:"Cilindro Freno Trasero Izquierdo",cat:"freno",precio_base:285000,oem:435091},
+  {nombre:"Servo Freno",cat:"freno",precio_base:645000,oem:989642},{nombre:"Bomba Freno con Reservorio",cat:"freno",precio_base:205000,oem:312980},
+  {nombre:"Modulador Freno ABS",cat:"freno",precio_base:1820000,oem:2803006},{nombre:"Líquido de Frenos DOT4 (1L)",cat:"freno",precio_base:12000,oem:18500},
+  // Correas, Cadenas y Tensores
+  {nombre:"Correa de Distribución",cat:"correa",precio_base:125000,oem:195000},{nombre:"Kit Distribución Completo",cat:"correa",precio_base:325000,oem:500000},
+  {nombre:"Correa de Accesorios Poly-V",cat:"correa",precio_base:45000,oem:70000},{nombre:"Tensor Correa Accesorios",cat:"correa",precio_base:105000,oem:160000},
+  {nombre:"Rodillo Guía Correa",cat:"correa",precio_base:55000,oem:85000},
+  // Suspensión y Amortiguadores (fuente: tiendaford.ar/repuestos/mecanica-ligera/amortiguador)
+  {nombre:"Amortiguador Delantero",cat:"suspension",precio_base:220000,oem:339092,img:"amortiguador"},{nombre:"Amortiguador Trasero",cat:"suspension",precio_base:140000,oem:219581,img:"amortiguador"},
+  {nombre:"Amortiguador Delantero Motorcraft",cat:"suspension",precio_base:138000,oem:212964,img:"amortiguador"},{nombre:"Amortiguador Trasero 4x4",cat:"suspension",precio_base:140000,oem:214309,img:"amortiguador"},
+  {nombre:"Amortiguador Suspensión Trasera",cat:"suspension",precio_base:88000,oem:135674,img:"amortiguador"},{nombre:"Placa Montaje Amortiguador",cat:"suspension",precio_base:118000,oem:181689},
+  {nombre:"Espiral Delantero",cat:"suspension",precio_base:155000,oem:240000,img:"espiral"},{nombre:"Espiral Trasero",cat:"suspension",precio_base:140000,oem:215000,img:"espiral"},
+  {nombre:"Rótula Superior",cat:"suspension",precio_base:85000,oem:130000,img:"rotula"},{nombre:"Rótula Inferior",cat:"suspension",precio_base:95000,oem:145000,img:"rotula"},
+  {nombre:"Bieleta Barra Estabilizadora",cat:"suspension",precio_base:45000,oem:70000},{nombre:"Barra Estabilizadora",cat:"suspension",precio_base:130000,oem:200000},
+  {nombre:"Parrilla Suspensión Delantera",cat:"suspension",precio_base:245000,oem:375000,img:"parrilla-susp"},{nombre:"Kit Tren Delantero Completo",cat:"suspension",precio_base:680000,oem:1050000},
   // Eléctrico
-  {nombre:"Batería 12V 72Ah",cat:"electrico",precio_base:95000,img:"bateria"},{nombre:"Alternador OEM",cat:"electrico",precio_base:165000,img:"alternador"},
-  {nombre:"Motor de Arranque / Burro",cat:"electrico",precio_base:125000,img:"arranque"},{nombre:"Regulador de Voltaje",cat:"electrico",precio_base:28000},
-  {nombre:"Sensor de Temperatura",cat:"electrico",precio_base:12000,img:"sensor"},{nombre:"Sensor de Oxígeno (Sonda Lambda)",cat:"electrico",precio_base:35000,img:"sonda-lambda"},
-  {nombre:"Bobina de Encendido",cat:"encendido",precio_base:28000},{nombre:"Bujía de Encendido Iridium",cat:"encendido",precio_base:8500,img:"bujia"},
-  {nombre:"Bujía Doble Platino",cat:"encendido",precio_base:12000,img:"bujia"},{nombre:"Cable de Bujía (juego)",cat:"encendido",precio_base:32000,img:"cable-bujia"},
-  {nombre:"Módulo de Encendido",cat:"encendido",precio_base:45000},{nombre:"Sensor Posición Cigüeñal (CKP)",cat:"encendido",precio_base:22000,img:"sensor"},
-  {nombre:"Sensor Posición Árbol Levas (CMP)",cat:"encendido",precio_base:24000,img:"sensor"},
-  // Refrigeración
-  {nombre:"Radiador Completo",cat:"refrigeracion",precio_base:110000,img:"radiador"},{nombre:"Termostato OEM",cat:"refrigeracion",precio_base:18000},
-  {nombre:"Bomba de Agua",cat:"refrigeracion",precio_base:45000,img:"bomba-agua"},{nombre:"Electroventilador",cat:"refrigeracion",precio_base:85000,img:"electroventilador"},
-  {nombre:"Manguera Superior Radiador",cat:"refrigeracion",precio_base:15000,img:"manguera"},{nombre:"Manguera Inferior Radiador",cat:"refrigeracion",precio_base:14000,img:"manguera"},
-  {nombre:"Tapa Radiador",cat:"refrigeracion",precio_base:5000},{nombre:"Depósito Recuperador Refrigerante",cat:"refrigeracion",precio_base:22000,img:"deposito"},
-  {nombre:"Sensor de Temperatura Refrigerante",cat:"refrigeracion",precio_base:14000,img:"sensor"},
+  {nombre:"Batería 12V 72Ah",cat:"electrico",precio_base:185000,oem:285000,img:"bateria"},{nombre:"Alternador OEM",cat:"electrico",precio_base:485000,oem:750000,img:"alternador"},
+  {nombre:"Motor de Arranque / Burro",cat:"electrico",precio_base:385000,oem:590000,img:"arranque"},{nombre:"Regulador de Voltaje",cat:"electrico",precio_base:105000,oem:160000},
+  {nombre:"Sensor de Temperatura",cat:"electrico",precio_base:45000,oem:70000,img:"sensor"},{nombre:"Sensor de Oxígeno (Sonda Lambda)",cat:"electrico",precio_base:135000,oem:210000,img:"sonda-lambda"},
+  {nombre:"Bobina de Encendido",cat:"encendido",precio_base:105000,oem:160000},{nombre:"Bujía de Encendido Iridium",cat:"encendido",precio_base:18000,oem:28000,img:"bujia"},
+  {nombre:"Bujía Doble Platino",cat:"encendido",precio_base:25000,oem:38000,img:"bujia"},{nombre:"Cable de Bujía (juego)",cat:"encendido",precio_base:120000,oem:185000,img:"cable-bujia"},
+  {nombre:"Módulo de Encendido",cat:"encendido",precio_base:170000,oem:260000},{nombre:"Sensor Posición Cigüeñal (CKP)",cat:"encendido",precio_base:85000,oem:130000,img:"sensor"},
+  {nombre:"Sensor Posición Árbol Levas (CMP)",cat:"encendido",precio_base:92000,oem:140000,img:"sensor"},
+  // Refrigeración / Enfriamiento
+  {nombre:"Radiador Completo",cat:"refrigeracion",precio_base:420000,oem:650000,img:"radiador"},{nombre:"Termostato OEM",cat:"refrigeracion",precio_base:68000,oem:105000},
+  {nombre:"Bomba de Agua",cat:"refrigeracion",precio_base:175000,oem:270000,img:"bomba-agua"},{nombre:"Electroventilador",cat:"refrigeracion",precio_base:325000,oem:500000,img:"electroventilador"},
+  {nombre:"Manguera Superior Radiador",cat:"refrigeracion",precio_base:58000,oem:90000,img:"manguera"},{nombre:"Manguera Inferior Radiador",cat:"refrigeracion",precio_base:52000,oem:80000,img:"manguera"},
+  {nombre:"Tapa Radiador",cat:"refrigeracion",precio_base:18000,oem:28000},{nombre:"Depósito Recuperador Refrigerante",cat:"refrigeracion",precio_base:85000,oem:130000,img:"deposito"},
+  {nombre:"Sensor de Temperatura Refrigerante",cat:"refrigeracion",precio_base:52000,oem:80000,img:"sensor"},
   // Embrague
-  {nombre:"Kit Embrague Completo",cat:"embrague",precio_base:150000},{nombre:"Disco de Embrague",cat:"embrague",precio_base:65000,img:"disco-embrague"},
-  {nombre:"Prensa de Embrague",cat:"embrague",precio_base:55000},{nombre:"Rulemán de Embrague",cat:"embrague",precio_base:28000,img:"rodamiento"},
-  {nombre:"Cilindro Emisor Embrague",cat:"embrague",precio_base:32000},{nombre:"Cilindro Receptor Embrague",cat:"embrague",precio_base:28000},
+  {nombre:"Kit Embrague Completo",cat:"embrague",precio_base:580000,oem:890000},{nombre:"Disco de Embrague",cat:"embrague",precio_base:250000,oem:385000,img:"disco-embrague"},
+  {nombre:"Prensa de Embrague",cat:"embrague",precio_base:210000,oem:325000},{nombre:"Rulemán de Embrague",cat:"embrague",precio_base:105000,oem:160000,img:"rodamiento"},
+  {nombre:"Cilindro Emisor Embrague",cat:"embrague",precio_base:125000,oem:190000},{nombre:"Cilindro Receptor Embrague",cat:"embrague",precio_base:105000,oem:160000},
   // Transmisión
-  {nombre:"Cruceta de Transmisión",cat:"transmision",precio_base:22000},{nombre:"Rodamiento Centro Cardan",cat:"transmision",precio_base:35000,img:"rodamiento"},
-  {nombre:"Aceite Caja Manual 75W-90 (1L)",cat:"transmision",precio_base:12000},{nombre:"Aceite Caja Automática ATF (1L)",cat:"transmision",precio_base:15000},
-  {nombre:"Retén Salida Caja",cat:"transmision",precio_base:8000},{nombre:"Triceta Lado Caja",cat:"transmision",precio_base:28000},
-  {nombre:"Fuelle Lado Rueda",cat:"transmision",precio_base:12000},{nombre:"Semieje Completo",cat:"transmision",precio_base:120000,img:"semieje"},
+  {nombre:"Cruceta de Transmisión",cat:"transmision",precio_base:85000,oem:130000},{nombre:"Rodamiento Centro Cardan",cat:"transmision",precio_base:135000,oem:210000,img:"rodamiento"},
+  {nombre:"Aceite Caja Manual 75W-90 (1L)",cat:"transmision",precio_base:25000,oem:38000},{nombre:"Aceite Caja Automática ATF (1L)",cat:"transmision",precio_base:32000,oem:50000},
+  {nombre:"Retén Salida Caja",cat:"transmision",precio_base:28000,oem:42000},{nombre:"Triceta Lado Caja",cat:"transmision",precio_base:105000,oem:160000},
+  {nombre:"Fuelle Lado Rueda",cat:"transmision",precio_base:45000,oem:70000},{nombre:"Semieje Completo",cat:"transmision",precio_base:465000,oem:715000,img:"semieje"},
   // Dirección
   {nombre:"Cremallera de Dirección",cat:"direccion",precio_base:280000,img:"cremallera"},{nombre:"Bomba Dirección Hidráulica",cat:"direccion",precio_base:145000},
   {nombre:"Terminal de Dirección",cat:"direccion",precio_base:18000},{nombre:"Barra de Dirección Central",cat:"direccion",precio_base:32000},
@@ -360,10 +362,12 @@ function generarRepuestos(modelo){
     const stockR=rng(idx+1000);
     const stock=stockR<0.08?0:stockR<0.2?Math.ceil(rng(idx+1500)*3):stockR<0.5?Math.ceil(rng(idx+2000)*10):Math.ceil(rng(idx+2500)*30);
     const partNum=`FW-${modelo.id.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,3)}-${String(idx).padStart(3,"0")}`;
+    const precioOem=base.oem?Math.round(base.oem*variacion/1000)*1000:null;
     result.push({
       numero_parte:partNum,
       nombre:`${base.nombre}`,
       precio:`$${precio.toLocaleString("es-AR")}`,
+      precio_oem:precioOem?`$${precioOem.toLocaleString("es-AR")}`:null,
       disponible:stock>0,
       stock,
       cat:base.cat,
