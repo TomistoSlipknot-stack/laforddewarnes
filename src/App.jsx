@@ -263,9 +263,10 @@ const FRASES_GOLPE=["¡¡AUCH!! ¡¡NO ME PEGUES!!","¡YA NO VOY A SER TAN ESTRI
 // ─── CSS ──────────────────────────────────────────────────────────────────────
 const GCSS=`
   *{box-sizing:border-box}
-  ::-webkit-scrollbar{width:4px}
-  ::-webkit-scrollbar-track{background:#f0f0f0}
-  ::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
+  ::-webkit-scrollbar{width:10px}
+  ::-webkit-scrollbar-track{background:#e8e8e8}
+  ::-webkit-scrollbar-thumb{background:#bbb;border-radius:5px}
+  ::-webkit-scrollbar-thumb:hover{background:#999}
   @keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   @keyframes bounce-bob{0%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(-12px) scale(1.06)}75%{transform:translateY(-3px) scale(.98)}}
   @keyframes bubble-in{0%{opacity:0;transform:scale(.7) translateY(6px)}100%{opacity:1;transform:scale(1) translateY(0)}}
@@ -283,25 +284,37 @@ const GCSS=`
   @keyframes head-punch{0%{transform:scale(1)}10%{transform:scale(.75) rotate(-15deg)}30%{transform:scale(1.2) rotate(10deg)}50%{transform:scale(.9) rotate(-5deg)}70%{transform:scale(1.05)}100%{transform:scale(1)}}
   input,button{-webkit-tap-highlight-color:transparent}
   @media(max-width:640px){
-    .fw-header{padding:0 10px !important;height:50px !important}
+    .fw-header{padding:0 8px !important;height:48px !important}
     .fw-logo-text{display:none !important}
-    .fw-nav-btn{padding:4px 10px !important;font-size:11px !important}
+    .fw-nav-btn{padding:4px 8px !important;font-size:10px !important}
+    .fw-nav-btn svg{display:none !important}
     .fw-juan-label{display:none !important}
-    .fw-juan-btn{padding:5px 8px !important}
-    .fw-chat-inner{padding:0 10px !important}
-    .fw-input-bar{padding:8px 10px 12px !important}
-    .fw-cat-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr)) !important;gap:8px !important}
-    .fw-rep-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr)) !important;gap:8px !important}
-    .fw-modelo-hero{padding:14px 16px !important}
-    .fw-modelo-hero-title{font-size:22px !important}
-    .fw-boss-panel{width:100% !important;top:50px !important}
-    .fw-suggestions{padding:0 10px 10px !important}
+    .fw-juan-btn{padding:4px 6px !important}
+    .fw-chat-inner{padding:0 8px !important}
+    .fw-input-bar{padding:6px 8px 10px !important}
+    .fw-cat-grid{grid-template-columns:repeat(2,1fr) !important;gap:8px !important}
+    .fw-rep-grid{grid-template-columns:1fr !important;gap:10px !important}
+    .fw-modelo-hero{padding:12px 14px !important;border-radius:8px !important}
+    .fw-modelo-hero-title{font-size:20px !important}
+    .fw-boss-panel{width:100% !important;top:48px !important}
+    .fw-suggestions{padding:0 8px 8px !important}
     .fw-footer-text{display:none !important}
     .fw-online-dot{display:none !important}
+    .fw-cat-sidebar{display:none !important}
+    .fw-chat-sidebar{width:100% !important;position:fixed !important;top:48px !important;left:0 !important;right:0 !important;bottom:0 !important;z-index:100 !important;border:none !important}
+    .fw-modal-inner{flex-direction:column !important}
+    .fw-modal-img{min-height:200px !important;max-height:200px !important}
+    .fw-modal-info{padding:16px !important}
+    .fw-catalog-wrap{padding:12px 8px !important}
+    .fw-role-badge{display:none !important}
+    .fw-rep-card-img{height:140px !important}
+    .fw-rep-card-btns{flex-direction:column !important}
+    .fw-rep-card-btns button{padding:10px 0 !important}
   }
   @media(min-width:641px) and (max-width:1024px){
-    .fw-cat-grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr)) !important}
-    .fw-rep-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr)) !important}
+    .fw-cat-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr)) !important}
+    .fw-rep-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr)) !important;gap:12px !important}
+    .fw-chat-sidebar{width:min(360px,45vw) !important}
   }
 `;
 
@@ -707,7 +720,7 @@ export default function FordWarnesApp({ user, onLogout }){
             <div style={{fontWeight:700,fontSize:15,letterSpacing:"-.01em"}}>Ford de Warnes</div>
             <div style={{fontSize:10,color:"#999",textTransform:"uppercase",letterSpacing:".07em"}}>Buscar Partes y Stock</div>
           </div>
-          <div style={{background:esJefe?"rgba(234,179,8,.12)":role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.08)",border:`1px solid ${esJefe?"rgba(234,179,8,.3)":role==="employee"?"rgba(34,197,94,.25)":"rgba(102,153,255,.2)"}`,borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:700,color:esJefe?"#fbbf24":role==="employee"?"#22c55e":"#6699ff",textTransform:"uppercase",letterSpacing:".06em"}}>
+          <div className="fw-role-badge" style={{background:esJefe?"rgba(234,179,8,.12)":role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.08)",border:`1px solid ${esJefe?"rgba(234,179,8,.3)":role==="employee"?"rgba(34,197,94,.25)":"rgba(102,153,255,.2)"}`,borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:700,color:esJefe?"#fbbf24":role==="employee"?"#22c55e":"#6699ff",textTransform:"uppercase",letterSpacing:".06em"}}>
             {esJefe?"Jefe":role==="employee"?"Empleado":"Cliente"}
           </div>
         </div>
@@ -853,7 +866,7 @@ export default function FordWarnesApp({ user, onLogout }){
         </div>
       ):(
         <div style={{flex:1,overflowY:"auto"}}>
-          <div style={{maxWidth:1000,margin:"0 auto",padding:"24px 16px"}}>
+          <div className="fw-catalog-wrap" style={{maxWidth:1000,margin:"0 auto",padding:"24px 16px"}}>
             {!modeloSel?(
               <>
                 <h2 style={{fontSize:24,fontWeight:800,color:"#1a1a1a",margin:"0 0 4px"}}>Repuestos Ford</h2>
@@ -874,7 +887,9 @@ export default function FordWarnesApp({ user, onLogout }){
               const filtered=catFilter?allParts.filter(p=>p.cat===catFilter):allParts;
               return(
               <>
-                <button onClick={()=>{setModeloSel(null);setCatFilter(null);}} style={{background:"none",border:"none",color:"#003478",cursor:"pointer",fontSize:13,padding:0,fontFamily:"inherit",marginBottom:16,fontWeight:500}}>← Volver al catalogo</button>
+                <div style={{position:"sticky",top:56,zIndex:10,background:"#d5d5d5",padding:"10px 0",marginBottom:8}}>
+                  <button onClick={()=>{setModeloSel(null);setCatFilter(null);}} style={{background:"#fff",border:"1px solid #003478",color:"#003478",cursor:"pointer",fontSize:13,padding:"8px 20px",fontFamily:"inherit",fontWeight:600,borderRadius:20,boxShadow:"0 2px 8px rgba(0,0,0,.1)"}}>← Volver al catalogo</button>
+                </div>
                 {/* Hero del modelo */}
                 <div className="fw-modelo-hero" style={{background:modeloSel.color,borderRadius:12,padding:"20px 24px",marginBottom:20,overflow:"hidden",position:"relative",color:"#fff"}}>
                   {IMGS_MODELO[modeloSel.id]&&<img src={IMGS_MODELO[modeloSel.id]} alt={modeloSel.nombre} style={{position:"absolute",right:0,top:0,height:"100%",width:"55%",objectFit:"cover",objectPosition:"center",opacity:.3}}/>}
@@ -883,7 +898,7 @@ export default function FordWarnesApp({ user, onLogout }){
                 {/* Layout: sidebar categorías + grid repuestos */}
                 <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
                   {/* Sidebar categorías — como tiendaford.ar */}
-                  <div style={{width:200,flexShrink:0,background:"#fff",border:"1px solid #e0e0e0",borderRadius:8,padding:16,position:"sticky",top:72}}>
+                  <div className="fw-cat-sidebar" style={{width:200,flexShrink:0,background:"#fff",border:"1px solid #e0e0e0",borderRadius:8,padding:16,position:"sticky",top:72}}>
                     <div style={{fontSize:14,fontWeight:700,color:"#003478",marginBottom:12}}>Categoria</div>
                     <div onClick={()=>setCatFilter(null)} style={{padding:"6px 0",fontSize:13,color:!catFilter?"#003478":"#555",fontWeight:!catFilter?700:400,cursor:"pointer",borderBottom:"1px solid #f0f0f0"}}>
                       Todos ({allParts.length})
@@ -920,7 +935,7 @@ export default function FordWarnesApp({ user, onLogout }){
 
       {/* RIGHT: Chat Sidebar */}
       {chatOpen&&(
-        <div style={{width:esJefe?"min(480px,45vw)":"min(380px,100vw)",flexShrink:0,borderLeft:"1px solid #1c2030",display:"flex",flexDirection:"column",background:"#fafafa",overflow:"hidden"}}>
+        <div className="fw-chat-sidebar" style={{width:esJefe?"min(480px,45vw)":"min(380px,100vw)",flexShrink:0,borderLeft:"1px solid #e0e0e0",display:"flex",flexDirection:"column",background:"#fafafa",overflow:"hidden"}}>
           {esJefe?(
             /* Juan sees AdminChats inline as sidebar */
             <AdminChats network={network}/>
@@ -969,7 +984,7 @@ function RepCard({r,onClick,onConsultar}){
     <div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:4,transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,0,0,.08)":"none"}}
       onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
       {/* Image */}
-      <div onClick={onClick} style={{width:"100%",height:180,background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid #eee",cursor:"pointer"}}>
+      <div className="fw-rep-card-img" onClick={onClick} style={{width:"100%",height:180,background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid #eee",cursor:"pointer"}}>
         {partImg&&!imgErr?<img src={partImg} alt={r.cat} onError={()=>setImgErr(true)} style={{maxWidth:"85%",maxHeight:"85%",objectFit:"contain",transition:"transform .2s",transform:hov?"scale(1.05)":"scale(1)"}}/>:<Ic size={64}/>}
       </div>
       <div style={{padding:"16px 18px"}}>
@@ -997,7 +1012,7 @@ function RepCard({r,onClick,onConsultar}){
           }
         </div>
         {/* Buttons */}
-        <div style={{display:"flex",gap:8}}>
+        <div className="fw-rep-card-btns" style={{display:"flex",gap:8}}>
           <button onClick={onClick} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:"#fff",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>
             Ver detalle
           </button>
@@ -1074,13 +1089,13 @@ function Modal({parte:r,onClose,onConsultar}){
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:8,maxWidth:820,width:"100%",maxHeight:"90vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
         {/* Layout like tiendaford.ar — image left, info right */}
-        <div style={{display:"flex",flexWrap:"wrap"}}>
+        <div className="fw-modal-inner" style={{display:"flex",flexWrap:"wrap"}}>
           {/* Image */}
-          <div style={{flex:"1 1 340px",minHeight:300,background:"#f8f9fa",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+          <div className="fw-modal-img" style={{flex:"1 1 340px",minHeight:300,background:"#f8f9fa",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
             {pImg?<img src={pImg} alt={r.cat} style={{maxWidth:"100%",maxHeight:280,objectFit:"contain"}} onError={e=>{e.target.style.display="none"}}/>:<Ic size={120}/>}
           </div>
           {/* Info */}
-          <div style={{flex:"1 1 340px",padding:"28px 32px"}}>
+          <div className="fw-modal-info" style={{flex:"1 1 340px",padding:"28px 32px"}}>
             {/* Breadcrumb */}
             <div style={{fontSize:12,color:"#003478",marginBottom:12}}>
               Repuestos / <span style={{textTransform:"capitalize"}}>{r.cat}</span>
