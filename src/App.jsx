@@ -821,12 +821,13 @@ function FloatingHead({state, hidden}) {
 export default function FordWarnesApp({ user, onLogout }){
   const role = user?.role || 'public';
   const esJefe = role === 'admin';
-  const [vista,     setVista]     = useState("chat");
+  const [vista,     setVista]     = useState("catalogo");
   const [messages,  setMessages]  = useState([{id:1,type:"system",text:"Sistema listo. Escribí la pieza que necesitás."}]);
   const [input,     setInput]     = useState("");
   const [botState,  setBotState]  = useState("idle");
   const [modeloSel, setModeloSel] = useState(null);
   const [parteSel,  setParteSel]  = useState(null);
+  const [catFilter, setCatFilter] = useState(null); // filtro de categoría de repuestos
   const [chatOpen,  setChatOpen]  = useState(false);
   const [adminTab,  setAdminTab]  = useState("chats"); // stock | chats | online | logs
   const bottomRef=useRef(null);
@@ -888,8 +889,8 @@ export default function FordWarnesApp({ user, onLogout }){
         </div>
         <div style={{display:"flex",gap:5,alignItems:"center"}}>
           {[
+            {id:"catalogo",label:"Catalogo",icon:"M4 6h16M4 10h16M4 14h16M4 18h16"},
             {id:"chat",label:"Buscar",icon:"M21 21l-4.35-4.35M11 3a8 8 0 100 16 8 8 0 000-16z"},
-            {id:"catalogo",label:"Catálogo",icon:"M4 6h16M4 10h16M4 14h16M4 18h16"},
             ...(esJefe?[{id:"admin",label:"Panel",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
           ].map(t=>(
             <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":"transparent",border:`1px solid ${vista===t.id?"#1a5cc8":"#1c2030"}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:vista===t.id?"#fff":"#555870",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?600:400,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}>
@@ -1031,29 +1032,58 @@ export default function FordWarnesApp({ user, onLogout }){
           <div style={{maxWidth:1000,margin:"0 auto",padding:"24px 16px"}}>
             {!modeloSel?(
               <>
-                <h2 style={{fontSize:22,fontWeight:800,color:"#1a1a1a",margin:"0 0 4px"}}>Catalogo de Repuestos</h2>
-                <p style={{fontSize:14,color:"#888",margin:"0 0 24px"}}>{MOCK_MODELOS.length} modelos disponibles — Selecciona un modelo para ver repuestos</p>
+                <h2 style={{fontSize:24,fontWeight:800,color:"#1a1a1a",margin:"0 0 4px"}}>Repuestos Ford</h2>
+                <p style={{fontSize:14,color:"#888",margin:"0 0 8px"}}>Selecciona tu modelo para ver repuestos disponibles</p>
+                <p style={{fontSize:12,color:"#aaa",margin:"0 0 28px"}}>{MOCK_MODELOS.length} modelos · Precios de referencia · Stock sujeto a disponibilidad</p>
                 {categorias.map(cat=>(
-                  <div key={cat} style={{marginBottom:24}}>
-                    <div style={{fontSize:13,fontWeight:700,color:"#6699ff",textTransform:"uppercase",letterSpacing:".08em",marginBottom:10,paddingBottom:6,borderBottom:"1px solid #e8e8e8"}}>{cat}</div>
-                    <div className="fw-cat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(185px,1fr))",gap:10}}>
+                  <div key={cat} style={{marginBottom:28}}>
+                    <div style={{fontSize:15,fontWeight:800,color:"#003478",marginBottom:14,paddingBottom:8,borderBottom:"2px solid #003478",display:"inline-block"}}>{cat}</div>
+                    <div className="fw-cat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:14}}>
                       {MOCK_MODELOS.filter(m=>m.cat===cat).map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>setModeloSel(m)}/>)}
                     </div>
                   </div>
                 ))}
               </>
-            ):(
+            ):(()=>{
+              const allParts=repsPorModelo(modeloSel.id);
+              const partCats=[...new Set(allParts.map(p=>p.cat))];
+              const filtered=catFilter?allParts.filter(p=>p.cat===catFilter):allParts;
+              return(
               <>
-                <button onClick={()=>setModeloSel(null)} style={{background:"none",border:"none",color:"#666",cursor:"pointer",fontSize:13,padding:0,fontFamily:"inherit",marginBottom:16}}>← Volver al catálogo</button>
-                <div className="fw-modelo-hero" style={{background:modeloSel.color,borderRadius:16,padding:"20px 24px",marginBottom:20,overflow:"hidden",position:"relative"}}>
+                <button onClick={()=>{setModeloSel(null);setCatFilter(null);}} style={{background:"none",border:"none",color:"#003478",cursor:"pointer",fontSize:13,padding:0,fontFamily:"inherit",marginBottom:16,fontWeight:500}}>← Volver al catalogo</button>
+                {/* Hero del modelo */}
+                <div className="fw-modelo-hero" style={{background:modeloSel.color,borderRadius:12,padding:"20px 24px",marginBottom:20,overflow:"hidden",position:"relative",color:"#fff"}}>
                   {IMGS_MODELO[modeloSel.id]&&<img src={IMGS_MODELO[modeloSel.id]} alt={modeloSel.nombre} style={{position:"absolute",right:0,top:0,height:"100%",width:"55%",objectFit:"cover",objectPosition:"center",opacity:.3}}/>}
-                  <div style={{position:"relative"}}><div className="fw-modelo-hero-title" style={{fontSize:28,fontWeight:800}}>{modeloSel.nombre}</div><div style={{fontSize:13,opacity:.7}}>{modeloSel.año} · {modeloSel.total_repuestos} repuestos · {modeloSel.cat}</div></div>
+                  <div style={{position:"relative"}}><div className="fw-modelo-hero-title" style={{fontSize:28,fontWeight:800}}>{modeloSel.nombre}</div><div style={{fontSize:13,opacity:.8}}>{modeloSel.año} · {allParts.length} repuestos</div></div>
                 </div>
-                <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16}}>
-                  {repsPorModelo(modeloSel.id).map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)}/>)}
+                {/* Layout: sidebar categorías + grid repuestos */}
+                <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
+                  {/* Sidebar categorías — como tiendaford.ar */}
+                  <div style={{width:200,flexShrink:0,background:"#fff",border:"1px solid #e0e0e0",borderRadius:8,padding:16,position:"sticky",top:72}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#003478",marginBottom:12}}>Categoria</div>
+                    <div onClick={()=>setCatFilter(null)} style={{padding:"6px 0",fontSize:13,color:!catFilter?"#003478":"#555",fontWeight:!catFilter?700:400,cursor:"pointer",borderBottom:"1px solid #f0f0f0"}}>
+                      Todos ({allParts.length})
+                    </div>
+                    {partCats.map(c=>{
+                      const count=allParts.filter(p=>p.cat===c).length;
+                      return(
+                        <div key={c} onClick={()=>setCatFilter(c)} style={{padding:"6px 0",fontSize:13,color:catFilter===c?"#003478":"#555",fontWeight:catFilter===c?700:400,cursor:"pointer",borderBottom:"1px solid #f0f0f0"}}>
+                          {c} ({count})
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* Grid repuestos */}
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:13,color:"#888",marginBottom:12}}>{filtered.length} resultado{filtered.length!==1?"s":""}{catFilter?` en ${catFilter}`:""}</div>
+                    <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
+                      {filtered.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)}/>)}
+                    </div>
+                  </div>
                 </div>
               </>
-            )}
+              );})()
+            }
           </div>
         </div>
       )}
