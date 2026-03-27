@@ -78,40 +78,48 @@ const IMGS_PARTE = {
   "alternador":"./img/partes/alternador.jpg","radiador":"./img/partes/radiador.jpg",
   "amortiguador":"./img/partes/amortiguador.jpg","bujia":"./img/partes/bujia.jpg",
 };
+// Modelos exactos del mercado argentino (fuente: tiendaford.ar)
 const MOCK_MODELOS = [
-  // ── Pickups & Trucks ──
-  {id:"f-150",      nombre:"F-150",         año:"2015-2024",total_repuestos:342,color:"#0d3b8c",cat:"Pickups"},
-  {id:"f-250",      nombre:"F-250 Super Duty",año:"2017-2024",total_repuestos:285,color:"#1a3060",cat:"Pickups"},
-  {id:"f-350",      nombre:"F-350 Super Duty",año:"2017-2024",total_repuestos:270,color:"#0f2850",cat:"Pickups"},
-  {id:"ranger",     nombre:"Ranger",        año:"2012-2024",total_repuestos:218,color:"#0d5c2e",cat:"Pickups"},
-  {id:"maverick",   nombre:"Maverick",      año:"2022-2024",total_repuestos:134,color:"#7a5c0d",cat:"Pickups"},
-  {id:"super-duty", nombre:"F-450/550 Super Duty",año:"2020-2024",total_repuestos:195,color:"#2a2040",cat:"Pickups"},
-  // ── SUVs ──
-  {id:"explorer",   nombre:"Explorer",      año:"2011-2024",total_repuestos:289,color:"#8c1a1a",cat:"SUVs"},
-  {id:"escape",     nombre:"Escape / Kuga", año:"2013-2024",total_repuestos:203,color:"#2a3a1a",cat:"SUVs"},
-  {id:"bronco",     nombre:"Bronco",        año:"2021-2024",total_repuestos:176,color:"#0d4a5c",cat:"SUVs"},
-  {id:"bronco-sport",nombre:"Bronco Sport", año:"2021-2024",total_repuestos:148,color:"#2a4a3a",cat:"SUVs"},
-  {id:"ecosport",   nombre:"EcoSport",      año:"2013-2022",total_repuestos:196,color:"#3a5c2a",cat:"SUVs"},
-  {id:"territory",  nombre:"Territory",     año:"2020-2024",total_repuestos:165,color:"#4a3020",cat:"SUVs"},
-  {id:"edge",       nombre:"Edge",          año:"2015-2024",total_repuestos:228,color:"#5c1a3a",cat:"SUVs"},
-  {id:"expedition", nombre:"Expedition",    año:"2018-2024",total_repuestos:310,color:"#1a1a5c",cat:"SUVs"},
-  {id:"everest",    nombre:"Everest",       año:"2015-2024",total_repuestos:187,color:"#2a5050",cat:"SUVs"},
-  {id:"kuga",       nombre:"Kuga",          año:"2013-2024",total_repuestos:190,color:"#404a20",cat:"SUVs"},
-  // ── Autos / Sedanes ──
-  {id:"mustang",    nombre:"Mustang",       año:"2015-2024",total_repuestos:511,color:"#5c0d8c",cat:"Autos"},
-  {id:"focus",      nombre:"Focus",         año:"2008-2019",total_repuestos:340,color:"#0d3a5c",cat:"Autos"},
-  {id:"fiesta",     nombre:"Fiesta",        año:"2011-2019",total_repuestos:280,color:"#5c2a0d",cat:"Autos"},
-  {id:"fusion",     nombre:"Fusion / Mondeo",año:"2013-2020",total_repuestos:265,color:"#3a0d5c",cat:"Autos"},
-  {id:"taurus",     nombre:"Taurus",        año:"2010-2019",total_repuestos:230,color:"#0d5c5c",cat:"Autos"},
-  {id:"ka",         nombre:"Ka / Ka+",      año:"2014-2022",total_repuestos:210,color:"#5c5c0d",cat:"Autos"},
-  {id:"mondeo",     nombre:"Mondeo",        año:"2007-2022",total_repuestos:255,color:"#2a3050",cat:"Autos"},
-  {id:"falcon",     nombre:"Falcon (Clásico)",año:"1962-1991",total_repuestos:420,color:"#5c3a1a",cat:"Clásicos"},
-  {id:"sierra",     nombre:"Sierra (Clásico)",año:"1984-1993",total_repuestos:180,color:"#4a2a1a",cat:"Clásicos"},
-  // ── Comerciales ──
-  {id:"transit",    nombre:"Transit",       año:"2015-2024",total_repuestos:298,color:"#1a2a4a",cat:"Comerciales"},
-  {id:"transit-connect",nombre:"Transit Connect",año:"2014-2024",total_repuestos:175,color:"#2a2a3a",cat:"Comerciales"},
+  // ── Pickups (Argentina) ──
+  {id:"ranger",         nombre:"Ranger",             año:"2012-2026",total_repuestos:95,color:"#1a5c30",cat:"Pickups"},
+  {id:"nueva-ranger",   nombre:"Nueva Ranger",       año:"2023-2026",total_repuestos:95,color:"#0d5c2e",cat:"Pickups"},
+  {id:"ranger-raptor",  nombre:"Ranger Raptor",      año:"2019-2026",total_repuestos:95,color:"#5c1a1a",cat:"Pickups"},
+  {id:"f-150",          nombre:"F-150",              año:"2016-2026",total_repuestos:95,color:"#0d3b8c",cat:"Pickups"},
+  {id:"maverick",       nombre:"Maverick",           año:"2022-2026",total_repuestos:95,color:"#7a5c0d",cat:"Pickups"},
+  {id:"f-100",          nombre:"F-100",              año:"1990-2000",total_repuestos:70,color:"#4a3a2a",cat:"Pickups"},
+  // ── SUVs (Argentina) ──
+  {id:"territory",      nombre:"Territory",          año:"2020-2026",total_repuestos:95,color:"#4a3020",cat:"SUVs"},
+  {id:"bronco",         nombre:"Bronco",             año:"2021-2026",total_repuestos:95,color:"#0d4a5c",cat:"SUVs"},
+  {id:"bronco-sport",   nombre:"Bronco Sport",       año:"2021-2026",total_repuestos:95,color:"#2a4a3a",cat:"SUVs"},
+  {id:"kuga",           nombre:"Kuga",               año:"2013-2026",total_repuestos:95,color:"#404a20",cat:"SUVs"},
+  {id:"kuga-hybrid",    nombre:"Kuga Hybrid",        año:"2022-2026",total_repuestos:80,color:"#2a5040",cat:"SUVs"},
+  {id:"ecosport",       nombre:"EcoSport",           año:"2013-2022",total_repuestos:95,color:"#3a5c2a",cat:"SUVs"},
+  {id:"explorer",       nombre:"Explorer",           año:"2011-2026",total_repuestos:95,color:"#8c1a1a",cat:"SUVs"},
+  {id:"everest",        nombre:"Everest",            año:"2023-2026",total_repuestos:80,color:"#2a5050",cat:"SUVs"},
+  {id:"mustang-mach-e", nombre:"Mustang Mach-E",     año:"2023-2026",total_repuestos:60,color:"#3a1a5c",cat:"SUVs"},
+  // ── Autos (Argentina) ──
+  {id:"mustang",        nombre:"Mustang",            año:"2015-2026",total_repuestos:95,color:"#5c0d1a",cat:"Autos"},
+  {id:"mustang-gt",     nombre:"Mustang Coupe GT",   año:"2018-2026",total_repuestos:90,color:"#5c0d3a",cat:"Autos"},
+  {id:"focus",          nombre:"Focus III",          año:"2012-2019",total_repuestos:95,color:"#0d3a5c",cat:"Autos"},
+  {id:"fiesta",         nombre:"Fiesta KD",          año:"2011-2019",total_repuestos:95,color:"#5c2a0d",cat:"Autos"},
+  {id:"ka",             nombre:"Ka",                 año:"2008-2022",total_repuestos:95,color:"#5c5c0d",cat:"Autos"},
+  {id:"mondeo",         nombre:"Mondeo",             año:"2007-2022",total_repuestos:95,color:"#2a3050",cat:"Autos"},
+  {id:"mondeo-hybrid",  nombre:"Mondeo Hibrido",     año:"2019-2022",total_repuestos:70,color:"#2a4050",cat:"Autos"},
+  {id:"s-max",          nombre:"S-Max",              año:"2010-2017",total_repuestos:80,color:"#3a2a4a",cat:"Autos"},
+  {id:"escort",         nombre:"Escort",             año:"1990-2003",total_repuestos:65,color:"#4a3a2a",cat:"Autos"},
+  // ── Comerciales (Argentina) ──
+  {id:"transit",        nombre:"Transit",            año:"2015-2026",total_repuestos:95,color:"#1a2a4a",cat:"Comerciales"},
+  {id:"transit-van",    nombre:"Transit Van",        año:"2018-2026",total_repuestos:90,color:"#2a2a3a",cat:"Comerciales"},
+  {id:"transit-bus",    nombre:"Transit Bus",        año:"2018-2026",total_repuestos:85,color:"#1a3040",cat:"Comerciales"},
+  {id:"transit-chasis", nombre:"Transit Chasis",     año:"2018-2026",total_repuestos:85,color:"#2a3040",cat:"Comerciales"},
+  {id:"cargo",          nombre:"Cargo",              año:"2004-2020",total_repuestos:70,color:"#3a3a3a",cat:"Comerciales"},
+  {id:"courier",        nombre:"Courier",            año:"1997-2013",total_repuestos:60,color:"#4a4a2a",cat:"Comerciales"},
+  // ── Pesados ──
+  {id:"f-250",          nombre:"F-250",              año:"2000-2012",total_repuestos:70,color:"#1a3060",cat:"Pesados"},
+  {id:"f-4000",         nombre:"F-4000",             año:"1998-2019",total_repuestos:65,color:"#2a2050",cat:"Pesados"},
+  {id:"f-14000",        nombre:"F-14000",            año:"2000-2015",total_repuestos:55,color:"#3a2040",cat:"Pesados"},
 ];
-function stockLabel(n){if(n===0)return"Sin stock";if(n===1)return"Queda 1 solo";if(n<=3)return`Quedan ${n} nomás`;if(n<=6)return`${n} en stock`;if(n<=15)return"Stock de sobra";return"Hay a patadas";}
+function stockLabel(n){if(n===0)return"Sin stock";if(n===1)return"Ultimo disponible";if(n<=3)return`${n} disponibles`;if(n<=10)return`${n} en stock`;return`${n} disponibles`;}
 
 const MOCK_RESULTADOS = {
   // ── Motores ──
@@ -359,8 +367,8 @@ function generarRepuestos(modelo){
     if(r>0.85&&result.length>20)continue;
     const variacion=0.7+rng(idx+500)*0.6; // price varies 70%-130%
     const precio=Math.round(base.precio_base*variacion/1000)*1000;
-    const stockR=rng(idx+1000);
-    const stock=stockR<0.08?0:stockR<0.2?Math.ceil(rng(idx+1500)*3):stockR<0.5?Math.ceil(rng(idx+2000)*10):Math.ceil(rng(idx+2500)*30);
+    // Stock empieza en 0 — Juan lo edita manualmente
+    const stock=0;
     const partNum=`FW-${modelo.id.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,3)}-${String(idx).padStart(3,"0")}`;
     const precioOem=base.oem?Math.round(base.oem*variacion/1000)*1000:null;
     result.push({
