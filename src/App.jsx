@@ -850,7 +850,7 @@ export default function FordWarnesApp({ user, onLogout }){
   const repsPorModelo=(id)=>CATALOGO_COMPLETO[id]||repTodos.slice(0,12);
 
   return(
-    <div style={{minHeight:"100vh",background:"#f5f5f5",fontFamily:"'Inter',system-ui,sans-serif",color:"#333",display:"flex",flexDirection:"column"}}>
+    <div style={{minHeight:"100vh",background:"#e8e8e8",fontFamily:"'Inter',system-ui,sans-serif",color:"#333",display:"flex",flexDirection:"column"}}>
       <style>{GCSS}</style>
 
       {/* Juan flotante — se oculta cuando el chat está abierto */}
@@ -1135,7 +1135,7 @@ function RepCard({r,onClick,onConsultar}){
         <div onClick={onClick} style={{cursor:"pointer"}}>
           <div style={{fontSize:14,fontWeight:800,color:"#1a1a2e",lineHeight:1.35,marginBottom:8,textTransform:"uppercase",minHeight:40}}>{r.nombre}</div>
           {/* Part number */}
-          <div style={{background:"#f5f5f5",padding:"6px 10px",borderRadius:4,marginBottom:10}}>
+          <div style={{background:"#e8e8e8",padding:"6px 10px",borderRadius:4,marginBottom:10}}>
             <span style={{fontSize:11,color:"#666"}}>N° de Pieza: </span>
             <span style={{fontSize:12,fontWeight:700,color:"#1a1a1a"}}>{r.numero_parte}</span>
           </div>
@@ -1247,7 +1247,7 @@ function Modal({parte:r,onClose,onConsultar}){
             {/* Name */}
             <h2 style={{fontSize:20,fontWeight:800,color:"#1a1a2e",margin:"0 0 12px",textTransform:"uppercase",lineHeight:1.3}}>{r.nombre}</h2>
             {/* Part number box */}
-            <div style={{background:"#f5f5f5",padding:"10px 14px",borderRadius:4,marginBottom:16}}>
+            <div style={{background:"#e8e8e8",padding:"10px 14px",borderRadius:4,marginBottom:16}}>
               <span style={{fontSize:13,color:"#666"}}>Numero de Pieza: </span>
               <span style={{fontSize:14,fontWeight:800,color:"#1a1a1a"}}>{r.numero_parte}</span>
             </div>
