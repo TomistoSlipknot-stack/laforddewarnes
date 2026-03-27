@@ -766,7 +766,7 @@ export default function FordWarnesApp({ user, onLogout }){
           {/* Chat button */}
           <button className="fw-juan-btn" onClick={()=>setChatOpen(o=>!o)} style={{position:"relative",display:"flex",alignItems:"center",gap:8,background:chatOpen?"#003478":"#fff",border:`2px solid ${chatOpen?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 18px",cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={chatOpen?"#fff":"#003478"} strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            <span className="fw-juan-label" style={{fontSize:14,fontWeight:600,color:chatOpen?"#fff":"#003478"}}>{esJefe?"Chats":"Juan"}</span>
+            <span className="fw-juan-label" style={{fontSize:14,fontWeight:600,color:chatOpen?"#fff":"#003478"}}>{esJefe?"Chats":"Consultar"}</span>
             {(esJefe?adminTotalUnread:chatUnread)>0&&(
               <div style={{position:"absolute",top:-8,right:-8,minWidth:22,height:22,borderRadius:11,background:"#dc2626",border:"2px solid #fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:"#fff",padding:"0 5px",animation:"badge-pop .3s ease",zIndex:1}}>
                 {esJefe?adminTotalUnread:chatUnread}
@@ -784,9 +784,9 @@ export default function FordWarnesApp({ user, onLogout }){
       {/* Removed — Salir moved to header, Online removed (duplicate) */}
 
       {/* MAIN CONTENT + CHAT SIDEBAR */}
-      <div style={{flex:1,display:"flex",overflow:"hidden"}}>
+      <div style={{flex:1,display:"flex",overflow:"hidden",height:"calc(100vh - 64px)"}}>
       {/* LEFT: main content */}
-      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <div style={{flex:1,display:"flex",flexDirection:"column",overflowY:"auto"}}>
       {vista==="chat"?(
         <>
           <div style={{flex:1,overflowY:"auto",padding:"16px 0"}}>
@@ -908,7 +908,7 @@ export default function FordWarnesApp({ user, onLogout }){
               const filtered=catFilter?allParts.filter(p=>p.cat===catFilter):allParts;
               return(
               <>
-                <div style={{position:"sticky",top:64,zIndex:10,background:"#d5d5d5",padding:"12px 0",marginBottom:8}}>
+                <div style={{position:"sticky",top:0,zIndex:10,background:"#d5d5d5",padding:"12px 0",marginBottom:8}}>
                   <button onClick={()=>{setModeloSel(null);setCatFilter(null);}} style={{background:"#fff",border:"2px solid #003478",color:"#003478",cursor:"pointer",fontSize:14,padding:"10px 24px",fontFamily:"inherit",fontWeight:700,borderRadius:20,boxShadow:"0 2px 12px rgba(0,0,0,.12)"}}>← Volver al catalogo</button>
                 </div>
                 {/* Hero del modelo */}
@@ -919,7 +919,7 @@ export default function FordWarnesApp({ user, onLogout }){
                 {/* Layout: sidebar categorías + grid repuestos */}
                 <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
                   {/* Sidebar categorías — como tiendaford.ar */}
-                  <div className="fw-cat-sidebar" style={{width:200,flexShrink:0,background:"#fff",border:"1px solid #e0e0e0",borderRadius:8,padding:16,position:"sticky",top:72}}>
+                  <div className="fw-cat-sidebar" style={{width:200,flexShrink:0,background:"#fff",border:"1px solid #e0e0e0",borderRadius:8,padding:16,position:"sticky",top:60,alignSelf:"flex-start"}}>
                     <div style={{fontSize:14,fontWeight:700,color:"#003478",marginBottom:12}}>Categoria</div>
                     <div onClick={()=>setCatFilter(null)} style={{padding:"6px 0",fontSize:13,color:!catFilter?"#003478":"#555",fontWeight:!catFilter?700:400,cursor:"pointer",borderBottom:"1px solid #f0f0f0"}}>
                       Todos ({allParts.length})
