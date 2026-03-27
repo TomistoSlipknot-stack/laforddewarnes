@@ -421,8 +421,8 @@ const FRASES_GOLPE=["¡¡AUCH!! ¡¡NO ME PEGUES!!","¡YA NO VOY A SER TAN ESTRI
 const GCSS=`
   *{box-sizing:border-box}
   ::-webkit-scrollbar{width:4px}
-  ::-webkit-scrollbar-track{background:#08090c}
-  ::-webkit-scrollbar-thumb{background:#1c2030;border-radius:4px}
+  ::-webkit-scrollbar-track{background:#f0f0f0}
+  ::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
   @keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   @keyframes bounce-bob{0%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(-12px) scale(1.06)}75%{transform:translateY(-3px) scale(.98)}}
   @keyframes bubble-in{0%{opacity:0;transform:scale(.7) translateY(6px)}100%{opacity:1;transform:scale(1) translateY(0)}}
@@ -744,11 +744,11 @@ function FloatingHead({state, hidden}) {
   if(!mounted||pos.y===-1)return null;
 
   // Color based on anger level
-  const borderColor=angry===2?"#ff2020":angry===1?"#ff8800":"#003da5";
+  const borderColor=angry===2?"#ff2020":angry===1?"#ff8800":"#003478";
   const bgColor=angry===2?"#4a0000":angry===1?"#3a2000":"#1a2540";
   const glowColor=angry===2?"0 0 20px rgba(255,32,32,.6), 0 0 40px rgba(255,0,0,.3)":angry===1?"0 0 14px rgba(255,136,0,.4)":"";
   const faceEmoji=angry===2?"🤬":angry===1?"😡":wink?"😒":null;
-  const labelBg=angry===2?"#cc0000":angry===1?"#cc6600":"#003da5";
+  const labelBg=angry===2?"#cc0000":angry===1?"#cc6600":"#003478";
   const speed=Math.sqrt(vel.x**2+vel.y**2);
 
   return(
@@ -846,21 +846,21 @@ export default function FordWarnesApp({ user, onLogout }){
   const repsPorModelo=(id)=>CATALOGO_COMPLETO[id]||repTodos.slice(0,12);
 
   return(
-    <div style={{minHeight:"100vh",background:"#08090c",fontFamily:"'DM Sans','Segoe UI',sans-serif",color:"#e0deda",display:"flex",flexDirection:"column"}}>
+    <div style={{minHeight:"100vh",background:"#f5f5f5",fontFamily:"'Inter',system-ui,sans-serif",color:"#333",display:"flex",flexDirection:"column"}}>
       <style>{GCSS}</style>
 
       {/* Juan flotante — se oculta cuando el chat está abierto */}
       {role==='employee'&&<FloatingHead state={botState} hidden={chatOpen}/>}
 
       {/* HEADER */}
-      <header className="fw-header" style={{background:"#0d0f15",borderBottom:"1px solid #181c26",padding:"0 20px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20}}>
+      <header className="fw-header" style={{background:"#fff",borderBottom:"1px solid #e8e8e8",padding:"0 20px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{width:48,height:26,background:"linear-gradient(135deg,#003da5,#0058e6)",borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,61,165,.35)"}}>
+          <div style={{width:48,height:26,background:"linear-gradient(135deg,#003478,#0058e6)",borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,61,165,.35)"}}>
             <span style={{color:"#fff",fontWeight:800,fontSize:13,fontStyle:"italic",fontFamily:"Georgia,serif"}}>Ford</span>
           </div>
           <div className="fw-logo-text">
             <div style={{fontWeight:700,fontSize:15,letterSpacing:"-.01em"}}>Ford de Warnes</div>
-            <div style={{fontSize:10,color:"#383e52",textTransform:"uppercase",letterSpacing:".07em"}}>Buscar Partes y Stock</div>
+            <div style={{fontSize:10,color:"#999",textTransform:"uppercase",letterSpacing:".07em"}}>Buscar Partes y Stock</div>
           </div>
           <div style={{background:esJefe?"rgba(234,179,8,.12)":role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.08)",border:`1px solid ${esJefe?"rgba(234,179,8,.3)":role==="employee"?"rgba(34,197,94,.25)":"rgba(102,153,255,.2)"}`,borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:700,color:esJefe?"#fbbf24":role==="employee"?"#22c55e":"#6699ff",textTransform:"uppercase",letterSpacing:".06em"}}>
             {esJefe?"Jefe":role==="employee"?"Empleado":"Cliente"}
@@ -872,7 +872,7 @@ export default function FordWarnesApp({ user, onLogout }){
             {id:"catalogo",label:"Catálogo",icon:"M4 6h16M4 10h16M4 14h16M4 18h16"},
             ...(esJefe?[{id:"admin",label:"Panel",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
           ].map(t=>(
-            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003da5":"transparent",border:`1px solid ${vista===t.id?"#1a5cc8":"#1c2030"}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:vista===t.id?"#fff":"#555870",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?600:400,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}>
+            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":"transparent",border:`1px solid ${vista===t.id?"#1a5cc8":"#1c2030"}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:vista===t.id?"#fff":"#555870",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?600:400,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
               {t.label}
             </button>
@@ -901,7 +901,7 @@ export default function FordWarnesApp({ user, onLogout }){
           <div style={{width:6,height:6,borderRadius:"50%",background:network.connected?"#22c55e":"#ef4444"}}/>
           {network.connected?"Conectado":"Sin red"}
         </div>
-        <button onClick={onLogout} style={{background:"rgba(0,0,0,.6)",border:"1px solid #1c2030",borderRadius:20,padding:"4px 10px",fontSize:10,color:"#444860",cursor:"pointer",fontFamily:"inherit"}}>Salir</button>
+        <button onClick={onLogout} style={{background:"rgba(0,0,0,.6)",border:"1px solid #e0e0e0",borderRadius:20,padding:"4px 10px",fontSize:10,color:"#777",cursor:"pointer",fontFamily:"inherit"}}>Salir</button>
       </div>
 
       {/* MAIN CONTENT + CHAT SIDEBAR */}
@@ -919,18 +919,18 @@ export default function FordWarnesApp({ user, onLogout }){
           </div>
           {messages.length<=1&&(
             <div className="fw-suggestions" style={{padding:"0 16px 14px",maxWidth:760,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
-              <div style={{fontSize:10,color:"#252830",textTransform:"uppercase",letterSpacing:".1em",marginBottom:8}}>Búsquedas frecuentes</div>
+              <div style={{fontSize:10,color:"#bbb",textTransform:"uppercase",letterSpacing:".1em",marginBottom:8}}>Búsquedas frecuentes</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:6}}>{SUGERENCIAS.map(s=><Chip key={s} label={s} onClick={()=>buscar(s)}/>)}</div>
             </div>
           )}
           <div className="fw-input-bar" style={{background:"rgba(8,9,12,.97)",borderTop:"1px solid #181c26",padding:"10px 16px 14px",flexShrink:0}}>
             <div style={{maxWidth:760,margin:"0 auto"}}>
-              <div style={{display:"flex",gap:8,alignItems:"center",background:"#0f1018",border:"1px solid #181c26",borderRadius:14,padding:"4px 4px 4px 14px"}}>
+              <div style={{display:"flex",gap:8,alignItems:"center",background:"#fff",border:"1px solid #e0e0e0",borderRadius:14,padding:"4px 4px 4px 14px"}}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#333840" strokeWidth="2" style={{flexShrink:0}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 <input className="fw-input-field" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();buscar();}}}
                   placeholder="Motor 302, filtro Ranger, pastillas..." disabled={botState==="loading"}
-                  style={{flex:1,background:"transparent",border:"none",outline:"none",fontSize:15,color:"#e0deda",fontFamily:"inherit",padding:"11px 0",caretColor:"#003da5"}}/>
-                <button onClick={()=>buscar()} disabled={!input.trim()||botState==="loading"} style={{width:42,height:42,background:input.trim()&&botState!=="loading"?"#003da5":"#13151e",border:"none",borderRadius:10,cursor:input.trim()&&botState!=="loading"?"pointer":"not-allowed",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .15s",flexShrink:0}}>
+                  style={{flex:1,background:"transparent",border:"none",outline:"none",fontSize:15,color:"#333",fontFamily:"inherit",padding:"11px 0",caretColor:"#003478"}}/>
+                <button onClick={()=>buscar()} disabled={!input.trim()||botState==="loading"} style={{width:42,height:42,background:input.trim()&&botState!=="loading"?"#003478":"#13151e",border:"none",borderRadius:10,cursor:input.trim()&&botState!=="loading"?"pointer":"not-allowed",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .15s",flexShrink:0}}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={input.trim()&&botState!=="loading"?"#fff":"#252830"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
                 </button>
               </div>
@@ -941,14 +941,14 @@ export default function FordWarnesApp({ user, onLogout }){
       ):vista==="admin"&&esJefe?(
         <div style={{flex:1,display:"flex",flexDirection:"column"}}>
           {/* Admin sub-tabs */}
-          <div style={{display:"flex",gap:6,padding:"10px 16px",borderBottom:"1px solid #181c26",background:"#0a0b0f",flexShrink:0}}>
+          <div style={{display:"flex",gap:6,padding:"10px 16px",borderBottom:"1px solid #e8e8e8",background:"#fafafa",flexShrink:0}}>
             {[
               {id:"stock",label:"Stock",badge:0},
               {id:"chats",label:"Chats",badge:adminTotalUnread},
               {id:"online",label:"En Linea",badge:network.onlineUsers.length},
               {id:"logs",label:"Busquedas",badge:network.searchLogs.length},
             ].map(t=>(
-              <button key={t.id} onClick={()=>setAdminTab(t.id)} style={{background:adminTab===t.id?"#003da5":"transparent",border:`1px solid ${adminTab===t.id?"#1a5cc8":"#1c2030"}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:adminTab===t.id?"#fff":"#555870",cursor:"pointer",fontFamily:"inherit",fontWeight:adminTab===t.id?600:400,transition:"all .15s",position:"relative"}}>
+              <button key={t.id} onClick={()=>setAdminTab(t.id)} style={{background:adminTab===t.id?"#003478":"transparent",border:`1px solid ${adminTab===t.id?"#1a5cc8":"#1c2030"}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:adminTab===t.id?"#fff":"#555870",cursor:"pointer",fontFamily:"inherit",fontWeight:adminTab===t.id?600:400,transition:"all .15s",position:"relative"}}>
                 {t.label}
                 {t.badge>0&&<span style={{marginLeft:6,background:t.id==="chats"&&adminTotalUnread>0?"#ef4444":"rgba(255,255,255,.15)",padding:"1px 7px",borderRadius:10,fontSize:10,fontWeight:700}}>{t.badge}</span>}
               </button>
@@ -977,13 +977,13 @@ export default function FordWarnesApp({ user, onLogout }){
             {adminTab==="chats"&&<AdminChats network={network}/>}
             {adminTab==="online"&&(
               <div style={{padding:16,overflowY:"auto",height:"100%"}}>
-                {network.onlineUsers.length===0?<div style={{color:"#444860",fontSize:13,textAlign:"center",marginTop:30}}>Nadie conectado</div>
+                {network.onlineUsers.length===0?<div style={{color:"#777",fontSize:13,textAlign:"center",marginTop:30}}>Nadie conectado</div>
                 :network.onlineUsers.map((u,i)=>(
-                  <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:"#0f1018",border:"1px solid #181c26",borderRadius:10,marginBottom:8}}>
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:"#fff",border:"1px solid #e0e0e0",borderRadius:10,marginBottom:8}}>
                     <div style={{width:8,height:8,borderRadius:"50%",background:"#22c55e",flexShrink:0}}/>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:13,fontWeight:600,color:"#e0deda"}}>{u.name}</div>
-                      <div style={{fontSize:10,color:"#444860"}}>{u.role==="admin"?"Admin":u.role==="employee"?"Empleado":"Cliente"}</div>
+                      <div style={{fontSize:13,fontWeight:600,color:"#333"}}>{u.name}</div>
+                      <div style={{fontSize:10,color:"#777"}}>{u.role==="admin"?"Admin":u.role==="employee"?"Empleado":"Cliente"}</div>
                     </div>
                     <div style={{fontSize:10,color:u.role==="admin"?"#fbbf24":u.role==="employee"?"#22c55e":"#6699ff",background:u.role==="admin"?"rgba(234,179,8,.1)":u.role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.1)",padding:"2px 8px",borderRadius:6}}>{u.role==="admin"?"JEFE":u.role==="employee"?"STAFF":"CLIENTE"}</div>
                   </div>
@@ -992,13 +992,13 @@ export default function FordWarnesApp({ user, onLogout }){
             )}
             {adminTab==="logs"&&(
               <div style={{padding:16,overflowY:"auto",height:"100%"}}>
-                {network.searchLogs.length===0?<div style={{color:"#444860",fontSize:13,textAlign:"center",marginTop:30}}>Sin busquedas</div>
+                {network.searchLogs.length===0?<div style={{color:"#777",fontSize:13,textAlign:"center",marginTop:30}}>Sin busquedas</div>
                 :network.searchLogs.slice().reverse().map((log,i)=>(
-                  <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"8px 12px",background:"#0f1018",border:"1px solid #181c26",borderRadius:8,marginBottom:6}}>
+                  <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"8px 12px",background:"#fff",border:"1px solid #e0e0e0",borderRadius:8,marginBottom:6}}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#445570" strokeWidth="2" style={{flexShrink:0,marginTop:2}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:13,color:"#e0deda",fontWeight:500}}>"{log.query}"</div>
-                      <div style={{fontSize:10,color:"#444860",marginTop:2}}>{log.user} ({log.role==="employee"?"Empleado":"Cliente"}) · {new Date(log.timestamp).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}</div>
+                      <div style={{fontSize:13,color:"#333",fontWeight:500}}>"{log.query}"</div>
+                      <div style={{fontSize:10,color:"#777",marginTop:2}}>{log.user} ({log.role==="employee"?"Empleado":"Cliente"}) · {new Date(log.timestamp).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}</div>
                     </div>
                   </div>
                 ))}
@@ -1012,10 +1012,10 @@ export default function FordWarnesApp({ user, onLogout }){
             {!modeloSel?(
               <>
                 <h2 style={{fontSize:18,fontWeight:700,margin:"0 0 4px"}}>Catálogo Completo Ford</h2>
-                <p style={{fontSize:13,color:"#444860",margin:"0 0 20px"}}>{MOCK_MODELOS.length} modelos · Seleccioná uno para ver sus repuestos</p>
+                <p style={{fontSize:13,color:"#777",margin:"0 0 20px"}}>{MOCK_MODELOS.length} modelos · Seleccioná uno para ver sus repuestos</p>
                 {categorias.map(cat=>(
                   <div key={cat} style={{marginBottom:24}}>
-                    <div style={{fontSize:13,fontWeight:700,color:"#6699ff",textTransform:"uppercase",letterSpacing:".08em",marginBottom:10,paddingBottom:6,borderBottom:"1px solid #181c26"}}>{cat}</div>
+                    <div style={{fontSize:13,fontWeight:700,color:"#6699ff",textTransform:"uppercase",letterSpacing:".08em",marginBottom:10,paddingBottom:6,borderBottom:"1px solid #e8e8e8"}}>{cat}</div>
                     <div className="fw-cat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(185px,1fr))",gap:10}}>
                       {MOCK_MODELOS.filter(m=>m.cat===cat).map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>setModeloSel(m)}/>)}
                     </div>
@@ -1024,7 +1024,7 @@ export default function FordWarnesApp({ user, onLogout }){
               </>
             ):(
               <>
-                <button onClick={()=>setModeloSel(null)} style={{background:"none",border:"none",color:"#445570",cursor:"pointer",fontSize:13,padding:0,fontFamily:"inherit",marginBottom:16}}>← Volver al catálogo</button>
+                <button onClick={()=>setModeloSel(null)} style={{background:"none",border:"none",color:"#666",cursor:"pointer",fontSize:13,padding:0,fontFamily:"inherit",marginBottom:16}}>← Volver al catálogo</button>
                 <div className="fw-modelo-hero" style={{background:modeloSel.color,borderRadius:16,padding:"20px 24px",marginBottom:20,overflow:"hidden",position:"relative"}}>
                   {IMGS_MODELO[modeloSel.id]&&<img src={IMGS_MODELO[modeloSel.id]} alt={modeloSel.nombre} style={{position:"absolute",right:0,top:0,height:"100%",width:"55%",objectFit:"cover",objectPosition:"center",opacity:.3}}/>}
                   <div style={{position:"relative"}}><div className="fw-modelo-hero-title" style={{fontSize:28,fontWeight:800}}>{modeloSel.nombre}</div><div style={{fontSize:13,opacity:.7}}>{modeloSel.año} · {modeloSel.total_repuestos} repuestos · {modeloSel.cat}</div></div>
@@ -1042,7 +1042,7 @@ export default function FordWarnesApp({ user, onLogout }){
 
       {/* RIGHT: Chat Sidebar */}
       {chatOpen&&(
-        <div style={{width:esJefe?"min(480px,45vw)":"min(380px,100vw)",flexShrink:0,borderLeft:"1px solid #1c2030",display:"flex",flexDirection:"column",background:"#0a0b0f",overflow:"hidden"}}>
+        <div style={{width:esJefe?"min(480px,45vw)":"min(380px,100vw)",flexShrink:0,borderLeft:"1px solid #1c2030",display:"flex",flexDirection:"column",background:"#fafafa",overflow:"hidden"}}>
           {esJefe?(
             /* Juan sees AdminChats inline as sidebar */
             <AdminChats network={network}/>
@@ -1069,7 +1069,7 @@ function ModeloCard({modelo,onClick}){
           ?<img src={IMGS_MODELO[modelo.id]} alt={modelo.nombre} onError={()=>setImgErr(true)} style={{width:"100%",height:"100%",objectFit:"cover",opacity:hov?.85:.65,transition:"opacity .2s"}}/>
           :<span style={{fontSize:36,opacity:.12}}>🚗</span>}
       </div>
-      <div style={{padding:"12px 14px"}}><div style={{fontSize:18,fontWeight:800}}>{modelo.nombre}</div><div style={{fontSize:11,color:"#444860",marginTop:2}}>{modelo.año}</div><div style={{marginTop:8,fontSize:12,color:"#445570"}}>📦 {modelo.total_repuestos} repuestos</div></div>
+      <div style={{padding:"12px 14px"}}><div style={{fontSize:18,fontWeight:800}}>{modelo.nombre}</div><div style={{fontSize:11,color:"#777",marginTop:2}}>{modelo.año}</div><div style={{marginTop:8,fontSize:12,color:"#666"}}>📦 {modelo.total_repuestos} repuestos</div></div>
     </div>
   );
 }
@@ -1081,13 +1081,13 @@ function RepCard({r,onClick}){
   const sc=r.stock>5?"#22c55e":r.stock>0?"#f59e0b":"#ef4444";
   const partImg=(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
-    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:hov?"#12141e":"#0f1018",border:"1px solid #181c26",borderRadius:12,cursor:"pointer",transition:"all .15s",opacity:r.disponible?1:.5,overflow:"hidden"}}>
-      <div style={{width:"100%",height:90,background:"#0b0d14",display:"flex",alignItems:"center",justifyContent:"center",borderBottom:"1px solid #181c26",overflow:"hidden",position:"relative"}}>
+    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:hov?"#12141e":"#0f1018",border:"1px solid #e0e0e0",borderRadius:12,cursor:"pointer",transition:"all .15s",opacity:r.disponible?1:.5,overflow:"hidden"}}>
+      <div style={{width:"100%",height:90,background:"#f8f8f8",display:"flex",alignItems:"center",justifyContent:"center",borderBottom:"1px solid #e8e8e8",overflow:"hidden",position:"relative"}}>
         {partImg&&!imgErr?<img src={partImg} alt={r.cat} onError={()=>setImgErr(true)} style={{width:"100%",height:"100%",objectFit:"cover",opacity:hov?.7:.45,transition:"opacity .2s"}}/>:<Ic size={52}/>}
       </div>
       <div style={{padding:"10px 12px"}}>
         <div style={{fontSize:10,color:"#4d8eff",background:"rgba(0,61,165,.12)",border:"1px solid rgba(0,61,165,.2)",borderRadius:4,padding:"2px 7px",display:"inline-block",marginBottom:4,textTransform:"capitalize"}}>{r.cat}</div>
-        <div style={{fontSize:13,fontWeight:600,color:"#ccc9c2",lineHeight:1.3,marginBottom:6}}>{r.nombre}</div>
+        <div style={{fontSize:13,fontWeight:600,color:"#333",lineHeight:1.3,marginBottom:6}}>{r.nombre}</div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:6,height:6,borderRadius:"50%",background:sc}}/><span style={{fontSize:11,color:sc}}>{stockLabel(r.stock)}</span></div>
           <span style={{fontSize:14,fontWeight:800}}>{r.precio}</span>
@@ -1101,9 +1101,9 @@ function Msg({msg,last,onParte}){
   const [vis,setVis]=useState(!last);
   useEffect(()=>{if(last){const t=setTimeout(()=>setVis(true),40);return()=>clearTimeout(t);}},[last]);
   const fade={opacity:vis?1:0,transform:vis?"translateY(0)":"translateY(8px)",transition:"opacity .25s,transform .25s"};
-  if(msg.type==="system")return <div style={{textAlign:"center",...fade}}><span style={{background:"#0f1018",border:"1px solid #181c26",borderRadius:20,padding:"6px 18px",fontSize:12,color:"#383e52",display:"inline-block"}}>{msg.text}</span></div>;
-  if(msg.type==="user")return <div style={{display:"flex",justifyContent:"flex-end",...fade}}><div style={{background:"#003da5",borderRadius:"12px 4px 12px 12px",padding:"11px 16px",maxWidth:"72%",fontSize:14,color:"#fff",fontWeight:500,lineHeight:1.45}}>{msg.text}</div></div>;
-  if(msg.type==="notfound")return <div style={{display:"flex",gap:12,...fade}}><BotAv/><div style={{background:"#0f1018",border:"1px solid #181c26",borderRadius:"4px 12px 12px 12px",padding:"13px 18px",fontSize:13,color:"#555870",lineHeight:1.55}}>No encontré nada para "<strong style={{color:"#8890a8"}}>{msg.query}</strong>". Probá con el número de parte o el modelo exacto.</div></div>;
+  if(msg.type==="system")return <div style={{textAlign:"center",...fade}}><span style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:20,padding:"6px 18px",fontSize:12,color:"#999",display:"inline-block"}}>{msg.text}</span></div>;
+  if(msg.type==="user")return <div style={{display:"flex",justifyContent:"flex-end",...fade}}><div style={{background:"#003478",borderRadius:"12px 4px 12px 12px",padding:"11px 16px",maxWidth:"72%",fontSize:14,color:"#fff",fontWeight:500,lineHeight:1.45}}>{msg.text}</div></div>;
+  if(msg.type==="notfound")return <div style={{display:"flex",gap:12,...fade}}><BotAv/><div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:"4px 12px 12px 12px",padding:"13px 18px",fontSize:13,color:"#888",lineHeight:1.55}}>No encontré nada para "<strong style={{color:"#555"}}>{msg.query}</strong>". Probá con el número de parte o el modelo exacto.</div></div>;
   if(msg.type==="result"){
     const hayStock=msg.resultados.some(r=>r.disponible);
     const mejor=[...msg.resultados].filter(r=>r.disponible).sort((a,b)=>parseInt(a.precio.replace(/\D/g,""))-parseInt(b.precio.replace(/\D/g,"")))[0];
@@ -1111,10 +1111,10 @@ function Msg({msg,last,onParte}){
       <div style={{display:"flex",gap:12,...fade}}>
         <BotAv/>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{background:"#0f1018",border:"1px solid #181c26",borderRadius:"4px 12px 4px 4px",padding:"10px 14px",marginBottom:2,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:6}}>
-            <span style={{fontSize:12,color:"#383e52"}}>{msg.resultados.length} resultados</span>
+          <div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:"4px 12px 4px 4px",padding:"10px 14px",marginBottom:2,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:6}}>
+            <span style={{fontSize:12,color:"#999"}}>{msg.resultados.length} resultados</span>
             <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-              {mejor&&<span style={{fontSize:12,color:"#555870"}}>Mejor: <strong style={{color:"#22c55e"}}>{mejor.precio}</strong></span>}
+              {mejor&&<span style={{fontSize:12,color:"#888"}}>Mejor: <strong style={{color:"#22c55e"}}>{mejor.precio}</strong></span>}
               <span style={{fontSize:10,fontWeight:700,textTransform:"uppercase",color:hayStock?"#22c55e":"#ef4444",background:hayStock?"rgba(34,197,94,.07)":"rgba(239,68,68,.07)",border:`1px solid ${hayStock?"rgba(34,197,94,.18)":"rgba(239,68,68,.18)"}`,padding:"3px 10px",borderRadius:20}}>{hayStock?"Hay stock":"Sin stock"}</span>
             </div>
           </div>
@@ -1133,7 +1133,7 @@ function ResultRow({r,isLast,isBest,delay,onClick}){
   const pImg=(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
     <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:hov?"#12141e":"#0f1018",border:`1px solid ${isBest?"rgba(34,197,94,.2)":"#181c26"}`,borderRadius:isLast?"4px 4px 12px 12px":"4px",padding:"12px 16px",cursor:"pointer",opacity:vis?(r.disponible?1:.45):0,transform:vis?"translateY(0)":"translateY(4px)",transition:"all .2s",display:"flex",alignItems:"center",gap:12,marginBottom:2}}>
-      <div style={{width:46,height:46,background:"#0b0d14",borderRadius:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid #1a1e2a",overflow:"hidden"}}>
+      <div style={{width:46,height:46,background:"#f8f8f8",borderRadius:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid #1a1e2a",overflow:"hidden"}}>
         {pImg&&!imgE?<img src={pImg} alt={r.cat} onError={()=>setImgE(true)} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<Ic size={30}/>}
       </div>
       <div style={{flex:1,minWidth:0}}>
@@ -1141,13 +1141,13 @@ function ResultRow({r,isLast,isBest,delay,onClick}){
           <span style={{fontSize:10,color:"#4d8eff",background:"rgba(0,61,165,.12)",border:"1px solid rgba(0,61,165,.2)",padding:"2px 7px",borderRadius:4}}>{r.modelo_nombre}</span>
           {isBest&&<span style={{fontSize:10,color:"#22c55e",background:"rgba(34,197,94,.08)",border:"1px solid rgba(34,197,94,.2)",padding:"2px 7px",borderRadius:4}}>Mejor precio</span>}
         </div>
-        <div style={{fontSize:13,fontWeight:500,color:"#c8c6c0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.nombre}</div>
+        <div style={{fontSize:13,fontWeight:500,color:"#444",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.nombre}</div>
         <div style={{display:"flex",gap:10,marginTop:3}}>
-          <span style={{fontSize:11,color:"#252830",fontFamily:"monospace"}}>{r.numero_parte}</span>
+          <span style={{fontSize:11,color:"#bbb",fontFamily:"monospace"}}>{r.numero_parte}</span>
           <div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:5,height:5,borderRadius:"50%",background:sc}}/><span style={{fontSize:11,color:sc}}>{stockLabel(r.stock)}</span></div>
         </div>
       </div>
-      <div style={{textAlign:"right",flexShrink:0}}><div style={{fontSize:16,fontWeight:800}}>{r.precio}</div><div style={{fontSize:9,color:"#252830"}}>ARS · Ver →</div></div>
+      <div style={{textAlign:"right",flexShrink:0}}><div style={{fontSize:16,fontWeight:800}}>{r.precio}</div><div style={{fontSize:9,color:"#bbb"}}>ARS · Ver →</div></div>
     </div>
   );
 }
@@ -1158,21 +1158,21 @@ function Modal({parte:r,onClose}){
   const pImg=(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.85)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
-      <div onClick={e=>e.stopPropagation()} style={{background:"#0f1018",border:"1px solid #1c2030",borderRadius:20,maxWidth:520,width:"calc(100% - 24px)",padding:"20px 18px",maxHeight:"90vh",overflowY:"auto",margin:"0 12px"}}>
-        <div style={{width:"100%",height:160,background:"#0b0d14",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20,border:"1px solid #181c26",overflow:"hidden"}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:20,maxWidth:520,width:"calc(100% - 24px)",padding:"20px 18px",maxHeight:"90vh",overflowY:"auto",margin:"0 12px"}}>
+        <div style={{width:"100%",height:160,background:"#f8f8f8",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20,border:"1px solid #e0e0e0",overflow:"hidden"}}>
           {pImg?<img src={pImg} alt={r.cat} style={{width:"100%",height:"100%",objectFit:"cover",opacity:.7}} onError={e=>{e.target.style.display="none"}}/>:<Ic size={96}/>}
         </div>
         <div style={{fontSize:11,color:"#4d8eff",marginBottom:4,textTransform:"capitalize"}}>{r.cat}</div>
         <h2 style={{fontSize:18,fontWeight:800,margin:"0 0 4px"}}>{r.nombre}</h2>
-        <div style={{fontSize:12,color:"#252830",fontFamily:"monospace",marginBottom:10}}>{r.numero_parte}</div>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}><div style={{width:8,height:8,borderRadius:"50%",background:sc}}/><span style={{fontSize:13,color:sc,fontWeight:600}}>{stockLabel(r.stock)}</span><span style={{fontSize:20,fontWeight:800,marginLeft:"auto"}}>{r.precio} <span style={{fontSize:11,color:"#252830",fontWeight:400}}>ARS</span></span></div>
-        {r.aplicativos?.length>0&&<div style={{marginBottom:20}}><div style={{fontSize:11,color:"#383e52",textTransform:"uppercase",letterSpacing:".08em",marginBottom:8,fontWeight:600}}>Compatible con</div><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{r.aplicativos.map((a,i)=><span key={i} style={{fontSize:12,background:"#13151e",border:"1px solid #1c2030",borderRadius:20,padding:"4px 12px",color:"#8890a8"}}>{a}</span>)}</div></div>}
-        <button onClick={onClose} style={{width:"100%",background:"#003da5",border:"none",borderRadius:10,padding:12,fontSize:14,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
+        <div style={{fontSize:12,color:"#bbb",fontFamily:"monospace",marginBottom:10}}>{r.numero_parte}</div>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}><div style={{width:8,height:8,borderRadius:"50%",background:sc}}/><span style={{fontSize:13,color:sc,fontWeight:600}}>{stockLabel(r.stock)}</span><span style={{fontSize:20,fontWeight:800,marginLeft:"auto"}}>{r.precio} <span style={{fontSize:11,color:"#bbb",fontWeight:400}}>ARS</span></span></div>
+        {r.aplicativos?.length>0&&<div style={{marginBottom:20}}><div style={{fontSize:11,color:"#999",textTransform:"uppercase",letterSpacing:".08em",marginBottom:8,fontWeight:600}}>Compatible con</div><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{r.aplicativos.map((a,i)=><span key={i} style={{fontSize:12,background:"#f0f0f0",border:"1px solid #e0e0e0",borderRadius:20,padding:"4px 12px",color:"#555"}}>{a}</span>)}</div></div>}
+        <button onClick={onClose} style={{width:"100%",background:"#003478",border:"none",borderRadius:10,padding:12,fontSize:14,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
       </div>
     </div>
   );
 }
 
-function BuscandoRow(){return(<div style={{display:"flex",gap:12}}><BotAv/><div style={{background:"#0f1018",border:"1px solid #181c26",borderRadius:"4px 12px 12px 12px",padding:"13px 18px",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:13,color:"#383e52"}}>Juan está buscando...</span><span style={{display:"inline-flex",gap:4}}>{[0,1,2].map(i=><span key={i} style={{width:5,height:5,borderRadius:"50%",background:"#003da5",display:"inline-block",animation:`dp 1.2s ease-in-out ${i*.2}s infinite`}}/>)}</span></div></div>);}
-function BotAv(){return <div style={{width:30,height:30,background:"#003da5",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2,border:"1px solid rgba(26,92,200,.4)"}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>;}
+function BuscandoRow(){return(<div style={{display:"flex",gap:12}}><BotAv/><div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:"4px 12px 12px 12px",padding:"13px 18px",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:13,color:"#999"}}>Juan está buscando...</span><span style={{display:"inline-flex",gap:4}}>{[0,1,2].map(i=><span key={i} style={{width:5,height:5,borderRadius:"50%",background:"#003478",display:"inline-block",animation:`dp 1.2s ease-in-out ${i*.2}s infinite`}}/>)}</span></div></div>);}
+function BotAv(){return <div style={{width:30,height:30,background:"#003478",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2,border:"1px solid rgba(26,92,200,.4)"}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>;}
 function Chip({label,onClick}){const [hov,setHov]=useState(false);return <button onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:hov?"rgba(0,61,165,.12)":"transparent",border:`1px solid ${hov?"rgba(0,61,165,.4)":"#181c26"}`,borderRadius:20,padding:"5px 14px",fontSize:12,color:hov?"#6699ff":"#444860",cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>{label}</button>;}
