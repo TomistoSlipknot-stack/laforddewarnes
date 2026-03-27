@@ -368,7 +368,7 @@ function generarRepuestos(modelo){
   const result=[];
   for(const base of CATALOGO_BASE){
     if(!base.nro)continue; // saltar piezas sin N° real
-    const fotoUrl=`https://alephv2imgstorage.blob.core.windows.net/producto/${base.nro}-1.jpg`;
+    const fotoUrl=`./img/ford-parts/${base.nro}.jpg`;
     result.push({
       numero_parte:base.nro,
       nombre:base.nombre,
