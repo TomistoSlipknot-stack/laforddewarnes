@@ -754,21 +754,14 @@ export default function FordWarnesApp({ user, onLogout }){
               </div>
             )}
           </button>
-          <div className="fw-online-dot" style={{display:"flex",alignItems:"center",gap:5,marginLeft:4,background:"#f0f8f0",padding:"6px 12px",borderRadius:20}}>
-            <div style={{width:8,height:8,borderRadius:"50%",background:"#22c55e"}}/>
-            <span style={{fontSize:12,color:"#16a34a",fontWeight:600}}>Online</span>
+          <button onClick={onLogout} style={{background:"#fff",border:"2px solid #d0d0d0",borderRadius:10,padding:"8px 14px",fontSize:13,color:"#888",cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}
+            onMouseEnter={e=>e.currentTarget.style.borderColor="#dc2626"} onMouseLeave={e=>e.currentTarget.style.borderColor="#d0d0d0"}>
+            Salir
           </div>
         </div>
       </header>
 
-      {/* CONNECTION STATUS + LOGOUT */}
-      <div style={{position:"fixed",bottom:16,left:16,zIndex:50,display:"flex",gap:8,alignItems:"center"}}>
-        <div style={{fontSize:10,color:network.connected?"#22c55e":"#ef4444",display:"flex",alignItems:"center",gap:4,background:"rgba(0,0,0,.6)",padding:"4px 10px",borderRadius:20}}>
-          <div style={{width:6,height:6,borderRadius:"50%",background:network.connected?"#22c55e":"#ef4444"}}/>
-          {network.connected?"Conectado":"Sin red"}
-        </div>
-        <button onClick={onLogout} style={{background:"rgba(0,0,0,.6)",border:"1px solid #e0e0e0",borderRadius:20,padding:"4px 10px",fontSize:10,color:"#777",cursor:"pointer",fontFamily:"inherit"}}>Salir</button>
-      </div>
+      {/* Removed — Salir moved to header, Online removed (duplicate) */}
 
       {/* MAIN CONTENT + CHAT SIDEBAR */}
       <div style={{flex:1,display:"flex",overflow:"hidden"}}>
@@ -895,8 +888,8 @@ export default function FordWarnesApp({ user, onLogout }){
               const filtered=catFilter?allParts.filter(p=>p.cat===catFilter):allParts;
               return(
               <>
-                <div style={{position:"sticky",top:56,zIndex:10,background:"#d5d5d5",padding:"10px 0",marginBottom:8}}>
-                  <button onClick={()=>{setModeloSel(null);setCatFilter(null);}} style={{background:"#fff",border:"1px solid #003478",color:"#003478",cursor:"pointer",fontSize:13,padding:"8px 20px",fontFamily:"inherit",fontWeight:600,borderRadius:20,boxShadow:"0 2px 8px rgba(0,0,0,.1)"}}>← Volver al catalogo</button>
+                <div style={{position:"sticky",top:64,zIndex:10,background:"#d5d5d5",padding:"12px 0",marginBottom:8}}>
+                  <button onClick={()=>{setModeloSel(null);setCatFilter(null);}} style={{background:"#fff",border:"2px solid #003478",color:"#003478",cursor:"pointer",fontSize:14,padding:"10px 24px",fontFamily:"inherit",fontWeight:700,borderRadius:20,boxShadow:"0 2px 12px rgba(0,0,0,.12)"}}>← Volver al catalogo</button>
                 </div>
                 {/* Hero del modelo */}
                 <div className="fw-modelo-hero" style={{background:modeloSel.color,borderRadius:12,padding:"20px 24px",marginBottom:20,overflow:"hidden",position:"relative",color:"#fff"}}>
