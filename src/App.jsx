@@ -281,9 +281,38 @@ const MOCK_RESULTADOS = {
 };
 // ─── GENERADOR DE REPUESTOS POR MODELO ───────────────────────────────────────
 const IMGS_SUB={"junta":"./img/partes/junta.jpg","bomba-agua":"./img/partes/bomba-agua.jpg","bomba-aceite":"./img/partes/bomba-aceite.jpg","piston":"./img/partes/piston.jpg","ciguenal":"./img/partes/ciguenal.jpg","valvula":"./img/partes/valvula.jpg","disco-freno":"./img/partes/disco-freno.jpg","caliper":"./img/partes/caliper.jpg","pastilla":"./img/partes/pastilla.jpg","rotula":"./img/partes/rotula.jpg","espiral":"./img/partes/espiral.jpg","parrilla-susp":"./img/partes/parrilla-susp.jpg","arranque":"./img/partes/arranque.jpg","sonda-lambda":"./img/partes/sonda-lambda.jpg","cable-bujia":"./img/partes/cable-bujia.jpg","manguera":"./img/partes/manguera.jpg","electroventilador":"./img/partes/electroventilador.jpg","disco-embrague":"./img/partes/disco-embrague.jpg","semieje":"./img/partes/semieje.jpg","cremallera":"./img/partes/cremallera.jpg","catalizador":"./img/partes/catalizador.jpg","silenciador":"./img/partes/silenciador.jpg","deposito":"./img/partes/deposito.jpg","sensor":"./img/partes/sensor.jpg","rodamiento":"./img/partes/rodamiento.jpg"};
-// Piezas con numeros de parte REALES de Ford Argentina (tiendaford.ar, marzo 2026)
-// precio_base = precio sugerido Juan (~35% menos que OEM). Stock empieza en 0, Juan lo edita.
-const CATALOGO_BASE=[
+// Catálogo cargado desde JSON real de tiendaford.ar (3332 productos)
+import CATALOGO_JSON from './catalogo-ford.json';
+
+// Convertir formato JSON a formato que usa la app
+function convertirCatalogo(jsonData){
+  const result={};
+  for(const [modeloId,piezas] of Object.entries(jsonData)){
+    result[modeloId]=(piezas||[]).map(p=>({
+      numero_parte:p.nro,
+      nombre:p.nombre,
+      descripcion:p.desc||'Repuesto original Ford. Consulte disponibilidad.',
+      precio:'$'+p.precio_juan.toLocaleString('es-AR'),
+      precio_oem:'$'+p.precio_ford.toLocaleString('es-AR'),
+      disponible:p.stock>0,
+      stock:p.stock||0,
+      cat:p.cat,
+      foto:p.foto_cdn,
+      modelo_nombre:modeloId,
+      aplicativos:[modeloId],
+    }));
+  }
+  return result;
+}
+const CATALOGO_COMPLETO=convertirCatalogo(CATALOGO_JSON);
+
+// Actualizar total_repuestos de cada modelo
+MOCK_MODELOS.forEach(m=>{
+  const parts=CATALOGO_COMPLETO[m.id];
+  if(parts)m.total_repuestos=parts.length;
+});
+
+const _CATALOGO_BASE_REMOVED=[
   // ══ FILTROS — Mantenimiento (N° pieza reales de tiendaford.ar) ══
   {nombre:"ELEMENTO FILTRO DE ACEITE",cat:"Mantenimiento",precio_base:7000,oem:10565,nro:"655023",img:"filtro",desc:"Filtro de aceite original Ford. Retiene impurezas y particulas del aceite del motor para proteger los componentes internos. Cambio recomendado cada 10.000 km."},
   {nombre:"FILTRO DE ACEITE DE MOTOR",cat:"Mantenimiento",precio_base:6900,oem:10565,nro:"655276",img:"filtro",desc:"Elemento filtrante de aceite de motor Ford. Garantiza la lubricacion limpia del motor. Pieza original con sello de calidad Ford."},
@@ -363,35 +392,7 @@ const CATALOGO_BASE=[
   {nombre:"LIQUIDO DE FRENOS DOT4 (1L)",cat:"Lubricantes",precio_base:12000,oem:18500},
 ];
 
-function generarRepuestos(modelo){
-  // SOLO piezas con numero de pieza REAL de Ford (nro). Sin piezas inventadas.
-  const result=[];
-  for(const base of CATALOGO_BASE){
-    if(!base.nro)continue; // saltar piezas sin N° real
-    const fotoUrl=`./img/ford-parts/${base.nro}.jpg`;
-    // Precio Ford oficial (OEM) + 13% servicio de Juan
-    const precioFord=base.oem||base.precio_base;
-    const precioJuan=Math.round(precioFord*1.13/100)*100;
-    result.push({
-      numero_parte:base.nro,
-      nombre:base.nombre,
-      descripcion:base.desc||`Repuesto ${base.cat} para ${modelo.nombre}. Pieza original Ford.`,
-      precio:`$${precioJuan.toLocaleString("es-AR")}`,
-      precio_oem:`$${precioFord.toLocaleString("es-AR")}`,
-      disponible:false,
-      stock:0,
-      cat:base.cat,
-      img:base.img||null,
-      foto:fotoUrl,
-      modelo_nombre:modelo.nombre,
-      aplicativos:[`${modelo.nombre} ${modelo.año}`],
-    });
-  }
-  return result;
-}
-// Pre-generate catalog
-const CATALOGO_COMPLETO={};
-MOCK_MODELOS.forEach(m=>{CATALOGO_COMPLETO[m.id]=generarRepuestos(m);});
+// Catalogo generado desde catalogo-ford.json (arriba)
 
 function mockBuscar(q){
   const ql=q.toLowerCase().trim();
