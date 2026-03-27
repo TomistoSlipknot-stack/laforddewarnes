@@ -86,12 +86,54 @@ const distPath = path.join(__dirname, 'dist');
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
 
+// ─── ACCOUNTS ──
+let accounts = loadJSON('accounts.json', {
+  admin: { user: 'juan', pass: '1234', name: 'Juan', role: 'admin' },
+  employees: []
+});
+function saveAccounts() { saveJSON('accounts.json', accounts); }
+
 // Auth
 app.post('/api/login', (req, res) => {
-  const { password } = req.body;
-  if (password === '1234') return res.json({ ok: true, role: 'admin', name: 'Juan' });
-  if (password === 'taller') return res.json({ ok: true, role: 'employee', name: 'Empleado' });
+  const { password, username } = req.body;
+  // Admin login
+  if (password === accounts.admin.pass) {
+    return res.json({ ok: true, role: 'admin', name: username || accounts.admin.name });
+  }
+  // Employee login — check all employee accounts
+  const emp = accounts.employees.find(e => e.pass === password && (!e.user || e.user === username));
+  if (emp) {
+    return res.json({ ok: true, role: 'employee', name: username || emp.name });
+  }
   return res.json({ ok: false });
+});
+
+// Account management (admin only)
+app.get('/api/accounts', (req, res) => {
+  res.json({
+    admin: { user: accounts.admin.user, name: accounts.admin.name },
+    employees: accounts.employees.map(e => ({ id: e.id, user: e.user, name: e.name, createdAt: e.createdAt }))
+  });
+});
+app.post('/api/accounts/employee', (req, res) => {
+  const { name, user, pass } = req.body;
+  if (!name || !pass) return res.json({ ok: false, error: 'Nombre y contraseña requeridos' });
+  const id = 'emp_' + Date.now();
+  accounts.employees.push({ id, name, user: user || name.toLowerCase().replace(/\s+/g,''), pass, createdAt: Date.now() });
+  saveAccounts();
+  res.json({ ok: true });
+});
+app.delete('/api/accounts/employee/:id', (req, res) => {
+  accounts.employees = accounts.employees.filter(e => e.id !== req.params.id);
+  saveAccounts();
+  res.json({ ok: true });
+});
+app.post('/api/accounts/admin-pass', (req, res) => {
+  const { newPass } = req.body;
+  if (!newPass || newPass.length < 4) return res.json({ ok: false, error: 'Minimo 4 caracteres' });
+  accounts.admin.pass = newPass;
+  saveAccounts();
+  res.json({ ok: true });
 });
 
 // Stock
