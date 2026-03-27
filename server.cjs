@@ -71,6 +71,7 @@ function getChatList() {
       unread: room.unreadByJuan || 0,
       msgCount: room.messages.length,
       status: room.status || 'active',
+      claimedBy: room.claimedBy || null,
     })).sort((a, b) => {
       const ta = a.lastMsg ? a.lastMsg.ts : 0;
       const tb = b.lastMsg ? b.lastMsg.ts : 0;
@@ -158,17 +159,21 @@ wss.on('connection', (ws) => {
           sendTo(ws, { type: 'registered', clientId, roomId });
           sendTo(ws, { type: 'stock_update', stock: stockData });
 
-          if (data.role === 'admin') {
+          if (data.role === 'admin' || data.role === 'employee') {
             sendTo(ws, { type: 'chat_list', rooms: getChatList() });
             sendTo(ws, { type: 'online_list', users: getOnlineList() });
-            sendTo(ws, { type: 'search_logs', logs: searchLogs.slice(-50) });
-            sendTo(ws, { type: 'sales_list', sales: salesLog.slice(-50) });
-          } else if (roomId && chatRooms[roomId]) {
+            if (data.role === 'admin') {
+              sendTo(ws, { type: 'search_logs', logs: searchLogs.slice(-50) });
+              sendTo(ws, { type: 'sales_list', sales: salesLog.slice(-50) });
+            }
+          }
+          if (roomId && chatRooms[roomId]) {
             sendTo(ws, { type: 'chat_history', roomId, messages: chatRooms[roomId].messages.slice(-100) });
           }
 
           broadcastToRole('admin', { type: 'online_list', users: getOnlineList() });
           broadcastToRole('admin', { type: 'chat_list', rooms: getChatList() });
+          broadcastToRole('employee', { type: 'chat_list', rooms: getChatList() });
           break;
         }
 
@@ -178,17 +183,35 @@ wss.on('connection', (ws) => {
           const msg = { from: clientInfo.name, fromRole: clientInfo.role, text: data.text, ts: Date.now() };
           chatRooms[roomId].messages.push(msg);
           if (chatRooms[roomId].messages.length > 500) chatRooms[roomId].messages.shift();
-          if (clientInfo.role !== 'admin') {
+          if (clientInfo.role !== 'admin' && clientInfo.role !== 'employee') {
             chatRooms[roomId].unreadByJuan = (chatRooms[roomId].unreadByJuan || 0) + 1;
           }
           saveChats();
+          // Send to: the client in this room + admin + all employees
           for (const [otherWs, otherInfo] of clients) {
             if (otherWs.readyState !== 1) continue;
-            if (otherInfo.roomId === roomId || otherInfo.role === 'admin') {
+            if (otherInfo.roomId === roomId || otherInfo.role === 'admin' || otherInfo.role === 'employee') {
               sendTo(otherWs, { type: 'chat_msg', roomId, msg });
             }
           }
           broadcastToRole('admin', { type: 'chat_list', rooms: getChatList() });
+          broadcastToRole('employee', { type: 'chat_list', rooms: getChatList() });
+          break;
+        }
+
+        // ── Claim a chat (employee/admin takes ownership) ──
+        case 'claim_chat': {
+          if (clientInfo.role !== 'admin' && clientInfo.role !== 'employee') break;
+          const room = chatRooms[data.roomId];
+          if (!room) break;
+          if (room.claimedBy) break; // already claimed
+          room.claimedBy = clientInfo.name;
+          room.claimedRole = clientInfo.role;
+          saveChats();
+          // Notify everyone
+          broadcastAll({ type: 'chat_claimed', roomId: data.roomId, by: clientInfo.name, role: clientInfo.role });
+          broadcastToRole('admin', { type: 'chat_list', rooms: getChatList() });
+          broadcastToRole('employee', { type: 'chat_list', rooms: getChatList() });
           break;
         }
 

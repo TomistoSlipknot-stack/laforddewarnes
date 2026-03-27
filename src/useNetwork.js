@@ -91,6 +91,10 @@ export function useNetwork() {
           case 'sales_list':
             setSalesLog(data.sales || []);
             break;
+          case 'chat_claimed':
+            // Update chat rooms to reflect who claimed it
+            setChatRooms(prev => prev.map(r => r.id === data.roomId ? { ...r, claimedBy: data.by } : r));
+            break;
         }
       } catch (err) { /* ignore */ }
     };
@@ -134,10 +138,16 @@ export function useNetwork() {
     }
   }, []);
 
+  const claimChat = useCallback((roomId) => {
+    if (wsRef.current?.readyState === 1) {
+      wsRef.current.send(JSON.stringify({ type: 'claim_chat', roomId }));
+    }
+  }, []);
+
   return {
     connect, disconnect, connected,
     stock, onlineUsers, chatRooms, chatMessages,
     searchLogs, salesLog, clientId, roomId,
-    sendChat, markRead, broadcastSearch, chatAction,
+    sendChat, markRead, broadcastSearch, chatAction, claimChat,
   };
 }

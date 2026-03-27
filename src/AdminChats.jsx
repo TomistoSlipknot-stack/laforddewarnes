@@ -69,9 +69,10 @@ export default function AdminChats({ network }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>{room.name}</span>
                   <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                    {room.status === 'scheduled' && <span style={{ fontSize: 8, background: 'rgba(234,179,8,.15)', color: '#fbbf24', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>AGENDADO</span>}
-                    {room.status === 'sold' && <span style={{ fontSize: 8, background: 'rgba(34,197,94,.15)', color: '#22c55e', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>VENTA</span>}
-                    <span style={{ fontSize: 9, color: '#333' }}>{room.role === 'employee' ? 'STAFF' : 'CLIENTE'}</span>
+                    {room.claimedBy && <span style={{ fontSize: 8, background: 'rgba(0,52,120,.08)', color: '#003478', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{room.claimedBy}</span>}
+                    {room.status === 'scheduled' && <span style={{ fontSize: 8, background: 'rgba(234,179,8,.15)', color: '#b8860b', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>AGENDADO</span>}
+                    {room.status === 'sold' && <span style={{ fontSize: 8, background: 'rgba(34,197,94,.15)', color: '#16a34a', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>VENTA</span>}
+                    <span style={{ fontSize: 9, color: '#999' }}>{room.role === 'employee' ? 'STAFF' : 'CLIENTE'}</span>
                   </div>
                 </div>
                 {room.lastMsg && (
@@ -108,9 +109,20 @@ export default function AdminChats({ network }) {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
+              {!activeRoomInfo?.claimedBy && (
+                <button onClick={(e) => { e.stopPropagation(); network.claimChat(activeRoom); }}
+                  style={{ padding: '3px 8px', fontSize: 10, border: '1px solid rgba(0,52,120,.3)', borderRadius: 6, background: 'rgba(0,52,120,.08)', color: '#003478', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>
+                  Atender
+                </button>
+              )}
+              {activeRoomInfo?.claimedBy && (
+                <span style={{ fontSize: 9, color: '#003478', padding: '3px 8px', background: 'rgba(0,52,120,.06)', borderRadius: 6 }}>
+                  Atendido por {activeRoomInfo.claimedBy}
+                </span>
+              )}
               {activeRoomInfo?.status !== 'scheduled' && activeRoomInfo?.status !== 'sold' && (
                 <button onClick={(e) => { e.stopPropagation(); network.chatAction(activeRoom, 'schedule'); }}
-                  title="Agendar" style={{ padding: '3px 8px', fontSize: 10, border: '1px solid rgba(234,179,8,.3)', borderRadius: 6, background: 'rgba(234,179,8,.08)', color: '#fbbf24', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  title="Agendar" style={{ padding: '3px 8px', fontSize: 10, border: '1px solid rgba(234,179,8,.3)', borderRadius: 6, background: 'rgba(234,179,8,.08)', color: '#b8860b', cursor: 'pointer', fontFamily: 'inherit' }}>
                   Agendar
                 </button>
               )}

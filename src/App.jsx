@@ -756,7 +756,7 @@ export default function FordWarnesApp({ user, onLogout }){
           {[
             {id:"catalogo",label:"Catalogo",icon:"M4 6h16M4 10h16M4 14h16M4 18h16"},
             {id:"chat",label:"Buscar",icon:"M21 21l-4.35-4.35M11 3a8 8 0 100 16 8 8 0 000-16z"},
-            ...(esJefe?[{id:"admin",label:"Panel",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
+            ...((esJefe||role==='employee')?[{id:"admin",label:esJefe?"Panel":"Consultas",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
           ].map(t=>(
             <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":"#fff",border:`2px solid ${vista===t.id?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":"#555",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
@@ -817,7 +817,7 @@ export default function FordWarnesApp({ user, onLogout }){
             </div>
           </div>
         </>
-      ):vista==="admin"&&esJefe?(
+      ):vista==="admin"&&(esJefe||role==='employee')?(
         <div style={{flex:1,display:"flex",flexDirection:"column"}}>
           {/* Admin sub-tabs */}
           <div style={{display:"flex",gap:6,padding:"10px 16px",borderBottom:"1px solid #e8e8e8",background:"#fafafa",flexShrink:0}}>
@@ -1039,7 +1039,7 @@ function RepCard({r,onClick,onConsultar}){
           </button>
           <button onClick={(e)=>{e.stopPropagation();onConsultar&&onConsultar(r);}} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit",transition:"background .15s"}}
             onMouseEnter={e=>e.target.style.background="#004aa0"} onMouseLeave={e=>e.target.style.background="#003478"}>
-            Consultar con Juan
+            Consultar
           </button>
         </div>
       </div>
@@ -1151,7 +1151,7 @@ function Modal({parte:r,onClose,onConsultar}){
             {/* Buttons */}
             <div style={{display:"flex",gap:10}}>
               <button onClick={onClose} style={{flex:1,padding:"12px 0",fontSize:14,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:"#fff",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
-              {onConsultar&&<button onClick={()=>{onConsultar(r);onClose();}} style={{flex:1,background:"#003478",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Consultar con Juan</button>}
+              {onConsultar&&<button onClick={()=>{onConsultar(r);onClose();}} style={{flex:1,background:"#003478",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Consultar</button>}
             </div>
           </div>
         </div>
