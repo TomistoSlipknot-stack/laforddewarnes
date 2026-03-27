@@ -247,14 +247,31 @@ const _CATALOGO_BASE_REMOVED=[
 
 function mockBuscar(q){
   const ql=q.toLowerCase().trim();
-  // Buscar en TODO el catálogo real de Ford
+  if(!ql)return null;
   const allParts=Object.values(CATALOGO_COMPLETO).flat();
-  // Por número de parte
-  const byPart=allParts.filter(p=>p.numero_parte&&p.numero_parte.toLowerCase().includes(ql));
-  if(byPart.length)return byPart.slice(0,15);
-  // Por nombre, modelo o categoría
-  const byName=allParts.filter(p=>(p.nombre&&p.nombre.toLowerCase().includes(ql))||(p.modelo_nombre&&p.modelo_nombre.toLowerCase().includes(ql))||(p.cat&&p.cat.toLowerCase().includes(ql)));
-  if(byName.length)return [...new Map(byName.map(p=>[p.numero_parte,p])).values()].slice(0,15);
+  // Eliminar duplicados por numero de pieza
+  const unique=[...new Map(allParts.map(p=>[p.numero_parte,p])).values()];
+  // Buscar por numero de pieza exacto o parcial
+  const byPart=unique.filter(p=>p.numero_parte&&p.numero_parte.toLowerCase().includes(ql));
+  if(byPart.length)return byPart.slice(0,20);
+  // Buscar en nombre
+  const byName=unique.filter(p=>p.nombre&&p.nombre.toLowerCase().includes(ql));
+  if(byName.length)return byName.slice(0,20);
+  // Buscar en categoria
+  const byCat=unique.filter(p=>p.cat&&p.cat.toLowerCase().includes(ql));
+  if(byCat.length)return byCat.slice(0,20);
+  // Buscar en modelo
+  const byModel=unique.filter(p=>p.modelo_nombre&&p.modelo_nombre.toLowerCase().includes(ql));
+  if(byModel.length)return byModel.slice(0,20);
+  // Buscar palabras sueltas (ej: "filtro ranger" busca filtro + ranger)
+  const words=ql.split(/\s+/).filter(w=>w.length>2);
+  if(words.length>1){
+    const multi=unique.filter(p=>{
+      const txt=(p.nombre+' '+p.cat+' '+p.modelo_nombre+' '+p.numero_parte).toLowerCase();
+      return words.every(w=>txt.includes(w));
+    });
+    if(multi.length)return multi.slice(0,20);
+  }
   return null;
 }
 const SUGERENCIAS=["Filtro aceite","Pastillas freno","Amortiguador","Bujia","Correa","Bateria","Radiador","Paragolpes","Espejo","Filtro aire","Limpiaparabrisas"];
