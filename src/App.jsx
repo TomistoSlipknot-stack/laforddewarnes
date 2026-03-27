@@ -124,159 +124,159 @@ function stockLabel(n){if(n===0)return"Sin stock";if(n===1)return"Ultimo disponi
 const MOCK_RESULTADOS = {
   // ── Motores ──
   motor:[
-    {numero_parte:"M-6007-B302V",nombre:"Motor 302 V8 Remanufacturado OEM",precio:"$1.840.000",disponible:true,stock:2,cat:"motor",modelo_nombre:"F-150",aplicativos:["F-150 2015-2020","Mustang GT 2015-2020"]},
-    {numero_parte:"AZ-ENG-302",nombre:"Motor 302 V8 Reacondicionado",precio:"$1.620.000",disponible:true,stock:1,cat:"motor",modelo_nombre:"F-150/Mustang",aplicativos:["F-150 2015-2020"]},
-    {numero_parte:"M-6007-23T",nombre:"Motor 2.3L EcoBoost Completo",precio:"$2.450.000",disponible:true,stock:1,cat:"motor",modelo_nombre:"Ranger",aplicativos:["Ranger 2019-2024","Bronco Sport 2021-2024"]},
+    {numero_parte:"M-6007-B302V",nombre:"Motor 302 V8 Remanufacturado OEM",precio:"$1.840.000",disponible:false,stock:0,cat:"motor",modelo_nombre:"F-150",aplicativos:["F-150 2015-2020","Mustang GT 2015-2020"]},
+    {numero_parte:"AZ-ENG-302",nombre:"Motor 302 V8 Reacondicionado",precio:"$1.620.000",disponible:false,stock:0,cat:"motor",modelo_nombre:"F-150/Mustang",aplicativos:["F-150 2015-2020"]},
+    {numero_parte:"M-6007-23T",nombre:"Motor 2.3L EcoBoost Completo",precio:"$2.450.000",disponible:false,stock:0,cat:"motor",modelo_nombre:"Ranger",aplicativos:["Ranger 2019-2024","Bronco Sport 2021-2024"]},
     {numero_parte:"FW-MOT-20D",nombre:"Motor 2.0 Diesel Puma Reman.",precio:"$2.180.000",disponible:false,stock:0,cat:"motor",modelo_nombre:"Ranger Diesel",aplicativos:["Ranger 2.0D 2021-2024","Everest 2.0D"]},
-    {numero_parte:"M-5000-GT50",nombre:"Motor 5.0L Coyote V8",precio:"$3.900.000",disponible:true,stock:1,cat:"motor",modelo_nombre:"Mustang GT",aplicativos:["Mustang GT 2018-2024","F-150 5.0 2018-2024"]},
+    {numero_parte:"M-5000-GT50",nombre:"Motor 5.0L Coyote V8",precio:"$3.900.000",disponible:false,stock:0,cat:"motor",modelo_nombre:"Mustang GT",aplicativos:["Mustang GT 2018-2024","F-150 5.0 2018-2024"]},
   ],
   // ── Filtros ──
   filtro:[
-    {numero_parte:"FL-820-S",nombre:"Filtro de Aceite OEM Ford",precio:"$15.000",disponible:true,stock:18,cat:"filtro",modelo_nombre:"F-150/Ranger",aplicativos:["F-150 2011-2024","Ranger 2019-2024"]},
-    {numero_parte:"AZ-FL-PH3593",nombre:"Filtro Aceite 5.0L V8",precio:"$12.500",disponible:true,stock:34,cat:"filtro",modelo_nombre:"F-150",aplicativos:["F-150 5.0L 2015-2024"]},
-    {numero_parte:"FA-1927",nombre:"Filtro de Aire OEM",precio:"$22.000",disponible:true,stock:12,cat:"filtro",modelo_nombre:"Ranger/EcoSport",aplicativos:["Ranger 2.5 2012-2018","EcoSport 2013-2022"]},
-    {numero_parte:"FW-FC-DSL",nombre:"Filtro Combustible Diesel",precio:"$18.500",disponible:true,stock:8,cat:"filtro",modelo_nombre:"Ranger Diesel",aplicativos:["Ranger 2.0D 2021-2024","Transit 2.0D"]},
-    {numero_parte:"FW-FH-CAB",nombre:"Filtro Habitáculo / Cabina",precio:"$9.800",disponible:true,stock:25,cat:"filtro",modelo_nombre:"Universal",aplicativos:["Focus 2013-2019","Ka 2014-2022","Fiesta 2011-2019"]},
+    {numero_parte:"FL-820-S",nombre:"Filtro de Aceite OEM Ford",precio:"$15.000",disponible:false,stock:0,cat:"filtro",modelo_nombre:"F-150/Ranger",aplicativos:["F-150 2011-2024","Ranger 2019-2024"]},
+    {numero_parte:"AZ-FL-PH3593",nombre:"Filtro Aceite 5.0L V8",precio:"$12.500",disponible:false,stock:0,cat:"filtro",modelo_nombre:"F-150",aplicativos:["F-150 5.0L 2015-2024"]},
+    {numero_parte:"FA-1927",nombre:"Filtro de Aire OEM",precio:"$22.000",disponible:false,stock:0,cat:"filtro",modelo_nombre:"Ranger/EcoSport",aplicativos:["Ranger 2.5 2012-2018","EcoSport 2013-2022"]},
+    {numero_parte:"FW-FC-DSL",nombre:"Filtro Combustible Diesel",precio:"$18.500",disponible:false,stock:0,cat:"filtro",modelo_nombre:"Ranger Diesel",aplicativos:["Ranger 2.0D 2021-2024","Transit 2.0D"]},
+    {numero_parte:"FW-FH-CAB",nombre:"Filtro Habitáculo / Cabina",precio:"$9.800",disponible:false,stock:0,cat:"filtro",modelo_nombre:"Universal",aplicativos:["Focus 2013-2019","Ka 2014-2022","Fiesta 2011-2019"]},
   ],
   // ── Frenos ──
   pastilla:[
     {numero_parte:"BB5Z-2001-D",nombre:"Pastillas Freno Delantero OEM",precio:"$95.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2018-2023"]},
-    {numero_parte:"AZ-BR-PPF63",nombre:"Pastillas Cerámicas Delantero",precio:"$64.000",disponible:true,stock:6,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2016-2023"]},
-    {numero_parte:"FW-BR-RNG",nombre:"Pastillas Freno Delantero Ranger",precio:"$48.000",disponible:true,stock:14,cat:"freno",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024","Everest 2015-2024"]},
-    {numero_parte:"FW-BR-ECO",nombre:"Pastillas Freno Delantero EcoSport",precio:"$32.000",disponible:true,stock:20,cat:"freno",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022","Ka+ 2016-2022"]},
+    {numero_parte:"AZ-BR-PPF63",nombre:"Pastillas Cerámicas Delantero",precio:"$64.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2016-2023"]},
+    {numero_parte:"FW-BR-RNG",nombre:"Pastillas Freno Delantero Ranger",precio:"$48.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024","Everest 2015-2024"]},
+    {numero_parte:"FW-BR-ECO",nombre:"Pastillas Freno Delantero EcoSport",precio:"$32.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022","Ka+ 2016-2022"]},
   ],
   freno:[
-    {numero_parte:"FW-DSC-F150",nombre:"Discos de Freno Ventilados F-150",precio:"$120.000",disponible:true,stock:4,cat:"freno",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
-    {numero_parte:"FW-DSC-RNG",nombre:"Discos de Freno Ventilados Ranger",precio:"$85.000",disponible:true,stock:6,cat:"freno",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
-    {numero_parte:"FW-CAL-EXP",nombre:"Caliper Freno Delantero Explorer",precio:"$145.000",disponible:true,stock:2,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2016-2024","Edge 2015-2024"]},
+    {numero_parte:"FW-DSC-F150",nombre:"Discos de Freno Ventilados F-150",precio:"$120.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-DSC-RNG",nombre:"Discos de Freno Ventilados Ranger",precio:"$85.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
+    {numero_parte:"FW-CAL-EXP",nombre:"Caliper Freno Delantero Explorer",precio:"$145.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2016-2024","Edge 2015-2024"]},
   ],
   disco:[
-    {numero_parte:"FW-DSC-F150",nombre:"Discos de Freno Ventilados F-150",precio:"$120.000",disponible:true,stock:4,cat:"freno",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
-    {numero_parte:"FW-DSC-MST",nombre:"Discos Freno Perforados Mustang",precio:"$165.000",disponible:true,stock:3,cat:"freno",modelo_nombre:"Mustang",aplicativos:["Mustang GT 2015-2024"]},
+    {numero_parte:"FW-DSC-F150",nombre:"Discos de Freno Ventilados F-150",precio:"$120.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-DSC-MST",nombre:"Discos Freno Perforados Mustang",precio:"$165.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Mustang",aplicativos:["Mustang GT 2015-2024"]},
   ],
   // ── Correas ──
   correa:[
-    {numero_parte:"1355168",nombre:"Correa de Distribución OEM",precio:"$34.000",disponible:true,stock:7,cat:"correa",modelo_nombre:"Ranger",aplicativos:["Ranger 2.5L 2019-2024"]},
-    {numero_parte:"AZ-TD-TB287",nombre:"Kit Correa Distribución Diesel",precio:"$28.000",disponible:true,stock:4,cat:"correa",modelo_nombre:"Ranger Diesel",aplicativos:["Ranger Diesel 2.0 2021-2024"]},
-    {numero_parte:"FW-COR-ACC",nombre:"Correa Accesorios Poly-V",precio:"$12.000",disponible:true,stock:22,cat:"correa",modelo_nombre:"Universal",aplicativos:["Focus 2013-2019","Ka 2014-2022","EcoSport 2013-2022"]},
+    {numero_parte:"1355168",nombre:"Correa de Distribución OEM",precio:"$34.000",disponible:false,stock:0,cat:"correa",modelo_nombre:"Ranger",aplicativos:["Ranger 2.5L 2019-2024"]},
+    {numero_parte:"AZ-TD-TB287",nombre:"Kit Correa Distribución Diesel",precio:"$28.000",disponible:false,stock:0,cat:"correa",modelo_nombre:"Ranger Diesel",aplicativos:["Ranger Diesel 2.0 2021-2024"]},
+    {numero_parte:"FW-COR-ACC",nombre:"Correa Accesorios Poly-V",precio:"$12.000",disponible:false,stock:0,cat:"correa",modelo_nombre:"Universal",aplicativos:["Focus 2013-2019","Ka 2014-2022","EcoSport 2013-2022"]},
   ],
   // ── Suspensión ──
   amortiguador:[
-    {numero_parte:"FW-AM-F150D",nombre:"Amortiguador Delantero F-150",precio:"$78.000",disponible:true,stock:8,cat:"suspension",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
-    {numero_parte:"FW-AM-RNGD",nombre:"Amortiguador Delantero Ranger",precio:"$55.000",disponible:true,stock:12,cat:"suspension",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024","Everest 2015-2024"]},
-    {numero_parte:"FW-AM-ECOT",nombre:"Amortiguador Trasero EcoSport",precio:"$38.000",disponible:true,stock:10,cat:"suspension",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022"]},
+    {numero_parte:"FW-AM-F150D",nombre:"Amortiguador Delantero F-150",precio:"$78.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-AM-RNGD",nombre:"Amortiguador Delantero Ranger",precio:"$55.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024","Everest 2015-2024"]},
+    {numero_parte:"FW-AM-ECOT",nombre:"Amortiguador Trasero EcoSport",precio:"$38.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022"]},
   ],
   suspension:[
-    {numero_parte:"FW-RT-F150",nombre:"Rótula Superior F-150",precio:"$42.000",disponible:true,stock:6,cat:"suspension",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
-    {numero_parte:"FW-BJ-RNG",nombre:"Barra Estabilizadora Ranger",precio:"$35.000",disponible:true,stock:4,cat:"suspension",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
-    {numero_parte:"FW-ESP-MUE",nombre:"Espiral Delantero Reforzado",precio:"$48.000",disponible:true,stock:5,cat:"suspension",modelo_nombre:"F-150/Ranger",aplicativos:["F-150 2015-2024","Ranger 2019-2024"]},
+    {numero_parte:"FW-RT-F150",nombre:"Rótula Superior F-150",precio:"$42.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-BJ-RNG",nombre:"Barra Estabilizadora Ranger",precio:"$35.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
+    {numero_parte:"FW-ESP-MUE",nombre:"Espiral Delantero Reforzado",precio:"$48.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"F-150/Ranger",aplicativos:["F-150 2015-2024","Ranger 2019-2024"]},
   ],
   // ── Eléctrico ──
   bateria:[
-    {numero_parte:"FW-BAT-72",nombre:"Batería 12V 72Ah OEM",precio:"$95.000",disponible:true,stock:6,cat:"electrico",modelo_nombre:"Universal",aplicativos:["Ranger","Explorer","Escape","EcoSport"]},
-    {numero_parte:"FW-BAT-90",nombre:"Batería 12V 90Ah Heavy Duty",precio:"$120.000",disponible:true,stock:3,cat:"electrico",modelo_nombre:"F-150/F-250",aplicativos:["F-150 2015-2024","F-250 2017-2024","Expedition"]},
+    {numero_parte:"FW-BAT-72",nombre:"Batería 12V 72Ah OEM",precio:"$95.000",disponible:false,stock:0,cat:"electrico",modelo_nombre:"Universal",aplicativos:["Ranger","Explorer","Escape","EcoSport"]},
+    {numero_parte:"FW-BAT-90",nombre:"Batería 12V 90Ah Heavy Duty",precio:"$120.000",disponible:false,stock:0,cat:"electrico",modelo_nombre:"F-150/F-250",aplicativos:["F-150 2015-2024","F-250 2017-2024","Expedition"]},
   ],
   alternador:[
-    {numero_parte:"FW-ALT-150A",nombre:"Alternador 150A OEM",precio:"$185.000",disponible:true,stock:3,cat:"electrico",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024","Mustang 2015-2020"]},
-    {numero_parte:"FW-ALT-ECO",nombre:"Alternador 120A EcoSport/Ka",precio:"$125.000",disponible:true,stock:5,cat:"electrico",modelo_nombre:"EcoSport/Ka",aplicativos:["EcoSport 2013-2022","Ka 2014-2022"]},
+    {numero_parte:"FW-ALT-150A",nombre:"Alternador 150A OEM",precio:"$185.000",disponible:false,stock:0,cat:"electrico",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024","Mustang 2015-2020"]},
+    {numero_parte:"FW-ALT-ECO",nombre:"Alternador 120A EcoSport/Ka",precio:"$125.000",disponible:false,stock:0,cat:"electrico",modelo_nombre:"EcoSport/Ka",aplicativos:["EcoSport 2013-2022","Ka 2014-2022"]},
   ],
   bujia:[
-    {numero_parte:"SP-546",nombre:"Bujía de Encendido Iridium OEM",precio:"$8.500",disponible:true,stock:48,cat:"encendido",modelo_nombre:"Universal",aplicativos:["F-150 EcoBoost","Ranger 2.5","Focus","EcoSport"]},
-    {numero_parte:"SP-515",nombre:"Bujía Doble Platino V8",precio:"$12.000",disponible:true,stock:24,cat:"encendido",modelo_nombre:"F-150/Mustang",aplicativos:["F-150 5.0L","Mustang GT 5.0L"]},
+    {numero_parte:"SP-546",nombre:"Bujía de Encendido Iridium OEM",precio:"$8.500",disponible:false,stock:0,cat:"encendido",modelo_nombre:"Universal",aplicativos:["F-150 EcoBoost","Ranger 2.5","Focus","EcoSport"]},
+    {numero_parte:"SP-515",nombre:"Bujía Doble Platino V8",precio:"$12.000",disponible:false,stock:0,cat:"encendido",modelo_nombre:"F-150/Mustang",aplicativos:["F-150 5.0L","Mustang GT 5.0L"]},
   ],
   bobina:[
-    {numero_parte:"DG-508",nombre:"Bobina de Encendido OEM",precio:"$28.000",disponible:true,stock:16,cat:"encendido",modelo_nombre:"Universal",aplicativos:["F-150","Explorer","Mustang","Ranger"]},
+    {numero_parte:"DG-508",nombre:"Bobina de Encendido OEM",precio:"$28.000",disponible:false,stock:0,cat:"encendido",modelo_nombre:"Universal",aplicativos:["F-150","Explorer","Mustang","Ranger"]},
   ],
   // ── Refrigeración ──
   radiador:[
-    {numero_parte:"FW-RAD-F150",nombre:"Radiador Completo F-150",precio:"$145.000",disponible:true,stock:3,cat:"refrigeracion",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
-    {numero_parte:"FW-RAD-RNG",nombre:"Radiador Completo Ranger",precio:"$110.000",disponible:true,stock:4,cat:"refrigeracion",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
-    {numero_parte:"FW-RAD-ECO",nombre:"Radiador EcoSport/Ka",precio:"$72.000",disponible:true,stock:6,cat:"refrigeracion",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022","Ka 2014-2022"]},
+    {numero_parte:"FW-RAD-F150",nombre:"Radiador Completo F-150",precio:"$145.000",disponible:false,stock:0,cat:"refrigeracion",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-RAD-RNG",nombre:"Radiador Completo Ranger",precio:"$110.000",disponible:false,stock:0,cat:"refrigeracion",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
+    {numero_parte:"FW-RAD-ECO",nombre:"Radiador EcoSport/Ka",precio:"$72.000",disponible:false,stock:0,cat:"refrigeracion",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022","Ka 2014-2022"]},
   ],
   termostato:[
-    {numero_parte:"FW-TER-UNI",nombre:"Termostato OEM Ford",precio:"$18.000",disponible:true,stock:14,cat:"refrigeracion",modelo_nombre:"Universal",aplicativos:["Ranger","Focus","EcoSport","Ka","Fiesta"]},
+    {numero_parte:"FW-TER-UNI",nombre:"Termostato OEM Ford",precio:"$18.000",disponible:false,stock:0,cat:"refrigeracion",modelo_nombre:"Universal",aplicativos:["Ranger","Focus","EcoSport","Ka","Fiesta"]},
   ],
   // ── Transmisión ──
   embrague:[
-    {numero_parte:"FW-KIT-EMB-RNG",nombre:"Kit Embrague Completo Ranger",precio:"$180.000",disponible:true,stock:3,cat:"embrague",modelo_nombre:"Ranger",aplicativos:["Ranger 2.2/2.5 2012-2024"]},
-    {numero_parte:"FW-KIT-EMB-ECO",nombre:"Kit Embrague EcoSport 1.6",precio:"$95.000",disponible:true,stock:5,cat:"embrague",modelo_nombre:"EcoSport",aplicativos:["EcoSport 1.6 2013-2022","Ka 1.5 2014-2022"]},
-    {numero_parte:"FW-KIT-EMB-FOC",nombre:"Kit Embrague Focus 2.0",precio:"$110.000",disponible:true,stock:4,cat:"embrague",modelo_nombre:"Focus",aplicativos:["Focus 2.0 2013-2019"]},
+    {numero_parte:"FW-KIT-EMB-RNG",nombre:"Kit Embrague Completo Ranger",precio:"$180.000",disponible:false,stock:0,cat:"embrague",modelo_nombre:"Ranger",aplicativos:["Ranger 2.2/2.5 2012-2024"]},
+    {numero_parte:"FW-KIT-EMB-ECO",nombre:"Kit Embrague EcoSport 1.6",precio:"$95.000",disponible:false,stock:0,cat:"embrague",modelo_nombre:"EcoSport",aplicativos:["EcoSport 1.6 2013-2022","Ka 1.5 2014-2022"]},
+    {numero_parte:"FW-KIT-EMB-FOC",nombre:"Kit Embrague Focus 2.0",precio:"$110.000",disponible:false,stock:0,cat:"embrague",modelo_nombre:"Focus",aplicativos:["Focus 2.0 2013-2019"]},
   ],
   transmision:[
-    {numero_parte:"FW-CVJ-RNG",nombre:"Cruceta Transmisión Ranger",precio:"$22.000",disponible:true,stock:8,cat:"transmision",modelo_nombre:"Ranger",aplicativos:["Ranger 4x4 2012-2024"]},
-    {numero_parte:"FW-ATF-10R",nombre:"Aceite Caja 10R80 (1L)",precio:"$15.000",disponible:true,stock:30,cat:"transmision",modelo_nombre:"F-150/Mustang",aplicativos:["F-150 2017+","Mustang 2018+","Expedition"]},
+    {numero_parte:"FW-CVJ-RNG",nombre:"Cruceta Transmisión Ranger",precio:"$22.000",disponible:false,stock:0,cat:"transmision",modelo_nombre:"Ranger",aplicativos:["Ranger 4x4 2012-2024"]},
+    {numero_parte:"FW-ATF-10R",nombre:"Aceite Caja 10R80 (1L)",precio:"$15.000",disponible:false,stock:0,cat:"transmision",modelo_nombre:"F-150/Mustang",aplicativos:["F-150 2017+","Mustang 2018+","Expedition"]},
   ],
   // ── Aceites ──
   aceite:[
-    {numero_parte:"FW-5W30-SYN",nombre:"Aceite Motor 5W-30 Full Sintético (4L)",precio:"$32.000",disponible:true,stock:40,cat:"aceite",modelo_nombre:"Universal",aplicativos:["Todos los modelos nafta Ford"]},
-    {numero_parte:"FW-5W20-SYN",nombre:"Aceite Motor 5W-20 Sintético (4L)",precio:"$35.000",disponible:true,stock:25,cat:"aceite",modelo_nombre:"EcoBoost",aplicativos:["F-150 EcoBoost","Ranger 2.3","Escape 2.0T"]},
-    {numero_parte:"FW-15W40-D",nombre:"Aceite Motor 15W-40 Diesel (5L)",precio:"$28.000",disponible:true,stock:15,cat:"aceite",modelo_nombre:"Diesel",aplicativos:["Ranger Diesel","Transit Diesel","Everest Diesel"]},
+    {numero_parte:"FW-5W30-SYN",nombre:"Aceite Motor 5W-30 Full Sintético (4L)",precio:"$32.000",disponible:false,stock:0,cat:"aceite",modelo_nombre:"Universal",aplicativos:["Todos los modelos nafta Ford"]},
+    {numero_parte:"FW-5W20-SYN",nombre:"Aceite Motor 5W-20 Sintético (4L)",precio:"$35.000",disponible:false,stock:0,cat:"aceite",modelo_nombre:"EcoBoost",aplicativos:["F-150 EcoBoost","Ranger 2.3","Escape 2.0T"]},
+    {numero_parte:"FW-15W40-D",nombre:"Aceite Motor 15W-40 Diesel (5L)",precio:"$28.000",disponible:false,stock:0,cat:"aceite",modelo_nombre:"Diesel",aplicativos:["Ranger Diesel","Transit Diesel","Everest Diesel"]},
   ],
   // ── Dirección ──
   direccion:[
-    {numero_parte:"FW-CRE-F150",nombre:"Cremallera Dirección F-150",precio:"$280.000",disponible:true,stock:2,cat:"direccion",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
-    {numero_parte:"FW-BOM-DH",nombre:"Bomba Dirección Hidráulica",precio:"$145.000",disponible:true,stock:3,cat:"direccion",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2018"]},
-    {numero_parte:"FW-TRM-DIR",nombre:"Terminal de Dirección",precio:"$18.000",disponible:true,stock:16,cat:"direccion",modelo_nombre:"Universal",aplicativos:["Ranger","Explorer","F-150","Escape"]},
+    {numero_parte:"FW-CRE-F150",nombre:"Cremallera Dirección F-150",precio:"$280.000",disponible:false,stock:0,cat:"direccion",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-BOM-DH",nombre:"Bomba Dirección Hidráulica",precio:"$145.000",disponible:false,stock:0,cat:"direccion",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2018"]},
+    {numero_parte:"FW-TRM-DIR",nombre:"Terminal de Dirección",precio:"$18.000",disponible:false,stock:0,cat:"direccion",modelo_nombre:"Universal",aplicativos:["Ranger","Explorer","F-150","Escape"]},
   ],
   // ── Escape (tubo) ──
   escape:[
-    {numero_parte:"FW-CAT-RNG",nombre:"Catalizador OEM Ranger",precio:"$220.000",disponible:true,stock:2,cat:"escape-parte",modelo_nombre:"Ranger",aplicativos:["Ranger 2.5 2012-2024"]},
-    {numero_parte:"FW-SIL-F150",nombre:"Silenciador Trasero F-150",precio:"$85.000",disponible:true,stock:4,cat:"escape-parte",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-CAT-RNG",nombre:"Catalizador OEM Ranger",precio:"$220.000",disponible:false,stock:0,cat:"escape-parte",modelo_nombre:"Ranger",aplicativos:["Ranger 2.5 2012-2024"]},
+    {numero_parte:"FW-SIL-F150",nombre:"Silenciador Trasero F-150",precio:"$85.000",disponible:false,stock:0,cat:"escape-parte",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
   ],
   // ── Búsquedas comunes por modelo ──
   "f-150":[
-    {numero_parte:"FL-820-S",nombre:"Filtro de Aceite OEM",precio:"$15.000",disponible:true,stock:18,cat:"filtro",modelo_nombre:"F-150",aplicativos:["F-150 2011-2024"]},
-    {numero_parte:"FW-DSC-F150",nombre:"Discos de Freno Ventilados",precio:"$120.000",disponible:true,stock:4,cat:"freno",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
-    {numero_parte:"FW-AM-F150D",nombre:"Amortiguador Delantero",precio:"$78.000",disponible:true,stock:8,cat:"suspension",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
-    {numero_parte:"FW-RAD-F150",nombre:"Radiador Completo",precio:"$145.000",disponible:true,stock:3,cat:"refrigeracion",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FL-820-S",nombre:"Filtro de Aceite OEM",precio:"$15.000",disponible:false,stock:0,cat:"filtro",modelo_nombre:"F-150",aplicativos:["F-150 2011-2024"]},
+    {numero_parte:"FW-DSC-F150",nombre:"Discos de Freno Ventilados",precio:"$120.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-AM-F150D",nombre:"Amortiguador Delantero",precio:"$78.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
+    {numero_parte:"FW-RAD-F150",nombre:"Radiador Completo",precio:"$145.000",disponible:false,stock:0,cat:"refrigeracion",modelo_nombre:"F-150",aplicativos:["F-150 2015-2024"]},
   ],
   ranger:[
-    {numero_parte:"FW-BR-RNG",nombre:"Pastillas Freno Delantero",precio:"$48.000",disponible:true,stock:14,cat:"freno",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
-    {numero_parte:"FW-AM-RNGD",nombre:"Amortiguador Delantero",precio:"$55.000",disponible:true,stock:12,cat:"suspension",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
-    {numero_parte:"1355168",nombre:"Correa de Distribución OEM",precio:"$34.000",disponible:true,stock:7,cat:"correa",modelo_nombre:"Ranger",aplicativos:["Ranger 2.5L 2019-2024"]},
-    {numero_parte:"FW-KIT-EMB-RNG",nombre:"Kit Embrague Completo",precio:"$180.000",disponible:true,stock:3,cat:"embrague",modelo_nombre:"Ranger",aplicativos:["Ranger 2.2/2.5 2012-2024"]},
+    {numero_parte:"FW-BR-RNG",nombre:"Pastillas Freno Delantero",precio:"$48.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
+    {numero_parte:"FW-AM-RNGD",nombre:"Amortiguador Delantero",precio:"$55.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"Ranger",aplicativos:["Ranger 2012-2024"]},
+    {numero_parte:"1355168",nombre:"Correa de Distribución OEM",precio:"$34.000",disponible:false,stock:0,cat:"correa",modelo_nombre:"Ranger",aplicativos:["Ranger 2.5L 2019-2024"]},
+    {numero_parte:"FW-KIT-EMB-RNG",nombre:"Kit Embrague Completo",precio:"$180.000",disponible:false,stock:0,cat:"embrague",modelo_nombre:"Ranger",aplicativos:["Ranger 2.2/2.5 2012-2024"]},
   ],
   explorer:[
-    {numero_parte:"AZ-BR-PPF63",nombre:"Pastillas Cerámicas Delantero",precio:"$64.000",disponible:true,stock:6,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2016-2023"]},
-    {numero_parte:"FW-CAL-EXP",nombre:"Caliper Freno Delantero",precio:"$145.000",disponible:true,stock:2,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2016-2024"]},
+    {numero_parte:"AZ-BR-PPF63",nombre:"Pastillas Cerámicas Delantero",precio:"$64.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2016-2023"]},
+    {numero_parte:"FW-CAL-EXP",nombre:"Caliper Freno Delantero",precio:"$145.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Explorer",aplicativos:["Explorer 2016-2024"]},
   ],
   mustang:[
-    {numero_parte:"M-5000-GT50",nombre:"Motor 5.0L Coyote V8",precio:"$3.900.000",disponible:true,stock:1,cat:"motor",modelo_nombre:"Mustang GT",aplicativos:["Mustang GT 2018-2024"]},
-    {numero_parte:"FW-DSC-MST",nombre:"Discos Freno Perforados",precio:"$165.000",disponible:true,stock:3,cat:"freno",modelo_nombre:"Mustang",aplicativos:["Mustang GT 2015-2024"]},
-    {numero_parte:"SP-515",nombre:"Bujía Doble Platino V8",precio:"$12.000",disponible:true,stock:24,cat:"encendido",modelo_nombre:"Mustang GT",aplicativos:["Mustang GT 5.0L"]},
+    {numero_parte:"M-5000-GT50",nombre:"Motor 5.0L Coyote V8",precio:"$3.900.000",disponible:false,stock:0,cat:"motor",modelo_nombre:"Mustang GT",aplicativos:["Mustang GT 2018-2024"]},
+    {numero_parte:"FW-DSC-MST",nombre:"Discos Freno Perforados",precio:"$165.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"Mustang",aplicativos:["Mustang GT 2015-2024"]},
+    {numero_parte:"SP-515",nombre:"Bujía Doble Platino V8",precio:"$12.000",disponible:false,stock:0,cat:"encendido",modelo_nombre:"Mustang GT",aplicativos:["Mustang GT 5.0L"]},
   ],
   ecosport:[
-    {numero_parte:"FW-BR-ECO",nombre:"Pastillas Freno Delantero",precio:"$32.000",disponible:true,stock:20,cat:"freno",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022"]},
-    {numero_parte:"FW-AM-ECOT",nombre:"Amortiguador Trasero",precio:"$38.000",disponible:true,stock:10,cat:"suspension",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022"]},
-    {numero_parte:"FW-KIT-EMB-ECO",nombre:"Kit Embrague 1.6",precio:"$95.000",disponible:true,stock:5,cat:"embrague",modelo_nombre:"EcoSport",aplicativos:["EcoSport 1.6 2013-2022"]},
-    {numero_parte:"FW-RAD-ECO",nombre:"Radiador Completo",precio:"$72.000",disponible:true,stock:6,cat:"refrigeracion",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022"]},
+    {numero_parte:"FW-BR-ECO",nombre:"Pastillas Freno Delantero",precio:"$32.000",disponible:false,stock:0,cat:"freno",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022"]},
+    {numero_parte:"FW-AM-ECOT",nombre:"Amortiguador Trasero",precio:"$38.000",disponible:false,stock:0,cat:"suspension",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022"]},
+    {numero_parte:"FW-KIT-EMB-ECO",nombre:"Kit Embrague 1.6",precio:"$95.000",disponible:false,stock:0,cat:"embrague",modelo_nombre:"EcoSport",aplicativos:["EcoSport 1.6 2013-2022"]},
+    {numero_parte:"FW-RAD-ECO",nombre:"Radiador Completo",precio:"$72.000",disponible:false,stock:0,cat:"refrigeracion",modelo_nombre:"EcoSport",aplicativos:["EcoSport 2013-2022"]},
   ],
   focus:[
-    {numero_parte:"FW-KIT-EMB-FOC",nombre:"Kit Embrague 2.0",precio:"$110.000",disponible:true,stock:4,cat:"embrague",modelo_nombre:"Focus",aplicativos:["Focus 2.0 2013-2019"]},
-    {numero_parte:"FW-FH-CAB",nombre:"Filtro Habitáculo",precio:"$9.800",disponible:true,stock:25,cat:"filtro",modelo_nombre:"Focus",aplicativos:["Focus 2013-2019"]},
-    {numero_parte:"FW-COR-ACC",nombre:"Correa Accesorios Poly-V",precio:"$12.000",disponible:true,stock:22,cat:"correa",modelo_nombre:"Focus",aplicativos:["Focus 2013-2019"]},
+    {numero_parte:"FW-KIT-EMB-FOC",nombre:"Kit Embrague 2.0",precio:"$110.000",disponible:false,stock:0,cat:"embrague",modelo_nombre:"Focus",aplicativos:["Focus 2.0 2013-2019"]},
+    {numero_parte:"FW-FH-CAB",nombre:"Filtro Habitáculo",precio:"$9.800",disponible:false,stock:0,cat:"filtro",modelo_nombre:"Focus",aplicativos:["Focus 2013-2019"]},
+    {numero_parte:"FW-COR-ACC",nombre:"Correa Accesorios Poly-V",precio:"$12.000",disponible:false,stock:0,cat:"correa",modelo_nombre:"Focus",aplicativos:["Focus 2013-2019"]},
   ],
   ka:[
-    {numero_parte:"FW-ALT-ECO",nombre:"Alternador 120A",precio:"$125.000",disponible:true,stock:5,cat:"electrico",modelo_nombre:"Ka",aplicativos:["Ka 2014-2022"]},
-    {numero_parte:"FW-FH-CAB",nombre:"Filtro Habitáculo",precio:"$9.800",disponible:true,stock:25,cat:"filtro",modelo_nombre:"Ka",aplicativos:["Ka 2014-2022"]},
-    {numero_parte:"FW-KIT-EMB-ECO",nombre:"Kit Embrague",precio:"$95.000",disponible:true,stock:5,cat:"embrague",modelo_nombre:"Ka",aplicativos:["Ka 1.5 2014-2022"]},
+    {numero_parte:"FW-ALT-ECO",nombre:"Alternador 120A",precio:"$125.000",disponible:false,stock:0,cat:"electrico",modelo_nombre:"Ka",aplicativos:["Ka 2014-2022"]},
+    {numero_parte:"FW-FH-CAB",nombre:"Filtro Habitáculo",precio:"$9.800",disponible:false,stock:0,cat:"filtro",modelo_nombre:"Ka",aplicativos:["Ka 2014-2022"]},
+    {numero_parte:"FW-KIT-EMB-ECO",nombre:"Kit Embrague",precio:"$95.000",disponible:false,stock:0,cat:"embrague",modelo_nombre:"Ka",aplicativos:["Ka 1.5 2014-2022"]},
   ],
   fiesta:[
-    {numero_parte:"FW-FH-CAB",nombre:"Filtro Habitáculo",precio:"$9.800",disponible:true,stock:25,cat:"filtro",modelo_nombre:"Fiesta",aplicativos:["Fiesta 2011-2019"]},
-    {numero_parte:"FW-COR-ACC",nombre:"Correa Accesorios Poly-V",precio:"$12.000",disponible:true,stock:22,cat:"correa",modelo_nombre:"Fiesta",aplicativos:["Fiesta 2011-2019"]},
+    {numero_parte:"FW-FH-CAB",nombre:"Filtro Habitáculo",precio:"$9.800",disponible:false,stock:0,cat:"filtro",modelo_nombre:"Fiesta",aplicativos:["Fiesta 2011-2019"]},
+    {numero_parte:"FW-COR-ACC",nombre:"Correa Accesorios Poly-V",precio:"$12.000",disponible:false,stock:0,cat:"correa",modelo_nombre:"Fiesta",aplicativos:["Fiesta 2011-2019"]},
   ],
   bronco:[
-    {numero_parte:"M-6007-23T",nombre:"Motor 2.3L EcoBoost",precio:"$2.450.000",disponible:true,stock:1,cat:"motor",modelo_nombre:"Bronco",aplicativos:["Bronco 2021-2024","Bronco Sport"]},
-    {numero_parte:"FW-BAT-72",nombre:"Batería 12V 72Ah",precio:"$95.000",disponible:true,stock:6,cat:"electrico",modelo_nombre:"Bronco",aplicativos:["Bronco 2021-2024"]},
+    {numero_parte:"M-6007-23T",nombre:"Motor 2.3L EcoBoost",precio:"$2.450.000",disponible:false,stock:0,cat:"motor",modelo_nombre:"Bronco",aplicativos:["Bronco 2021-2024","Bronco Sport"]},
+    {numero_parte:"FW-BAT-72",nombre:"Batería 12V 72Ah",precio:"$95.000",disponible:false,stock:0,cat:"electrico",modelo_nombre:"Bronco",aplicativos:["Bronco 2021-2024"]},
   ],
   falcon:[
-    {numero_parte:"FW-FK-CARG",nombre:"Carburador 2 Bocas Falcon",precio:"$165.000",disponible:true,stock:2,cat:"motor",modelo_nombre:"Falcon",aplicativos:["Falcon 221 3.0","Falcon 188"]},
-    {numero_parte:"FW-FK-JDIST",nombre:"Juego Distribución Falcon",precio:"$45.000",disponible:true,stock:4,cat:"correa",modelo_nombre:"Falcon",aplicativos:["Falcon 221 3.0","Falcon 3.6"]},
-    {numero_parte:"FW-FK-BOMB",nombre:"Bomba de Agua Falcon",precio:"$38.000",disponible:true,stock:3,cat:"refrigeracion",modelo_nombre:"Falcon",aplicativos:["Falcon 221 3.0","Falcon 188"]},
+    {numero_parte:"FW-FK-CARG",nombre:"Carburador 2 Bocas Falcon",precio:"$165.000",disponible:false,stock:0,cat:"motor",modelo_nombre:"Falcon",aplicativos:["Falcon 221 3.0","Falcon 188"]},
+    {numero_parte:"FW-FK-JDIST",nombre:"Juego Distribución Falcon",precio:"$45.000",disponible:false,stock:0,cat:"correa",modelo_nombre:"Falcon",aplicativos:["Falcon 221 3.0","Falcon 3.6"]},
+    {numero_parte:"FW-FK-BOMB",nombre:"Bomba de Agua Falcon",precio:"$38.000",disponible:false,stock:0,cat:"refrigeracion",modelo_nombre:"Falcon",aplicativos:["Falcon 221 3.0","Falcon 188"]},
   ],
   transit:[
-    {numero_parte:"FW-FC-DSL",nombre:"Filtro Combustible Diesel",precio:"$18.500",disponible:true,stock:8,cat:"filtro",modelo_nombre:"Transit",aplicativos:["Transit 2.0D 2015-2024"]},
-    {numero_parte:"FW-15W40-D",nombre:"Aceite Motor 15W-40 Diesel (5L)",precio:"$28.000",disponible:true,stock:15,cat:"aceite",modelo_nombre:"Transit",aplicativos:["Transit Diesel"]},
+    {numero_parte:"FW-FC-DSL",nombre:"Filtro Combustible Diesel",precio:"$18.500",disponible:false,stock:0,cat:"filtro",modelo_nombre:"Transit",aplicativos:["Transit 2.0D 2015-2024"]},
+    {numero_parte:"FW-15W40-D",nombre:"Aceite Motor 15W-40 Diesel (5L)",precio:"$28.000",disponible:false,stock:0,cat:"aceite",modelo_nombre:"Transit",aplicativos:["Transit Diesel"]},
   ],
 };
 // ─── GENERADOR DE REPUESTOS POR MODELO ───────────────────────────────────────
@@ -285,30 +285,30 @@ const IMGS_SUB={"junta":"./img/partes/junta.jpg","bomba-agua":"./img/partes/bomb
 // precio_base = precio sugerido Juan (~35% menos que OEM). Stock empieza en 0, Juan lo edita.
 const CATALOGO_BASE=[
   // ══ FILTROS — Mantenimiento (N° pieza reales de tiendaford.ar) ══
-  {nombre:"ELEMENTO FILTRO DE ACEITE",cat:"Mantenimiento",precio_base:7000,oem:10565,nro:"655023",img:"filtro"},
-  {nombre:"FILTRO DE ACEITE DE MOTOR",cat:"Mantenimiento",precio_base:6900,oem:10565,nro:"655276",img:"filtro"},
-  {nombre:"ELEMENTO FILTRO DE ACEITE",cat:"Mantenimiento",precio_base:6000,oem:9129,nro:"733925",img:"filtro"},
-  {nombre:"ELEMENTO FILTRO DE ACEITE MOTORCRAFT",cat:"Mantenimiento",precio_base:13500,oem:20580,nro:"2037395",img:"filtro"},
-  {nombre:"FILTRO DE AIRE",cat:"Mantenimiento",precio_base:15000,oem:23173,nro:"655104",img:"filtro"},
-  {nombre:"ELEMENTO FILTRO DE AIRE",cat:"Mantenimiento",precio_base:47500,oem:72857,nro:"1301992",img:"filtro"},
-  {nombre:"FILTRO DE HABITACULO",cat:"Mantenimiento",precio_base:8300,oem:12651,nro:"580010",img:"filtro"},
-  {nombre:"FILTRO DE HABITACULO",cat:"Mantenimiento",precio_base:20000,oem:30556,nro:"1404231",img:"filtro"},
-  {nombre:"FILTRO DE COMBUSTIBLE MOTORCRAFT",cat:"Mantenimiento",precio_base:8300,oem:12717,nro:"655282",img:"filtro"},
-  {nombre:"FILTRO DE COMBUSTIBLE FF05612",cat:"Mantenimiento",precio_base:33000,oem:50609,nro:"734126",img:"filtro"},
-  {nombre:"ELEMENTO FILTRO DE GASOIL",cat:"Mantenimiento",precio_base:30500,oem:46713,nro:"658496",img:"filtro"},
+  {nombre:"ELEMENTO FILTRO DE ACEITE",cat:"Mantenimiento",precio_base:7000,oem:10565,nro:"655023",img:"filtro",desc:"Filtro de aceite original Ford. Retiene impurezas y particulas del aceite del motor para proteger los componentes internos. Cambio recomendado cada 10.000 km."},
+  {nombre:"FILTRO DE ACEITE DE MOTOR",cat:"Mantenimiento",precio_base:6900,oem:10565,nro:"655276",img:"filtro",desc:"Elemento filtrante de aceite de motor Ford. Garantiza la lubricacion limpia del motor. Pieza original con sello de calidad Ford."},
+  {nombre:"ELEMENTO FILTRO DE ACEITE",cat:"Mantenimiento",precio_base:6000,oem:9129,nro:"733925",img:"filtro",desc:"Filtro de aceite Ford para motorizaciones nafta y diesel. Maxima filtracion y flujo de aceite garantizado."},
+  {nombre:"ELEMENTO FILTRO DE ACEITE MOTORCRAFT",cat:"Mantenimiento",precio_base:13500,oem:20580,nro:"2037395",img:"filtro",desc:"Filtro de aceite premium Motorcraft. Marca oficial de repuestos Ford. Mayor duracion y rendimiento de filtracion."},
+  {nombre:"FILTRO DE AIRE",cat:"Mantenimiento",precio_base:15000,oem:23173,nro:"655104",img:"filtro",desc:"Filtro de aire del motor original Ford. Permite el ingreso de aire limpio al sistema de admision. Cambio recomendado cada 20.000 km."},
+  {nombre:"ELEMENTO FILTRO DE AIRE",cat:"Mantenimiento",precio_base:47500,oem:72857,nro:"1301992",img:"filtro",desc:"Elemento filtrante de aire de alta capacidad Ford. Para motorizaciones de mayor cilindrada. Filtracion superior de particulas."},
+  {nombre:"FILTRO DE HABITACULO",cat:"Mantenimiento",precio_base:8300,oem:12651,nro:"580010",img:"filtro",desc:"Filtro de cabina/habitaculo Ford. Purifica el aire que ingresa al interior del vehiculo. Retiene polen, polvo y particulas."},
+  {nombre:"FILTRO DE HABITACULO",cat:"Mantenimiento",precio_base:20000,oem:30556,nro:"1404231",img:"filtro",desc:"Filtro de habitaculo premium Ford con carbon activado. Elimina olores y gases nocivos ademas de particulas."},
+  {nombre:"FILTRO DE COMBUSTIBLE MOTORCRAFT",cat:"Mantenimiento",precio_base:8300,oem:12717,nro:"655282",img:"filtro",desc:"Filtro de combustible Motorcraft. Protege el sistema de inyeccion reteniendo impurezas del combustible."},
+  {nombre:"FILTRO DE COMBUSTIBLE FF05612",cat:"Mantenimiento",precio_base:33000,oem:50609,nro:"734126",img:"filtro",desc:"Filtro de combustible de alta eficiencia Ford. Para sistemas de inyeccion directa. Maxima retencion de particulas."},
+  {nombre:"ELEMENTO FILTRO DE GASOIL",cat:"Mantenimiento",precio_base:30500,oem:46713,nro:"658496",img:"filtro",desc:"Filtro separador de agua y gasoil Ford para motores diesel. Protege la bomba inyectora y los inyectores."},
   // ══ FRENOS — Mecánica Ligera (N° pieza reales) ══
-  {nombre:"JUEGO PASTILLAS DE FRENO DELANTERAS",cat:"Frenos",precio_base:202000,oem:309756,nro:"658434",img:"pastilla"},
-  {nombre:"JUEGO PASTILLAS DE FRENO DELANTERAS MOTORCRAFT",cat:"Frenos",precio_base:110000,oem:169177,nro:"1360311",img:"pastilla"},
-  {nombre:"KIT PASTILLAS DE FRENO RUEDAS DELANTERAS",cat:"Frenos",precio_base:73000,oem:111717,nro:"734128",img:"pastilla"},
-  {nombre:"JUEGO DE PASTILLAS DE FRENO TRASERAS MOTORCRAFT",cat:"Frenos",precio_base:124000,oem:190155,nro:"821398",img:"pastilla"},
-  {nombre:"JUEGO REPARACION AJUSTE ZAPATAS DE FRENO",cat:"Frenos",precio_base:106000,oem:163417,nro:"1457729"},
-  {nombre:"CILINDRO MAESTRO DE FRENO",cat:"Frenos",precio_base:291000,oem:446705,nro:"10754270"},
-  {nombre:"CILINDRO DE FRENO TRASERO IZQUIERDO",cat:"Frenos",precio_base:283000,oem:435091,nro:"1457723"},
-  {nombre:"SERVO FRENO",cat:"Frenos",precio_base:644000,oem:989642,nro:"664692"},
-  {nombre:"SERVOFRENO",cat:"Frenos",precio_base:972000,oem:1492796,nro:"644509"},
-  {nombre:"BOMBA FRENO CON RESERVORIO",cat:"Frenos",precio_base:204000,oem:312980,nro:"10754466"},
-  {nombre:"MODULADOR DEL FRENO ABS",cat:"Frenos",precio_base:1822000,oem:2803006,nro:"655305"},
-  {nombre:"VALVULA CONTROL FRENO DE REMOLQUE",cat:"Frenos",precio_base:260000,oem:399625,nro:"1360270"},
+  {nombre:"JUEGO PASTILLAS DE FRENO DELANTERAS",cat:"Frenos",precio_base:202000,oem:309756,nro:"658434",img:"pastilla",desc:"Juego de pastillas de freno delanteras originales Ford. Material ceramico de alta resistencia al calor. Frenado seguro y progresivo."},
+  {nombre:"JUEGO PASTILLAS DE FRENO DELANTERAS MOTORCRAFT",cat:"Frenos",precio_base:110000,oem:169177,nro:"1360311",img:"pastilla",desc:"Pastillas de freno delanteras marca Motorcraft. Repuesto oficial Ford con formulacion optimizada para cada modelo."},
+  {nombre:"KIT PASTILLAS DE FRENO RUEDAS DELANTERAS",cat:"Frenos",precio_base:73000,oem:111717,nro:"734128",img:"pastilla",desc:"Kit completo de pastillas para frenos delanteros. Incluye indicador de desgaste. Instalacion directa sin modificaciones."},
+  {nombre:"JUEGO DE PASTILLAS DE FRENO TRASERAS MOTORCRAFT",cat:"Frenos",precio_base:124000,oem:190155,nro:"821398",img:"pastilla",desc:"Pastillas de freno traseras Motorcraft. Diseñadas para el sistema de freno trasero de disco. Maxima duracion."},
+  {nombre:"JUEGO REPARACION AJUSTE ZAPATAS DE FRENO",cat:"Frenos",precio_base:106000,oem:163417,nro:"1457729",desc:"Kit de reparacion y ajuste de zapatas de freno trasero. Incluye resortes, pasadores y elementos de regulacion."},
+  {nombre:"CILINDRO MAESTRO DE FRENO",cat:"Frenos",precio_base:291000,oem:446705,nro:"10754270",desc:"Cilindro maestro del sistema de frenos. Genera la presion hidraulica necesaria para el frenado. Pieza critica de seguridad."},
+  {nombre:"CILINDRO DE FRENO TRASERO IZQUIERDO",cat:"Frenos",precio_base:283000,oem:435091,nro:"1457723",desc:"Cilindro de freno trasero lado izquierdo. Para sistemas de freno a tambor trasero. Original Ford."},
+  {nombre:"SERVO FRENO",cat:"Frenos",precio_base:644000,oem:989642,nro:"664692",desc:"Servofreno hidrovacuo. Amplifica la fuerza de frenado del conductor. Componente esencial del sistema de frenado."},
+  {nombre:"SERVOFRENO",cat:"Frenos",precio_base:972000,oem:1492796,nro:"644509",desc:"Servofreno de alta capacidad Ford. Para vehiculos con mayor peso o motorizacion potente. Asistencia de frenado premium."},
+  {nombre:"BOMBA FRENO CON RESERVORIO",cat:"Frenos",precio_base:204000,oem:312980,nro:"10754466",desc:"Bomba de freno con deposito de liquido incluido. Pieza completa lista para instalar. Original Ford."},
+  {nombre:"MODULADOR DEL FRENO ABS",cat:"Frenos",precio_base:1822000,oem:2803006,nro:"655305",desc:"Modulo ABS completo. Controla electronicamente la presion de frenado en cada rueda evitando el bloqueo. Pieza de seguridad critica."},
+  {nombre:"VALVULA CONTROL FRENO DE REMOLQUE",cat:"Frenos",precio_base:260000,oem:399625,nro:"1360270",desc:"Valvula de control para freno de remolque. Permite el frenado sincronizado del trailer. Para vehiculos con capacidad de remolque."},
   // ══ AMORTIGUADORES — Mecánica Ligera (N° pieza reales) ══
   {nombre:"AMORTIGUADOR DELANTERO - LADO DERECHO",cat:"Suspension",precio_base:340000,oem:523359,nro:"3454949",img:"amortiguador"},
   {nombre:"AMORTIGUADOR DE SUSPENSION TRASERA",cat:"Suspension",precio_base:88000,oem:135674,nro:"734170",img:"amortiguador"},
@@ -379,15 +379,19 @@ function generarRepuestos(modelo){
     const stock=0;
     const partNum=base.nro||`FW-${modelo.id.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,3)}-${String(idx).padStart(3,"0")}`;
     const precioOem=base.oem?Math.round(base.oem*variacion/1000)*1000:null;
+    // Si tiene nro real de Ford, usar foto del catalogo de Ford Argentina
+    const fotoUrl=base.nro?`https://alephv2imgstorage.blob.core.windows.net/producto/${base.nro}-1.jpg`:null;
     result.push({
       numero_parte:partNum,
       nombre:`${base.nombre}`,
+      descripcion:base.desc||`Repuesto ${base.cat} para ${modelo.nombre} ${modelo.año}. Pieza original Ford. Consulte disponibilidad.`,
       precio:`$${precio.toLocaleString("es-AR")}`,
       precio_oem:precioOem?`$${precioOem.toLocaleString("es-AR")}`:null,
       disponible:stock>0,
       stock,
       cat:base.cat,
       img:base.img||null,
+      foto:fotoUrl,
       modelo_nombre:modelo.nombre,
       aplicativos:[`${modelo.nombre} ${modelo.año}`],
     });
@@ -1098,7 +1102,8 @@ function RepCard({r,onClick}){
   const [hov,setHov]=useState(false);
   const [imgErr,setImgErr]=useState(false);
   const Ic=getIcon(r.cat);
-  const partImg=(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
+  const fotoFord=r.foto; // foto real de Ford si existe
+  const partImg=fotoFord||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
     <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:4,cursor:"pointer",transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,0,0,.08)":"none"}}>
       {/* Image — big, white bg, like tiendaford.ar */}
@@ -1188,7 +1193,7 @@ function ResultRow({r,isLast,isBest,delay,onClick}){
 function Modal({parte:r,onClose}){
   const sc=r.stock>0?"#16a34a":"#dc2626";
   const Ic=getIcon(r.cat);
-  const pImg=(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
+  const pImg=r.foto||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:8,maxWidth:820,width:"100%",maxHeight:"90vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
@@ -1240,8 +1245,7 @@ function Modal({parte:r,onClose}){
         <div style={{padding:"20px 32px",borderTop:"1px solid #eee"}}>
           <h3 style={{fontSize:16,fontWeight:800,color:"#003478",marginBottom:8}}>Descripcion</h3>
           <p style={{fontSize:13,color:"#666",lineHeight:1.6}}>
-            Repuesto original Ford para {r.modelo_nombre}. Pieza fabricada bajo los mas altos estandares de calidad Ford.
-            Numero de parte {r.numero_parte}. Consulta disponibilidad y envio con nuestro equipo.
+            {r.descripcion||`Repuesto original Ford para ${r.modelo_nombre}. Pieza fabricada bajo los mas altos estandares de calidad Ford. Numero de parte ${r.numero_parte}. Consulte disponibilidad y envio con nuestro equipo.`}
           </p>
         </div>
       </div>
