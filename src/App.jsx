@@ -938,7 +938,7 @@ export default function FordWarnesApp({ user, onLogout }){
                     <div style={{fontSize:13,color:"#888",marginBottom:12}}>{filtered.length} resultado{filtered.length!==1?"s":""}{catFilter?` en ${catFilter}`:""}</div>
                     <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
                       {filtered.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onConsultar={(part)=>{
-                        const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
+                        const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte} (tiendaford.ar)) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
                         network.sendChat(msg);
                         setChatOpen(true);
                       }}/>)}
@@ -969,7 +969,7 @@ export default function FordWarnesApp({ user, onLogout }){
       </div>{/* end flex row */}
 
       {parteSel&&<Modal parte={parteSel} onClose={()=>setParteSel(null)} onConsultar={esJefe?null:(part)=>{
-        const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
+        const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte} (tiendaford.ar)) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
         network.sendChat(msg);
         setChatOpen(true);
       }}/>}
@@ -1013,8 +1013,8 @@ function RepCard({r,onClick,onConsultar}){
           <div style={{fontSize:14,fontWeight:800,color:"#1a1a2e",lineHeight:1.35,marginBottom:8,textTransform:"uppercase",minHeight:40}}>{r.nombre}</div>
           {/* Part number */}
           <div style={{background:"#d5d5d5",padding:"6px 10px",borderRadius:4,marginBottom:10}}>
-            <span style={{fontSize:11,color:"#666"}}>N° de Pieza: </span>
-            <span style={{fontSize:12,fontWeight:700,color:"#1a1a1a"}}>{r.numero_parte}</span>
+            <span style={{fontSize:11,color:"#666"}}>Cod. Ref: </span>
+            <span style={{fontSize:12,fontWeight:700,color:"#1a1a1a"}}>{r.numero_parte} (tiendaford.ar)</span>
           </div>
           {/* Prices */}
           <div style={{marginBottom:6}}>
@@ -1043,7 +1043,7 @@ function RepCard({r,onClick,onConsultar}){
           <button onClick={(e)=>{e.stopPropagation();onConsultar&&onConsultar(r);}} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
             Consultar
           </button>
-          <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola! Consulto por: ${r.nombre} (N° ${r.numero_parte}). Precio: ${r.precio}. Esta disponible?`)}`} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()}
+          <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola! Consulto por: ${r.nombre} (N° ${r.numero_parte} (tiendaford.ar)). Precio: ${r.precio}. Esta disponible?`)}`} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()}
             style={{padding:"9px 12px",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#25d366",color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
             WhatsApp
           </a>
@@ -1075,7 +1075,7 @@ function Msg({msg,last,onParte}){
               <span style={{fontSize:10,fontWeight:700,textTransform:"uppercase",color:hayStock?"#22c55e":"#ef4444",background:hayStock?"rgba(34,197,94,.07)":"rgba(239,68,68,.07)",border:`1px solid ${hayStock?"rgba(34,197,94,.18)":"rgba(239,68,68,.18)"}`,padding:"3px 10px",borderRadius:20}}>{hayStock?"Hay stock":"Sin stock"}</span>
             </div>
           </div>
-          {msg.resultados.map((r,i)=><ResultRow key={i} r={r} isLast={i===msg.resultados.length-1} isBest={mejor?.numero_parte===r.numero_parte} delay={i*80} onClick={()=>onParte(r)}/>)}
+          {msg.resultados.map((r,i)=><ResultRow key={i} r={r} isLast={i===msg.resultados.length-1} isBest={mejor?.numero_parte===r.numero_parte} (tiendaford.ar) delay={i*80} onClick={()=>onParte(r)}/>)}
         </div>
       </div>
     );
@@ -1100,7 +1100,7 @@ function ResultRow({r,isLast,isBest,delay,onClick}){
         </div>
         <div style={{fontSize:13,fontWeight:500,color:"#444",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.nombre}</div>
         <div style={{display:"flex",gap:10,marginTop:3}}>
-          <span style={{fontSize:11,color:"#bbb",fontFamily:"monospace"}}>{r.numero_parte}</span>
+          <span style={{fontSize:11,color:"#bbb",fontFamily:"monospace"}}>{r.numero_parte} (tiendaford.ar)</span>
           <div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:5,height:5,borderRadius:"50%",background:sc}}/><span style={{fontSize:11,color:sc}}>{stockLabel(r.stock)}</span></div>
         </div>
       </div>
@@ -1132,8 +1132,8 @@ function Modal({parte:r,onClose,onConsultar}){
             <h2 style={{fontSize:20,fontWeight:800,color:"#1a1a2e",margin:"0 0 12px",textTransform:"uppercase",lineHeight:1.3}}>{r.nombre}</h2>
             {/* Part number box */}
             <div style={{background:"#d5d5d5",padding:"10px 14px",borderRadius:4,marginBottom:16}}>
-              <span style={{fontSize:13,color:"#666"}}>Numero de Pieza: </span>
-              <span style={{fontSize:14,fontWeight:800,color:"#1a1a1a"}}>{r.numero_parte}</span>
+              <span style={{fontSize:13,color:"#666"}}>Cod. Referencia: </span>
+              <span style={{fontSize:14,fontWeight:800,color:"#1a1a1a"}}>{r.numero_parte} (tiendaford.ar)</span>
             </div>
             {/* Prices */}
             {r.precio_oem&&<div style={{fontSize:15,color:"#999",textDecoration:"line-through"}}>{r.precio_oem}</div>}
@@ -1158,7 +1158,7 @@ function Modal({parte:r,onClose,onConsultar}){
             <div style={{display:"flex",gap:10}}>
               <button onClick={onClose} style={{flex:1,padding:"12px 0",fontSize:14,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:"#fff",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
               {onConsultar&&<button onClick={()=>{onConsultar(r);onClose();}} style={{flex:1,background:"#003478",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Consultar</button>}
-              <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola La Ford de Warnes! Consulto por: ${r.nombre} (N° de Pieza: ${r.numero_parte}) para ${r.modelo_nombre}. Precio en web: ${r.precio}. Esta disponible? Gracias!`)}`} target="_blank" rel="noopener noreferrer"
+              <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola La Ford de Warnes! Consulto por: ${r.nombre} (Cod. Ref: ${r.numero_parte} (tiendaford.ar)) para ${r.modelo_nombre}. Precio en web: ${r.precio}. Esta disponible? Gracias!`)}`} target="_blank" rel="noopener noreferrer"
                 style={{flex:1,background:"#25d366",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",textAlign:"center",display:"block"}}>WhatsApp</a>
             </div>
           </div>
@@ -1167,7 +1167,7 @@ function Modal({parte:r,onClose,onConsultar}){
         <div style={{padding:"20px 32px",borderTop:"1px solid #eee"}}>
           <h3 style={{fontSize:16,fontWeight:800,color:"#003478",marginBottom:8}}>Descripcion</h3>
           <p style={{fontSize:13,color:"#666",lineHeight:1.6}}>
-            {r.descripcion||`Repuesto original Ford para ${r.modelo_nombre}. Pieza fabricada bajo los mas altos estandares de calidad Ford. Numero de parte ${r.numero_parte}. Consulte disponibilidad y envio con nuestro equipo.`}
+            {r.descripcion||`Repuesto original Ford para ${r.modelo_nombre}. Pieza fabricada bajo los mas altos estandares de calidad Ford. Numero de parte ${r.numero_parte} (tiendaford.ar). Consulte disponibilidad y envio con nuestro equipo.`}
           </p>
         </div>
       </div>
