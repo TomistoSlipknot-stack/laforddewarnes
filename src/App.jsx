@@ -666,7 +666,10 @@ export default function FordWarnesApp({ user, onLogout }){
   const role = user?.role || 'public';
   const esJefe = role === 'admin';
   const [vista,     setVista]     = useState("catalogo");
-  const [messages,  setMessages]  = useState([{id:1,type:"system",text:"Sistema listo. Escribí la pieza que necesitás."}]);
+  const [messages,  setMessages]  = useState([
+    {id:1,type:"system",text:"Bienvenido al buscador de La Ford de Warnes"},
+    {id:2,type:"result_text",text:"Hola! Soy el asistente de busqueda. Escribi abajo lo que necesitas y te lo encuentro al toque.\n\nPodes buscar por:\n• Nombre de pieza (ej: filtro aceite)\n• Numero de pieza (ej: 655023)\n• Categoria (ej: frenos, amortiguador)\n• Modelo (ej: ranger, ecosport)"},
+  ]);
   const [input,     setInput]     = useState("");
   const [botState,  setBotState]  = useState("idle");
   const [modeloSel, setModeloSel] = useState(null);
@@ -757,7 +760,7 @@ export default function FordWarnesApp({ user, onLogout }){
           <button onClick={onLogout} style={{background:"#fff",border:"2px solid #d0d0d0",borderRadius:10,padding:"8px 14px",fontSize:13,color:"#888",cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}
             onMouseEnter={e=>e.currentTarget.style.borderColor="#dc2626"} onMouseLeave={e=>e.currentTarget.style.borderColor="#d0d0d0"}>
             Salir
-          </div>
+          </button>
         </div>
       </header>
 
@@ -1032,6 +1035,7 @@ function Msg({msg,last,onParte}){
   useEffect(()=>{if(last){const t=setTimeout(()=>setVis(true),40);return()=>clearTimeout(t);}},[last]);
   const fade={opacity:vis?1:0,transform:vis?"translateY(0)":"translateY(8px)",transition:"opacity .25s,transform .25s"};
   if(msg.type==="system")return <div style={{textAlign:"center",...fade}}><span style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:20,padding:"6px 18px",fontSize:12,color:"#999",display:"inline-block"}}>{msg.text}</span></div>;
+  if(msg.type==="result_text")return <div style={{display:"flex",gap:12,...fade}}><div style={{width:36,height:36,background:"#003478",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:"4px 14px 14px 14px",padding:"14px 18px",fontSize:14,color:"#444",lineHeight:1.6,whiteSpace:"pre-line",maxWidth:"85%"}}>{msg.text}</div></div>;
   if(msg.type==="user")return <div style={{display:"flex",justifyContent:"flex-end",...fade}}><div style={{background:"#003478",borderRadius:"12px 4px 12px 12px",padding:"11px 16px",maxWidth:"72%",fontSize:14,color:"#fff",fontWeight:500,lineHeight:1.45}}>{msg.text}</div></div>;
   if(msg.type==="notfound")return <div style={{display:"flex",gap:12,...fade}}><BotAv/><div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:"4px 12px 12px 12px",padding:"13px 18px",fontSize:13,color:"#888",lineHeight:1.55}}>No encontré nada para "<strong style={{color:"#555"}}>{msg.query}</strong>". Probá con el número de parte o el modelo exacto.</div></div>;
   if(msg.type==="result"){
