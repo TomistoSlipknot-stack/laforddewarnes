@@ -36,11 +36,11 @@ export default function AdminChats({ network }) {
   const activeRoomInfo = rooms.find(r => r.id === activeRoom);
 
   return (
-    <div style={{ display: 'flex', height: '100%', background: '#0a0b0f' }}>
+    <div style={{ display: 'flex', height: '100%', background: '#fafafa' }}>
       {/* Sidebar - chat list */}
-      <div style={{ width: activeRoom ? 'min(220px,35%)' : '100%', borderRight: '1px solid #1c2030', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-        <div style={{ padding: '12px', borderBottom: '1px solid #1c2030' }}>
-          <div style={{ fontWeight: 700, fontSize: 14, color: '#e0deda', marginBottom: 8 }}>
+      <div style={{ width: activeRoom ? 'min(220px,35%)' : '100%', borderRight: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <div style={{ padding: '12px', borderBottom: '1px solid #e0e0e0' }}>
+          <div style={{ fontWeight: 700, fontSize: 14, color: '#333', marginBottom: 8 }}>
             Conversaciones {totalUnread > 0 && <span style={{ background: '#ef4444', color: '#fff', fontSize: 10, padding: '2px 7px', borderRadius: 10, marginLeft: 6 }}>{totalUnread}</span>}
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
@@ -50,7 +50,7 @@ export default function AdminChats({ network }) {
               { id: 'public', label: 'Clientes', count: publicUnread },
             ].map(f => (
               <button key={f.id} onClick={() => setFilter(f.id)}
-                style={{ flex: 1, background: filter === f.id ? '#003da5' : '#0f1018', border: `1px solid ${filter === f.id ? '#1a5cc8' : '#1c2030'}`, borderRadius: 6, padding: '4px 6px', fontSize: 10, color: filter === f.id ? '#fff' : '#555870', cursor: 'pointer', fontFamily: 'inherit', position: 'relative' }}>
+                style={{ flex: 1, background: filter === f.id ? '#003478' : '#fff', border: `1px solid ${filter === f.id ? '#0050a0' : '#e0e0e0'}`, borderRadius: 6, padding: '4px 6px', fontSize: 10, color: filter === f.id ? '#fff' : '#888', cursor: 'pointer', fontFamily: 'inherit', position: 'relative' }}>
                 {f.label}
                 {f.count > 0 && <span style={{ position: 'absolute', top: -4, right: -4, background: '#ef4444', color: '#fff', fontSize: 8, width: 14, height: 14, borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{f.count}</span>}
               </button>
@@ -61,13 +61,13 @@ export default function AdminChats({ network }) {
           {filtered.length === 0 && <div style={{ padding: 20, textAlign: 'center', color: '#333', fontSize: 12 }}>Sin conversaciones</div>}
           {filtered.map(room => (
             <div key={room.id} onClick={() => openRoom(room.id)}
-              style={{ padding: '10px 12px', borderBottom: '1px solid #111', cursor: 'pointer', background: activeRoom === room.id ? '#12141e' : 'transparent', display: 'flex', gap: 10, alignItems: 'center', transition: 'background .1s' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: room.role === 'employee' ? '#1a3a2a' : '#1a2a4a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+              style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0', cursor: 'pointer', background: activeRoom === room.id ? '#f0f4f8' : 'transparent', display: 'flex', gap: 10, alignItems: 'center', transition: 'background .1s' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: room.role === 'employee' ? '#e8ffe8' : '#e8f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
                 {room.role === 'employee' ? '🔧' : '👤'}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#e0deda' }}>{room.name}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>{room.name}</span>
                   <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
                     {room.status === 'scheduled' && <span style={{ fontSize: 8, background: 'rgba(234,179,8,.15)', color: '#fbbf24', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>AGENDADO</span>}
                     {room.status === 'sold' && <span style={{ fontSize: 8, background: 'rgba(34,197,94,.15)', color: '#22c55e', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>VENTA</span>}
@@ -75,7 +75,7 @@ export default function AdminChats({ network }) {
                   </div>
                 </div>
                 {room.lastMsg && (
-                  <div style={{ fontSize: 11, color: '#444860', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: '#777', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>
                     {room.lastMsg.text}
                   </div>
                 )}
@@ -94,14 +94,14 @@ export default function AdminChats({ network }) {
       {activeRoom ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           {/* Header */}
-          <div style={{ padding: '10px 14px', borderBottom: '1px solid #1c2030', display: 'flex', alignItems: 'center', gap: 10, background: '#0d0f15', flexShrink: 0 }}>
-            <button onClick={() => setActiveRoom(null)} style={{ background: 'none', border: 'none', color: '#555870', cursor: 'pointer', fontSize: 18, padding: 0, fontFamily: 'inherit' }}>←</button>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: activeRoomInfo?.role === 'employee' ? '#1a3a2a' : '#1a2a4a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+          <div style={{ padding: '10px 14px', borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', gap: 10, background: '#fff', flexShrink: 0 }}>
+            <button onClick={() => setActiveRoom(null)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: 18, padding: 0, fontFamily: 'inherit' }}>←</button>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: activeRoomInfo?.role === 'employee' ? '#e8ffe8' : '#e8f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
               {activeRoomInfo?.role === 'employee' ? '🔧' : '👤'}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 14, color: '#e0deda' }}>{activeRoomInfo?.name}</div>
-              <div style={{ fontSize: 10, color: activeRoomInfo?.role === 'employee' ? '#22c55e' : '#6699ff' }}>
+              <div style={{ fontWeight: 600, fontSize: 14, color: '#333' }}>{activeRoomInfo?.name}</div>
+              <div style={{ fontSize: 10, color: activeRoomInfo?.role === 'employee' ? '#22c55e' : '#003478' }}>
                 {activeRoomInfo?.role === 'employee' ? 'Empleado' : 'Cliente'}
                 {activeRoomInfo?.status === 'scheduled' && ' · Agendado'}
                 {activeRoomInfo?.status === 'sold' && ' · Venta hecha'}
@@ -133,30 +133,30 @@ export default function AdminChats({ network }) {
               const isMe = msg.fromRole === 'admin';
               return (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
-                  {!isMe && <div style={{ fontSize: 10, color: '#383e52', marginBottom: 2, paddingLeft: 4 }}>{msg.from}</div>}
-                  <div style={{ maxWidth: '80%', background: isMe ? '#003da5' : '#13151e', border: `1px solid ${isMe ? '#1a5cc8' : '#1c2030'}`, borderRadius: isMe ? '12px 4px 12px 12px' : '4px 12px 12px 12px', padding: '9px 13px', fontSize: 13, color: isMe ? '#fff' : '#c8c6c0', lineHeight: 1.45 }}>{msg.text}</div>
-                  <div style={{ fontSize: 9, color: '#2e2e3a', marginTop: 2 }}>{fmt(msg.ts)}</div>
+                  {!isMe && <div style={{ fontSize: 10, color: '#999', marginBottom: 2, paddingLeft: 4 }}>{msg.from}</div>}
+                  <div style={{ maxWidth: '80%', background: isMe ? '#003478' : '#f0f0f0', border: `1px solid ${isMe ? '#0050a0' : '#e0e0e0'}`, borderRadius: isMe ? '12px 4px 12px 12px' : '4px 12px 12px 12px', padding: '9px 13px', fontSize: 13, color: isMe ? '#fff' : '#444', lineHeight: 1.45 }}>{msg.text}</div>
+                  <div style={{ fontSize: 9, color: '#ccc', marginTop: 2 }}>{fmt(msg.ts)}</div>
                 </div>
               );
             })}
             <div ref={bottomRef} />
           </div>
           {/* Input */}
-          <div style={{ padding: '10px 14px', borderTop: '1px solid #1c2030', flexShrink: 0, background: '#0a0b0f' }}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#111116', border: '1px solid #1c2030', borderRadius: 12, padding: '4px 4px 4px 12px' }}>
+          <div style={{ padding: '10px 14px', borderTop: '1px solid #e0e0e0', flexShrink: 0, background: '#fafafa' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: 12, padding: '4px 4px 4px 12px' }}>
               <input value={inp} onChange={e => setInp(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder="Responder..."
-                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: '#e0deda', fontFamily: 'inherit', padding: '9px 0', caretColor: '#003da5' }} />
+                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: '#333', fontFamily: 'inherit', padding: '9px 0', caretColor: '#003478' }} />
               <button onClick={send} disabled={!inp.trim()}
-                style={{ width: 36, height: 36, background: inp.trim() ? '#003da5' : '#1c1c22', border: 'none', borderRadius: 9, cursor: inp.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background .15s' }}>
+                style={{ width: 36, height: 36, background: inp.trim() ? '#003478' : '#ccc', border: 'none', borderRadius: 9, cursor: inp.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background .15s' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={inp.trim() ? '#fff' : '#333'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13" /><path d="M22 2L15 22 11 13 2 9l20-7z" /></svg>
               </button>
             </div>
           </div>
         </div>
       ) : (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#252830', fontSize: 14 }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 14 }}>
           Seleccioná una conversacion para responder
         </div>
       )}

@@ -78,13 +78,13 @@ export default function PrivateChatInline({ network, userName }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: '10px 12px', borderBottom: '1px solid #1c2030', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, background: '#0d0f15' }}>
-        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#003da5,#0058e6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, background: '#fff' }}>
+        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#003478,#0050a0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ color: '#fff', fontWeight: 800, fontSize: 9, fontStyle: 'italic', fontFamily: 'Georgia,serif' }}>Ford</span>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: 13, color: '#e0deda' }}>Ford de Warnes</div>
-          <div style={{ fontSize: 10, color: botMode ? '#6699ff' : '#22c55e' }}>{botMode ? 'Asistente' : 'Chat con Juan'}</div>
+          <div style={{ fontWeight: 700, fontSize: 13, color: '#333' }}>Ford de Warnes</div>
+          <div style={{ fontSize: 10, color: botMode ? '#003478' : '#22c55e' }}>{botMode ? 'Asistente' : 'Chat con Juan'}</div>
         </div>
       </div>
 
@@ -96,21 +96,21 @@ export default function PrivateChatInline({ network, userName }) {
             <div key={msg.id}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', animation: 'msg-in .2s ease' }}>
                 {isJuan && <div style={{ fontSize: 9, color: '#fbbf24', marginBottom: 2, paddingLeft: 4, fontWeight: 600 }}>Juan</div>}
-                {msg.from === 'bot' && <div style={{ fontSize: 9, color: '#6699ff', marginBottom: 2, paddingLeft: 4 }}>Asistente</div>}
+                {msg.from === 'bot' && <div style={{ fontSize: 9, color: '#003478', marginBottom: 2, paddingLeft: 4 }}>Asistente</div>}
                 <div style={{
                   maxWidth: '88%', padding: '8px 12px', fontSize: 12, lineHeight: 1.5, whiteSpace: 'pre-line',
-                  background: isUser ? '#003da5' : isJuan ? '#1a2a0a' : '#0f1018',
-                  border: `1px solid ${isUser ? '#1a5cc8' : isJuan ? '#2a4a1a' : '#1c2030'}`,
+                  background: isUser ? '#003478' : isJuan ? '#e8ffe8' : '#f5f5f5',
+                  border: `1px solid ${isUser ? '#0050a0' : isJuan ? '#b0d8b0' : '#e0e0e0'}`,
                   borderRadius: isUser ? '10px 3px 10px 10px' : '3px 10px 10px 10px',
-                  color: isUser ? '#fff' : isJuan ? '#a8d870' : '#c8c6c0',
+                  color: isUser ? '#fff' : isJuan ? '#2a6b2a' : '#444',
                 }}>{msg.text}</div>
-                {msg.ts && <div style={{ fontSize: 8, color: '#2e2e3a', marginTop: 1 }}>{fmt(msg.ts)}</div>}
+                {msg.ts && <div style={{ fontSize: 8, color: '#ccc', marginTop: 1 }}>{fmt(msg.ts)}</div>}
               </div>
               {msg.options && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6, paddingLeft: 4 }}>
                   {msg.options.map((opt, oi) => (
                     <button key={oi} onClick={() => handleOption(opt)}
-                      style={{ background: 'rgba(0,61,165,.06)', border: '1px solid rgba(0,61,165,.2)', borderRadius: 16, padding: '5px 10px', fontSize: 11, color: '#6699ff', cursor: 'pointer', fontFamily: 'inherit', transition: 'all .1s' }}>
+                      style={{ background: 'rgba(0,61,165,.06)', border: '1px solid rgba(0,61,165,.2)', borderRadius: 16, padding: '5px 10px', fontSize: 11, color: '#003478', cursor: 'pointer', fontFamily: 'inherit', transition: 'all .1s' }}>
                       {opt}
                     </button>
                   ))}
@@ -122,14 +122,14 @@ export default function PrivateChatInline({ network, userName }) {
         <div ref={bottomRef} />
       </div>
 
-      <div style={{ padding: '8px 10px', borderTop: '1px solid #1c2030', flexShrink: 0, background: '#0a0b0f' }}>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: '#111116', border: '1px solid #1c2030', borderRadius: 10, padding: '3px 3px 3px 10px' }}>
+      <div style={{ padding: '8px 10px', borderTop: '1px solid #e0e0e0', flexShrink: 0, background: '#fafafa' }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: 10, padding: '3px 3px 3px 10px' }}>
           <input value={inp} onChange={e => setInp(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             placeholder={botMode ? (step === 2 ? 'Ej: Filtro de aceite...' : step === 4 ? 'Carlos 1155551234' : 'Escribi...') : 'Mensaje a Juan...'}
-            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: '#e0deda', fontFamily: 'inherit', padding: '8px 0', caretColor: '#003da5' }} />
+            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: '#333', fontFamily: 'inherit', padding: '8px 0', caretColor: '#003478' }} />
           <button onClick={handleSend} disabled={!inp.trim()}
-            style={{ width: 34, height: 34, background: inp.trim() ? '#003da5' : '#1c1c22', border: 'none', borderRadius: 8, cursor: inp.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            style={{ width: 34, height: 34, background: inp.trim() ? '#003478' : '#ccc', border: 'none', borderRadius: 8, cursor: inp.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={inp.trim() ? '#fff' : '#333'} strokeWidth="2.5"><path d="M22 2L11 13" /><path d="M22 2L15 22 11 13 2 9l20-7z" /></svg>
           </button>
         </div>
