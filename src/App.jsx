@@ -81,12 +81,12 @@ const IMGS_PARTE = {
 // Modelos exactos del mercado argentino (fuente: tiendaford.ar)
 const MOCK_MODELOS = [
   // ── Pickups (Argentina) ──
-  {id:"ranger",         nombre:"Ranger",             año:"2012-2026",total_repuestos:34,color:"#1a5c30",cat:"Pickups"},
-  {id:"nueva-ranger",   nombre:"Nueva Ranger",       año:"2023-2026",total_repuestos:34,color:"#0d5c2e",cat:"Pickups"},
-  {id:"ranger-raptor",  nombre:"Ranger Raptor",      año:"2019-2026",total_repuestos:34,color:"#5c1a1a",cat:"Pickups"},
-  {id:"f-150",          nombre:"F-150",              año:"2016-2026",total_repuestos:34,color:"#0d3b8c",cat:"Pickups"},
-  {id:"maverick",       nombre:"Maverick",           año:"2022-2026",total_repuestos:34,color:"#7a5c0d",cat:"Pickups"},
-  {id:"f-100",          nombre:"F-100",              año:"1990-2000",total_repuestos:34,color:"#4a3a2a",cat:"Pickups"},
+  {id:"ranger",         nombre:"Ranger",             año:"2012-2026",total_repuestos:34,color:"#1a5c30",cat:"Camionetas"},
+  {id:"nueva-ranger",   nombre:"Nueva Ranger",       año:"2023-2026",total_repuestos:34,color:"#0d5c2e",cat:"Camionetas"},
+  {id:"ranger-raptor",  nombre:"Ranger Raptor",      año:"2019-2026",total_repuestos:34,color:"#5c1a1a",cat:"Camionetas"},
+  {id:"f-150",          nombre:"F-150",              año:"2016-2026",total_repuestos:34,color:"#0d3b8c",cat:"Camionetas"},
+  {id:"maverick",       nombre:"Maverick",           año:"2022-2026",total_repuestos:34,color:"#7a5c0d",cat:"Camionetas"},
+  {id:"f-100",          nombre:"F-100",              año:"1990-2000",total_repuestos:34,color:"#4a3a2a",cat:"Camionetas"},
   // ── SUVs (Argentina) ──
   {id:"territory",      nombre:"Territory",          año:"2020-2026",total_repuestos:34,color:"#4a3020",cat:"SUVs"},
   {id:"bronco",         nombre:"Bronco",             año:"2021-2026",total_repuestos:34,color:"#0d4a5c",cat:"SUVs"},
