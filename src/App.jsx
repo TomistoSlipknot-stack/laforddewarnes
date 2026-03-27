@@ -1019,8 +1019,8 @@ export default function FordWarnesApp({ user, onLogout }){
           <div style={{maxWidth:1000,margin:"0 auto",padding:"24px 16px"}}>
             {!modeloSel?(
               <>
-                <h2 style={{fontSize:18,fontWeight:700,margin:"0 0 4px"}}>Catálogo Completo Ford</h2>
-                <p style={{fontSize:13,color:"#777",margin:"0 0 20px"}}>{MOCK_MODELOS.length} modelos · Seleccioná uno para ver sus repuestos</p>
+                <h2 style={{fontSize:22,fontWeight:800,color:"#1a1a1a",margin:"0 0 4px"}}>Catalogo de Repuestos</h2>
+                <p style={{fontSize:14,color:"#888",margin:"0 0 24px"}}>{MOCK_MODELOS.length} modelos disponibles — Selecciona un modelo para ver repuestos</p>
                 {categorias.map(cat=>(
                   <div key={cat} style={{marginBottom:24}}>
                     <div style={{fontSize:13,fontWeight:700,color:"#6699ff",textTransform:"uppercase",letterSpacing:".08em",marginBottom:10,paddingBottom:6,borderBottom:"1px solid #e8e8e8"}}>{cat}</div>
@@ -1037,7 +1037,7 @@ export default function FordWarnesApp({ user, onLogout }){
                   {IMGS_MODELO[modeloSel.id]&&<img src={IMGS_MODELO[modeloSel.id]} alt={modeloSel.nombre} style={{position:"absolute",right:0,top:0,height:"100%",width:"55%",objectFit:"cover",objectPosition:"center",opacity:.3}}/>}
                   <div style={{position:"relative"}}><div className="fw-modelo-hero-title" style={{fontSize:28,fontWeight:800}}>{modeloSel.nombre}</div><div style={{fontSize:13,opacity:.7}}>{modeloSel.año} · {modeloSel.total_repuestos} repuestos · {modeloSel.cat}</div></div>
                 </div>
-                <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:10}}>
+                <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16}}>
                   {repsPorModelo(modeloSel.id).map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)}/>)}
                 </div>
               </>
@@ -1071,13 +1071,17 @@ export default function FordWarnesApp({ user, onLogout }){
 function ModeloCard({modelo,onClick}){
   const [hov,setHov]=useState(false);const [imgErr,setImgErr]=useState(false);
   return(
-    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:hov?modelo.color:"#0f1018",border:`1px solid ${hov?modelo.color:"#181c26"}`,borderRadius:14,cursor:"pointer",transition:"all .2s",overflow:"hidden"}}>
-      <div style={{width:"100%",height:110,background:hov?modelo.color:"#13151e",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
+    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:"#fff",border:`1px solid ${hov?"#003478":"#e0e0e0"}`,borderRadius:8,cursor:"pointer",transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,52,120,.12)":"0 1px 3px rgba(0,0,0,.04)"}}>
+      <div style={{width:"100%",height:120,background:"#f0f4f8",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
         {!imgErr&&IMGS_MODELO[modelo.id]
-          ?<img src={IMGS_MODELO[modelo.id]} alt={modelo.nombre} onError={()=>setImgErr(true)} style={{width:"100%",height:"100%",objectFit:"cover",opacity:hov?.85:.65,transition:"opacity .2s"}}/>
-          :<span style={{fontSize:36,opacity:.12}}>🚗</span>}
+          ?<img src={IMGS_MODELO[modelo.id]} alt={modelo.nombre} onError={()=>setImgErr(true)} style={{width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s",transform:hov?"scale(1.05)":"scale(1)"}}/>
+          :<span style={{fontSize:42,opacity:.15}}>🚗</span>}
       </div>
-      <div style={{padding:"12px 14px"}}><div style={{fontSize:18,fontWeight:800}}>{modelo.nombre}</div><div style={{fontSize:11,color:"#777",marginTop:2}}>{modelo.año}</div><div style={{marginTop:8,fontSize:12,color:"#666"}}>📦 {modelo.total_repuestos} repuestos</div></div>
+      <div style={{padding:"14px 16px"}}>
+        <div style={{fontSize:16,fontWeight:800,color:"#1a1a1a"}}>{modelo.nombre}</div>
+        <div style={{fontSize:12,color:"#888",marginTop:3}}>{modelo.año}</div>
+        <div style={{marginTop:8,fontSize:12,color:"#003478",fontWeight:600}}>{modelo.total_repuestos} repuestos disponibles</div>
+      </div>
     </div>
   );
 }
@@ -1086,20 +1090,33 @@ function RepCard({r,onClick}){
   const [hov,setHov]=useState(false);
   const [imgErr,setImgErr]=useState(false);
   const Ic=getIcon(r.cat);
-  const sc=r.stock>5?"#22c55e":r.stock>0?"#f59e0b":"#ef4444";
   const partImg=(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
-    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:hov?"#12141e":"#0f1018",border:"1px solid #e0e0e0",borderRadius:12,cursor:"pointer",transition:"all .15s",opacity:r.disponible?1:.5,overflow:"hidden"}}>
-      <div style={{width:"100%",height:90,background:"#f8f8f8",display:"flex",alignItems:"center",justifyContent:"center",borderBottom:"1px solid #e8e8e8",overflow:"hidden",position:"relative"}}>
-        {partImg&&!imgErr?<img src={partImg} alt={r.cat} onError={()=>setImgErr(true)} style={{width:"100%",height:"100%",objectFit:"cover",opacity:hov?.7:.45,transition:"opacity .2s"}}/>:<Ic size={52}/>}
+    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:4,cursor:"pointer",transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,0,0,.08)":"none"}}>
+      {/* Image — big, white bg, like tiendaford.ar */}
+      <div style={{width:"100%",height:180,background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid #eee"}}>
+        {partImg&&!imgErr?<img src={partImg} alt={r.cat} onError={()=>setImgErr(true)} style={{maxWidth:"85%",maxHeight:"85%",objectFit:"contain",transition:"transform .2s",transform:hov?"scale(1.05)":"scale(1)"}}/>:<Ic size={64}/>}
       </div>
-      <div style={{padding:"10px 12px"}}>
-        <div style={{fontSize:10,color:"#4d8eff",background:"rgba(0,61,165,.12)",border:"1px solid rgba(0,61,165,.2)",borderRadius:4,padding:"2px 7px",display:"inline-block",marginBottom:4,textTransform:"capitalize"}}>{r.cat}</div>
-        <div style={{fontSize:13,fontWeight:600,color:"#333",lineHeight:1.3,marginBottom:6}}>{r.nombre}</div>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:6,height:6,borderRadius:"50%",background:sc}}/><span style={{fontSize:11,color:sc}}>{stockLabel(r.stock)}</span></div>
-          <span style={{fontSize:14,fontWeight:800}}>{r.precio}</span>
+      {/* Info — like tiendaford.ar product card */}
+      <div style={{padding:"16px 18px"}}>
+        <div style={{fontSize:14,fontWeight:800,color:"#1a1a2e",lineHeight:1.35,marginBottom:8,textTransform:"uppercase",minHeight:40}}>{r.nombre}</div>
+        {/* Part number */}
+        <div style={{background:"#f5f5f5",padding:"6px 10px",borderRadius:4,marginBottom:10}}>
+          <span style={{fontSize:11,color:"#666"}}>N° de Pieza: </span>
+          <span style={{fontSize:12,fontWeight:700,color:"#1a1a1a"}}>{r.numero_parte}</span>
         </div>
+        {/* Prices */}
+        {r.precio_oem&&<div style={{fontSize:13,color:"#999",textDecoration:"line-through"}}>{r.precio_oem}</div>}
+        <div style={{fontSize:22,fontWeight:800,color:"#1a1a1a",margin:"2px 0"}}>{r.precio}</div>
+        {r.stock>0
+          ?<div style={{fontSize:12,color:"#16a34a",fontWeight:600,marginBottom:10}}>{r.stock} disponibles</div>
+          :<div style={{fontSize:12,color:"#dc2626",fontWeight:600,marginBottom:10}}>Sin stock — Consultar</div>
+        }
+        {/* Button */}
+        <button style={{width:"100%",padding:"10px 0",fontSize:13,fontWeight:700,border:"none",borderRadius:20,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit",transition:"background .15s"}}
+          onMouseEnter={e=>e.target.style.background="#004aa0"} onMouseLeave={e=>e.target.style.background="#003478"}>
+          Conoce mas &gt;
+        </button>
       </div>
     </div>
   );
@@ -1161,21 +1178,64 @@ function ResultRow({r,isLast,isBest,delay,onClick}){
 }
 
 function Modal({parte:r,onClose}){
-  const sc=r.stock>5?"#22c55e":r.stock>0?"#f59e0b":"#ef4444";
+  const sc=r.stock>0?"#16a34a":"#dc2626";
   const Ic=getIcon(r.cat);
   const pImg=(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
-    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.85)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
-      <div onClick={e=>e.stopPropagation()} style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:20,maxWidth:520,width:"calc(100% - 24px)",padding:"20px 18px",maxHeight:"90vh",overflowY:"auto",margin:"0 12px"}}>
-        <div style={{width:"100%",height:160,background:"#f8f8f8",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20,border:"1px solid #e0e0e0",overflow:"hidden"}}>
-          {pImg?<img src={pImg} alt={r.cat} style={{width:"100%",height:"100%",objectFit:"cover",opacity:.7}} onError={e=>{e.target.style.display="none"}}/>:<Ic size={96}/>}
+    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:8,maxWidth:820,width:"100%",maxHeight:"90vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
+        {/* Layout like tiendaford.ar — image left, info right */}
+        <div style={{display:"flex",flexWrap:"wrap"}}>
+          {/* Image */}
+          <div style={{flex:"1 1 340px",minHeight:300,background:"#f8f9fa",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+            {pImg?<img src={pImg} alt={r.cat} style={{maxWidth:"100%",maxHeight:280,objectFit:"contain"}} onError={e=>{e.target.style.display="none"}}/>:<Ic size={120}/>}
+          </div>
+          {/* Info */}
+          <div style={{flex:"1 1 340px",padding:"28px 32px"}}>
+            {/* Breadcrumb */}
+            <div style={{fontSize:12,color:"#003478",marginBottom:12}}>
+              Repuestos / <span style={{textTransform:"capitalize"}}>{r.cat}</span>
+            </div>
+            {/* Name */}
+            <h2 style={{fontSize:20,fontWeight:800,color:"#1a1a2e",margin:"0 0 12px",textTransform:"uppercase",lineHeight:1.3}}>{r.nombre}</h2>
+            {/* Part number box */}
+            <div style={{background:"#f5f5f5",padding:"10px 14px",borderRadius:4,marginBottom:16}}>
+              <span style={{fontSize:13,color:"#666"}}>Numero de Pieza: </span>
+              <span style={{fontSize:14,fontWeight:800,color:"#1a1a1a"}}>{r.numero_parte}</span>
+            </div>
+            {/* Prices */}
+            {r.precio_oem&&<div style={{fontSize:15,color:"#999",textDecoration:"line-through"}}>{r.precio_oem}</div>}
+            <div style={{fontSize:28,fontWeight:800,color:"#1a1a1a",margin:"4px 0"}}>{r.precio}</div>
+            <div style={{fontSize:12,color:"#999",marginBottom:16}}>Precio La Ford de Warnes (sin imp. nacionales)</div>
+            {/* Stock */}
+            <div style={{fontSize:14,fontWeight:600,color:sc,marginBottom:16}}>
+              {r.stock>0?`${r.stock} disponible${r.stock>1?"s":""}`:"Sin stock — Consultar disponibilidad"}
+            </div>
+            {/* Compatible */}
+            {r.aplicativos?.length>0&&(
+              <div style={{marginBottom:20}}>
+                <div style={{fontSize:12,color:"#888",fontWeight:600,marginBottom:6}}>Compatible con:</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                  {r.aplicativos.map((a,i)=><span key={i} style={{fontSize:12,background:"#f0f4f8",border:"1px solid #d8e4f0",borderRadius:4,padding:"4px 10px",color:"#003478",fontWeight:500}}>{a}</span>)}
+                </div>
+              </div>
+            )}
+            {/* Modelo */}
+            <div style={{fontSize:13,color:"#666",marginBottom:20}}>Modelo: <strong>{r.modelo_nombre}</strong> · Categoria: <strong style={{textTransform:"capitalize"}}>{r.cat}</strong></div>
+            {/* Buttons */}
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={onClose} style={{flex:1,background:"#003478",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
+            </div>
+          </div>
         </div>
-        <div style={{fontSize:11,color:"#4d8eff",marginBottom:4,textTransform:"capitalize"}}>{r.cat}</div>
-        <h2 style={{fontSize:18,fontWeight:800,margin:"0 0 4px"}}>{r.nombre}</h2>
-        <div style={{fontSize:12,color:"#bbb",fontFamily:"monospace",marginBottom:10}}>{r.numero_parte}</div>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}><div style={{width:8,height:8,borderRadius:"50%",background:sc}}/><span style={{fontSize:13,color:sc,fontWeight:600}}>{stockLabel(r.stock)}</span><span style={{fontSize:20,fontWeight:800,marginLeft:"auto"}}>{r.precio} <span style={{fontSize:11,color:"#bbb",fontWeight:400}}>ARS</span></span></div>
-        {r.aplicativos?.length>0&&<div style={{marginBottom:20}}><div style={{fontSize:11,color:"#999",textTransform:"uppercase",letterSpacing:".08em",marginBottom:8,fontWeight:600}}>Compatible con</div><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{r.aplicativos.map((a,i)=><span key={i} style={{fontSize:12,background:"#f0f0f0",border:"1px solid #e0e0e0",borderRadius:20,padding:"4px 12px",color:"#555"}}>{a}</span>)}</div></div>}
-        <button onClick={onClose} style={{width:"100%",background:"#003478",border:"none",borderRadius:10,padding:12,fontSize:14,fontWeight:600,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
+        {/* Description section */}
+        <div style={{padding:"20px 32px",borderTop:"1px solid #eee"}}>
+          <h3 style={{fontSize:16,fontWeight:800,color:"#003478",marginBottom:8}}>Descripcion</h3>
+          <p style={{fontSize:13,color:"#666",lineHeight:1.6}}>
+            Repuesto original Ford para {r.modelo_nombre}. Pieza fabricada bajo los mas altos estandares de calidad Ford.
+            Numero de parte {r.numero_parte}. Consulta disponibilidad y envio con nuestro equipo.
+          </p>
+        </div>
       </div>
     </div>
   );
