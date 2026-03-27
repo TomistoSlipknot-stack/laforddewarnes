@@ -1,0 +1,25 @@
+{
+  "name": "laforddewarnes",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "node server.cjs",
+    "render-build": "npm install && npm run build"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "vite": "^8.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
