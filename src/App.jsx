@@ -933,15 +933,18 @@ function RepCard({r,onClick,onConsultar}){
             <span style={{fontSize:11,color:"#666"}}>N° de Pieza: </span>
             <span style={{fontSize:12,fontWeight:700,color:"#1a1a1a"}}>{r.numero_parte}</span>
           </div>
-          {/* Prices: Ford original + Juan (+13%) */}
+          {/* Prices */}
           <div style={{marginBottom:6}}>
             {r.precio_oem&&(
               <div style={{fontSize:12,color:"#888",marginBottom:2}}>
-                Precio Ford oficial: <span style={{textDecoration:"line-through"}}>{r.precio_oem}</span>
+                Ford oficial: <span style={{textDecoration:"line-through"}}>{r.precio_oem}</span>
               </div>
             )}
-            <div style={{fontSize:22,fontWeight:800,color:"#1a1a1a"}}>{r.precio}</div>
-            <div style={{fontSize:11,color:"#003478"}}>Precio La Ford de Warnes (incluye servicio)</div>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:22,fontWeight:800,color:"#1a1a1a"}}>{r.precio}</span>
+              {r.descuento&&<span style={{background:"#dc2626",color:"#fff",fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:4}}>{r.descuento}% OFF</span>}
+            </div>
+            <div style={{fontSize:11,color:"#003478"}}>Precio La Ford de Warnes</div>
           </div>
           {/* Stock */}
           {r.stock>0
@@ -950,14 +953,17 @@ function RepCard({r,onClick,onConsultar}){
           }
         </div>
         {/* Buttons */}
-        <div className="fw-rep-card-btns" style={{display:"flex",gap:8}}>
+        <div className="fw-rep-card-btns" style={{display:"flex",gap:6}}>
           <button onClick={onClick} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:"#fff",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>
             Ver detalle
           </button>
-          <button onClick={(e)=>{e.stopPropagation();onConsultar&&onConsultar(r);}} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit",transition:"background .15s"}}
-            onMouseEnter={e=>e.target.style.background="#004aa0"} onMouseLeave={e=>e.target.style.background="#003478"}>
+          <button onClick={(e)=>{e.stopPropagation();onConsultar&&onConsultar(r);}} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
             Consultar
           </button>
+          <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola! Consulto por: ${r.nombre} (N° ${r.numero_parte}). Precio: ${r.precio}. Esta disponible?`)}`} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()}
+            style={{padding:"9px 12px",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#25d366",color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            WhatsApp
+          </a>
         </div>
       </div>
     </div>
@@ -1069,6 +1075,8 @@ function Modal({parte:r,onClose,onConsultar}){
             <div style={{display:"flex",gap:10}}>
               <button onClick={onClose} style={{flex:1,padding:"12px 0",fontSize:14,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:"#fff",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
               {onConsultar&&<button onClick={()=>{onConsultar(r);onClose();}} style={{flex:1,background:"#003478",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Consultar</button>}
+              <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola La Ford de Warnes! Consulto por: ${r.nombre} (N° de Pieza: ${r.numero_parte}) para ${r.modelo_nombre}. Precio en web: ${r.precio}. Esta disponible? Gracias!`)}`} target="_blank" rel="noopener noreferrer"
+                style={{flex:1,background:"#25d366",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",textAlign:"center",display:"block"}}>WhatsApp</a>
             </div>
           </div>
         </div>
