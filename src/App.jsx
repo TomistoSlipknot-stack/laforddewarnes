@@ -956,7 +956,7 @@ export default function FordWarnesApp({ user, onLogout }){
 
       {/* RIGHT: Chat Sidebar */}
       {chatOpen&&(
-        <div className="fw-chat-sidebar" style={{width:esJefe?"min(480px,45vw)":"min(380px,100vw)",flexShrink:0,borderLeft:"1px solid #e0e0e0",display:"flex",flexDirection:"column",background:"#fafafa",overflow:"hidden"}}>
+        <div className="fw-chat-sidebar" style={{position:"fixed",right:0,top:64,bottom:0,width:esJefe?"min(480px,45vw)":"min(380px,100vw)",borderLeft:"1px solid #e0e0e0",display:"flex",flexDirection:"column",background:"#fafafa",overflow:"hidden",zIndex:30}}>
           {esJefe?(
             /* Juan sees AdminChats inline as sidebar */
             <AdminChats network={network}/>
