@@ -369,12 +369,15 @@ function generarRepuestos(modelo){
   for(const base of CATALOGO_BASE){
     if(!base.nro)continue; // saltar piezas sin N° real
     const fotoUrl=`./img/ford-parts/${base.nro}.jpg`;
+    // Precio Ford oficial (OEM) + 13% servicio de Juan
+    const precioFord=base.oem||base.precio_base;
+    const precioJuan=Math.round(precioFord*1.13/100)*100;
     result.push({
       numero_parte:base.nro,
       nombre:base.nombre,
       descripcion:base.desc||`Repuesto ${base.cat} para ${modelo.nombre}. Pieza original Ford.`,
-      precio:`$${base.precio_base.toLocaleString("es-AR")}`,
-      precio_oem:base.oem?`$${base.oem.toLocaleString("es-AR")}`:null,
+      precio:`$${precioJuan.toLocaleString("es-AR")}`,
+      precio_oem:`$${precioFord.toLocaleString("es-AR")}`,
       disponible:false,
       stock:0,
       cat:base.cat,
@@ -1057,7 +1060,11 @@ export default function FordWarnesApp({ user, onLogout }){
                   <div style={{flex:1}}>
                     <div style={{fontSize:13,color:"#888",marginBottom:12}}>{filtered.length} resultado{filtered.length!==1?"s":""}{catFilter?` en ${catFilter}`:""}</div>
                     <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
-                      {filtered.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)}/>)}
+                      {filtered.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onConsultar={(part)=>{
+                        const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
+                        network.sendChat(msg);
+                        setChatOpen(true);
+                      }}/>)}
                     </div>
                   </div>
                 </div>
@@ -1084,7 +1091,11 @@ export default function FordWarnesApp({ user, onLogout }){
       )}
       </div>{/* end flex row */}
 
-      {parteSel&&<Modal parte={parteSel} onClose={()=>setParteSel(null)}/>}
+      {parteSel&&<Modal parte={parteSel} onClose={()=>setParteSel(null)} onConsultar={esJefe?null:(part)=>{
+        const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
+        network.sendChat(msg);
+        setChatOpen(true);
+      }}/>}
     </div>
   );
 }
@@ -1108,38 +1119,52 @@ function ModeloCard({modelo,onClick}){
   );
 }
 
-function RepCard({r,onClick}){
+function RepCard({r,onClick,onConsultar}){
   const [hov,setHov]=useState(false);
   const [imgErr,setImgErr]=useState(false);
   const Ic=getIcon(r.cat);
-  const fotoFord=r.foto; // foto real de Ford si existe
-  const partImg=fotoFord||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
+  const partImg=r.foto||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
-    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:4,cursor:"pointer",transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,0,0,.08)":"none"}}>
-      {/* Image — big, white bg, like tiendaford.ar */}
-      <div style={{width:"100%",height:180,background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid #eee"}}>
+    <div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:4,transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,0,0,.08)":"none"}}
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
+      {/* Image */}
+      <div onClick={onClick} style={{width:"100%",height:180,background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid #eee",cursor:"pointer"}}>
         {partImg&&!imgErr?<img src={partImg} alt={r.cat} onError={()=>setImgErr(true)} style={{maxWidth:"85%",maxHeight:"85%",objectFit:"contain",transition:"transform .2s",transform:hov?"scale(1.05)":"scale(1)"}}/>:<Ic size={64}/>}
       </div>
-      {/* Info — like tiendaford.ar product card */}
       <div style={{padding:"16px 18px"}}>
-        <div style={{fontSize:14,fontWeight:800,color:"#1a1a2e",lineHeight:1.35,marginBottom:8,textTransform:"uppercase",minHeight:40}}>{r.nombre}</div>
-        {/* Part number */}
-        <div style={{background:"#f5f5f5",padding:"6px 10px",borderRadius:4,marginBottom:10}}>
-          <span style={{fontSize:11,color:"#666"}}>N° de Pieza: </span>
-          <span style={{fontSize:12,fontWeight:700,color:"#1a1a1a"}}>{r.numero_parte}</span>
+        <div onClick={onClick} style={{cursor:"pointer"}}>
+          <div style={{fontSize:14,fontWeight:800,color:"#1a1a2e",lineHeight:1.35,marginBottom:8,textTransform:"uppercase",minHeight:40}}>{r.nombre}</div>
+          {/* Part number */}
+          <div style={{background:"#f5f5f5",padding:"6px 10px",borderRadius:4,marginBottom:10}}>
+            <span style={{fontSize:11,color:"#666"}}>N° de Pieza: </span>
+            <span style={{fontSize:12,fontWeight:700,color:"#1a1a1a"}}>{r.numero_parte}</span>
+          </div>
+          {/* Prices: Ford original + Juan (+13%) */}
+          <div style={{marginBottom:6}}>
+            {r.precio_oem&&(
+              <div style={{fontSize:12,color:"#888",marginBottom:2}}>
+                Precio Ford oficial: <span style={{textDecoration:"line-through"}}>{r.precio_oem}</span>
+              </div>
+            )}
+            <div style={{fontSize:22,fontWeight:800,color:"#1a1a1a"}}>{r.precio}</div>
+            <div style={{fontSize:11,color:"#003478"}}>Precio La Ford de Warnes (incluye servicio)</div>
+          </div>
+          {/* Stock */}
+          {r.stock>0
+            ?<div style={{fontSize:12,color:"#16a34a",fontWeight:600,marginBottom:12}}>{r.stock} disponibles</div>
+            :<div style={{fontSize:12,color:"#dc2626",fontWeight:600,marginBottom:12}}>Consultar disponibilidad</div>
+          }
         </div>
-        {/* Prices */}
-        {r.precio_oem&&<div style={{fontSize:13,color:"#999",textDecoration:"line-through"}}>{r.precio_oem}</div>}
-        <div style={{fontSize:22,fontWeight:800,color:"#1a1a1a",margin:"2px 0"}}>{r.precio}</div>
-        {r.stock>0
-          ?<div style={{fontSize:12,color:"#16a34a",fontWeight:600,marginBottom:10}}>{r.stock} disponibles</div>
-          :<div style={{fontSize:12,color:"#dc2626",fontWeight:600,marginBottom:10}}>Sin stock — Consultar</div>
-        }
-        {/* Button */}
-        <button style={{width:"100%",padding:"10px 0",fontSize:13,fontWeight:700,border:"none",borderRadius:20,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit",transition:"background .15s"}}
-          onMouseEnter={e=>e.target.style.background="#004aa0"} onMouseLeave={e=>e.target.style.background="#003478"}>
-          Conoce mas &gt;
-        </button>
+        {/* Buttons */}
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={onClick} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:"#fff",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>
+            Ver detalle
+          </button>
+          <button onClick={(e)=>{e.stopPropagation();onConsultar&&onConsultar(r);}} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit",transition:"background .15s"}}
+            onMouseEnter={e=>e.target.style.background="#004aa0"} onMouseLeave={e=>e.target.style.background="#003478"}>
+            Consultar con Juan
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1200,7 +1225,7 @@ function ResultRow({r,isLast,isBest,delay,onClick}){
   );
 }
 
-function Modal({parte:r,onClose}){
+function Modal({parte:r,onClose,onConsultar}){
   const sc=r.stock>0?"#16a34a":"#dc2626";
   const Ic=getIcon(r.cat);
   const pImg=r.foto||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
@@ -1247,7 +1272,8 @@ function Modal({parte:r,onClose}){
             <div style={{fontSize:13,color:"#666",marginBottom:20}}>Modelo: <strong>{r.modelo_nombre}</strong> · Categoria: <strong style={{textTransform:"capitalize"}}>{r.cat}</strong></div>
             {/* Buttons */}
             <div style={{display:"flex",gap:10}}>
-              <button onClick={onClose} style={{flex:1,background:"#003478",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
+              <button onClick={onClose} style={{flex:1,padding:"12px 0",fontSize:14,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:"#fff",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
+              {onConsultar&&<button onClick={()=>{onConsultar(r);onClose();}} style={{flex:1,background:"#003478",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Consultar con Juan</button>}
             </div>
           </div>
         </div>
