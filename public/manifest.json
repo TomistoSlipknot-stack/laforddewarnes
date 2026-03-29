@@ -1,0 +1,16 @@
+{
+  "name": "La Ford de Warnes",
+  "short_name": "Ford Warnes",
+  "description": "Repuestos Ford originales — Catalogo y precios",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#d5d5d5",
+  "theme_color": "#003478",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

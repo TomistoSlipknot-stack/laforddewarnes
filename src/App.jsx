@@ -689,7 +689,12 @@ export default function FordWarnesApp({ user, onLogout }){
   const [botState,  setBotState]  = useState("idle");
   const [modeloSel, setModeloSel] = useState(null);
   const [parteSel,  setParteSel]  = useState(null);
-  const [catFilter, setCatFilter] = useState(null); // filtro de categoría de repuestos
+  const [catFilter, setCatFilter] = useState(null);
+  const [homeSearch, setHomeSearch] = useState('');
+  const [carrito, setCarrito] = useState([]);
+  const [showCarrito, setShowCarrito] = useState(false);
+  const addToCart=(item)=>{if(!carrito.find(c=>c.numero_parte===item.numero_parte))setCarrito(c=>[...c,item]);};
+  const removeFromCart=(nro)=>setCarrito(c=>c.filter(x=>x.numero_parte!==nro));
   const [chatOpen,  setChatOpen]  = useState(false);
   const [adminTab,  setAdminTab]  = useState("chats"); // stock | chats | online | logs
   const bottomRef=useRef(null);
@@ -891,16 +896,80 @@ export default function FordWarnesApp({ user, onLogout }){
             {!modeloSel?(
               <>
                 <h2 style={{fontSize:24,fontWeight:800,color:"#1a1a1a",margin:"0 0 4px"}}>Repuestos Ford</h2>
-                <p style={{fontSize:14,color:"#888",margin:"0 0 8px"}}>Selecciona tu modelo para ver repuestos disponibles</p>
-                <p style={{fontSize:12,color:"#aaa",margin:"0 0 28px"}}>{MOCK_MODELOS.length} modelos · Precios de referencia · Stock sujeto a disponibilidad</p>
-                {categorias.map(cat=>(
+                <p style={{fontSize:14,color:"#888",margin:"0 0 12px"}}>Selecciona tu modelo o busca directamente</p>
+                {/* Buscador rapido en home */}
+                <div style={{marginBottom:20,display:"flex",gap:8}}>
+                  <div style={{flex:1,display:"flex",alignItems:"center",background:"#fff",border:"2px solid #e0e0e0",borderRadius:10,padding:"0 14px",transition:"border .2s"}}
+                    onFocus={e=>e.currentTarget.style.borderColor="#003478"} onBlur={e=>e.currentTarget.style.borderColor="#e0e0e0"}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input value={homeSearch} onChange={e=>setHomeSearch(e.target.value)} placeholder="Buscar modelo, pieza o numero de parte..."
+                      style={{flex:1,border:"none",outline:"none",padding:"12px 10px",fontSize:15,fontFamily:"inherit",background:"transparent",color:"#333"}}/>
+                    {homeSearch&&<button onClick={()=>setHomeSearch('')} style={{background:"none",border:"none",color:"#999",cursor:"pointer",fontSize:16,padding:4}}>✕</button>}
+                  </div>
+                </div>
+                <p style={{fontSize:12,color:"#aaa",margin:"0 0 20px"}}>{MOCK_MODELOS.length} modelos · {Object.values(CATALOGO_COMPLETO).flat().length} repuestos · Stock sujeto a disponibilidad</p>
+
+                {/* Resultados de busqueda rapida */}
+                {homeSearch.trim().length>2&&(()=>{
+                  const results=mockBuscar(homeSearch);
+                  if(!results||!results.length)return <div style={{padding:20,textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>No se encontraron resultados para "{homeSearch}"</div>;
+                  return(
+                    <div style={{marginBottom:24}}>
+                      <div style={{fontSize:14,fontWeight:700,color:"#003478",marginBottom:12}}>{results.length} resultado{results.length!==1?"s":""} para "{homeSearch}"</div>
+                      <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
+                        {results.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onConsultar={(part)=>{
+                          network.sendChat(`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`);
+                          setChatOpen(true);
+                        }} onAddCart={addToCart}/>)}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Modelos por categoria */}
+                {(homeSearch.trim().length<=2)&&categorias.map(cat=>{
+                  const filteredModels=homeSearch.trim()?MOCK_MODELOS.filter(m=>m.cat===cat&&m.nombre.toLowerCase().includes(homeSearch.toLowerCase())):MOCK_MODELOS.filter(m=>m.cat===cat);
+                  if(!filteredModels.length)return null;
+                  return(
                   <div key={cat} style={{marginBottom:28}}>
                     <div style={{fontSize:15,fontWeight:800,color:"#003478",marginBottom:14,paddingBottom:8,borderBottom:"2px solid #003478",display:"inline-block"}}>{cat}</div>
                     <div className="fw-cat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:14}}>
-                      {MOCK_MODELOS.filter(m=>m.cat===cat).map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>setModeloSel(m)}/>)}
+                      {filteredModels.map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>setModeloSel(m)}/>)}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
+
+                {/* Info del taller */}
+                <div style={{marginTop:20,padding:"20px 24px",background:"#fff",border:"1px solid #e0e0e0",borderRadius:10}}>
+                  <div style={{fontSize:15,fontWeight:700,color:"#003478",marginBottom:10}}>La Ford de Warnes</div>
+                  <div style={{fontSize:13,color:"#555",lineHeight:1.8}}>
+                    <div>Repuestos y accesorios Ford — Reparamos llaves de luces, teclas, espejos</div>
+                    <div style={{marginTop:6}}>
+                      <strong>Direccion:</strong> Av. Honorio Pueyrredon 2180, Local 1, CABA
+                    </div>
+                    <div><strong>Tel:</strong> 4582-1565</div>
+                    <div><strong>WhatsApp:</strong> <a href="https://wa.me/5491162756333" style={{color:"#25d366",fontWeight:600,textDecoration:"none"}}>11 6275-6333</a></div>
+                    <div><strong>Instagram:</strong> <a href="https://www.instagram.com/laforddewarnes/" target="_blank" rel="noopener noreferrer" style={{color:"#003478",textDecoration:"none"}}>@laforddewarnes</a></div>
+                    <div style={{marginTop:6}}><strong>Envios a todo el pais</strong></div>
+                  </div>
+                  <div style={{marginTop:12,display:"flex",gap:16,flexWrap:"wrap",fontSize:13,color:"#555"}}>
+                    <div>Lunes a Viernes: <strong>8:00 - 18:00</strong></div>
+                    <div>Sabados: <strong>8:00 - 13:00</strong></div>
+                    <div>Domingos: <strong style={{color:"#dc2626"}}>Cerrado</strong></div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <footer style={{marginTop:30,padding:"24px 0",borderTop:"1px solid #ccc",textAlign:"center"}}>
+                  <div style={{fontSize:13,color:"#888",marginBottom:6}}>La Ford de Warnes — Repuestos Ford Originales y Alternativos</div>
+                  <div style={{fontSize:12,color:"#aaa",marginBottom:10}}>Av. Honorio Pueyrredon 2180, Local 1, CABA · Tel: 4582-1565</div>
+                  <div style={{display:"flex",justifyContent:"center",gap:16,flexWrap:"wrap"}}>
+                    <a href="https://wa.me/5491162756333" target="_blank" rel="noopener noreferrer" style={{fontSize:12,color:"#25d366",textDecoration:"none",fontWeight:600}}>WhatsApp</a>
+                    <a href="https://www.instagram.com/laforddewarnes/" target="_blank" rel="noopener noreferrer" style={{fontSize:12,color:"#E1306C",textDecoration:"none",fontWeight:600}}>Instagram</a>
+                    <a href="/privacidad.html" style={{fontSize:12,color:"#003478",textDecoration:"none"}}>Privacidad</a>
+                  </div>
+                </footer>
               </>
             ):(()=>{
               const allParts=repsPorModelo(modeloSel.id);
@@ -996,7 +1065,7 @@ function ModeloCard({modelo,onClick}){
   );
 }
 
-function RepCard({r,onClick,onConsultar}){
+function RepCard({r,onClick,onConsultar,onAddCart}){
   const [hov,setHov]=useState(false);
   const [imgErr,setImgErr]=useState(false);
   const Ic=getIcon(r.cat);
