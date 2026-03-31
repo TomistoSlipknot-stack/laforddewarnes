@@ -12,121 +12,99 @@ const SONGS = [
 export default function RadioVieja() {
   const [on, setOn] = useState(false);
   const [song, setSong] = useState(null);
-  const [staticOn, setStaticOn] = useState(false);
   const [glitch, setGlitch] = useState(false);
-  const [big, setBig] = useState(false);
   const glitchRef = useRef(null);
 
   const pick = () => SONGS[Math.floor(Math.random() * SONGS.length)];
-
-  const buzz = () => {
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      const b = c.createBuffer(1, c.sampleRate * 0.4, c.sampleRate);
-      const d = b.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.08 * (1 - i / d.length);
-      const s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start();
-      s.onended = () => c.close();
-    } catch {}
-  };
 
   // Random glitches
   useEffect(() => {
     if (!on) return;
     const go = () => {
-      if (Math.random() < 0.25) { setGlitch(true); buzz(); setTimeout(() => setGlitch(false), 200 + Math.random() * 300); }
-      glitchRef.current = setTimeout(go, 10000 + Math.random() * 15000);
+      if (Math.random() < 0.3) { setGlitch(true); setTimeout(() => setGlitch(false), 300); }
+      glitchRef.current = setTimeout(go, 8000 + Math.random() * 12000);
     };
-    glitchRef.current = setTimeout(go, 8000);
+    glitchRef.current = setTimeout(go, 6000);
     return () => clearTimeout(glitchRef.current);
   }, [on]);
 
   const toggle = () => {
     if (on) { setOn(false); setSong(null); }
-    else { setStaticOn(true); buzz(); setTimeout(() => { setStaticOn(false); setSong(pick()); setOn(true); }, 700); }
+    else { const s = pick(); setSong(s); setOn(true); }
   };
 
-  const next = (e) => {
-    e.stopPropagation();
-    setStaticOn(true); buzz();
-    setTimeout(() => { setStaticOn(false); setSong(pick()); }, 400);
-  };
-
-  const W = big ? 340 : 180;
-  const H = big ? 280 : 148;
+  const next = (e) => { e.stopPropagation(); setSong(pick()); };
 
   return (
-    <div style={{ position: 'fixed', bottom: 12, left: 12, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {/* Controls */}
+    <>
+      {/* Small TV icon in corner */}
+      <div onClick={toggle} style={{
+        position: 'fixed', bottom: 12, left: 12, zIndex: 50,
+        cursor: 'pointer', textAlign: 'center',
+      }}
+        title={on ? 'Apagar TV' : 'Prender Ford TV'}>
+        <img src="/img/tv-vieja.png" alt="TV" style={{
+          width: 70, height: 58, objectFit: 'contain',
+          filter: on ? 'drop-shadow(0 0 12px rgba(251,191,36,.5))' : 'brightness(0.7)',
+          transition: 'all .2s',
+        }} />
+        <div style={{ fontSize: 7, color: on ? '#fbbf24' : 'rgba(255,255,255,.3)', fontWeight: 700 }}>
+          {on ? '♪ FORD TV' : 'FORD TV'}
+        </div>
+      </div>
+
+      {/* Full TV player overlay */}
       {on && song && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, background: 'rgba(0,0,0,.85)', borderRadius: 8, padding: '5px 10px', maxWidth: W }}>
-          <span style={{ color: '#fbbf24', fontSize: 12 }}>♪</span>
-          <span style={{ color: '#fbbf24', fontSize: 10, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{song.title}</span>
-          <button onClick={next} style={{ background: 'rgba(255,255,255,.2)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>⏭</button>
-          <button onClick={(e) => { e.stopPropagation(); setBig(!big); }} style={{ background: 'rgba(255,255,255,.2)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>{big ? '▼' : '▲'}</button>
+        <div style={{
+          position: 'fixed', bottom: 80, left: 12, zIndex: 51,
+          width: 360, maxWidth: 'calc(100vw - 24px)',
+          animation: 'tvPopIn .3s ease',
+        }}>
+          {/* Song info + controls */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'rgba(0,0,0,.9)', borderRadius: '10px 10px 0 0',
+            padding: '8px 12px',
+          }}>
+            <span style={{ color: '#fbbf24', fontSize: 14 }}>♪</span>
+            <span style={{ color: '#fbbf24', fontSize: 12, fontWeight: 700, flex: 1 }}>{song.title}</span>
+            <button onClick={next} style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 12, padding: '4px 10px', borderRadius: 6, fontFamily: 'inherit' }}>⏭ Siguiente</button>
+            <button onClick={toggle} style={{ background: 'rgba(239,68,68,.3)', border: 'none', color: '#ff6b6b', cursor: 'pointer', fontSize: 12, padding: '4px 10px', borderRadius: 6, fontFamily: 'inherit' }}>✕</button>
+          </div>
+
+          {/* Video screen */}
+          <div style={{ position: 'relative', background: '#000', borderRadius: '0 0 10px 10px', overflow: 'hidden' }}>
+            {/* YouTube video - full controls so user can press play */}
+            <iframe
+              key={song.id}
+              src={`https://www.youtube.com/embed/${song.id}?autoplay=1&loop=1&playlist=${song.id}&rel=0`}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              style={{ width: '100%', height: 200, border: 'none', display: 'block' }}
+              title="Ford TV"
+            />
+
+            {/* CRT scanlines */}
+            <div style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2,
+              background: 'linear-gradient(transparent 50%, rgba(0,0,0,.03) 50%)',
+              backgroundSize: '100% 3px',
+            }} />
+
+            {/* Glitch */}
+            {glitch && <div style={{
+              position: 'absolute', inset: 0, zIndex: 3,
+              background: 'repeating-linear-gradient(0deg,rgba(255,255,255,.1),rgba(255,255,255,.1) 1px,transparent 1px,transparent 3px)',
+              animation: 'tvGlitch .08s steps(3) infinite',
+            }} />}
+          </div>
         </div>
       )}
 
-      {/* TV container */}
-      <div style={{ width: W, height: H, position: 'relative', cursor: !on ? 'pointer' : 'default', transition: 'all .3s' }}
-        onClick={!on ? toggle : undefined}
-        title={on ? '' : 'Click para prender la tele'}>
-
-        {/* 1. Black background for screen area */}
-        <div style={{
-          position: 'absolute', left: '7%', top: '8%', width: '63%', height: '74%',
-          background: '#0a0a0a', borderRadius: 4, zIndex: 1,
-        }} />
-
-        {/* 2. YouTube video on screen */}
-        {on && song && !glitch && (
-          <iframe
-            key={song.id}
-            src={`https://www.youtube.com/embed/${song.id}?autoplay=1&loop=1&playlist=${song.id}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3`}
-            allow="autoplay; encrypted-media"
-            style={{
-              position: 'absolute', left: '9%', top: '11%', width: '59%', height: '67%',
-              border: 'none', borderRadius: 2, zIndex: 2,
-            }}
-            title="Ford TV"
-          />
-        )}
-
-        {/* 3. Static/glitch overlay on screen */}
-        {(staticOn || glitch) && (
-          <div style={{
-            position: 'absolute', left: '7%', top: '8%', width: '63%', height: '74%',
-            zIndex: 4, borderRadius: 4, overflow: 'hidden',
-            background: 'repeating-linear-gradient(0deg,rgba(200,200,200,.15),rgba(200,200,200,.15) 1px,rgba(0,0,0,.2) 1px,rgba(0,0,0,.2) 2px)',
-            animation: 'tvStatic .06s steps(4) infinite',
-          }} />
-        )}
-
-        {/* 4. CRT scanlines (always when on) */}
-        {on && (
-          <div style={{
-            position: 'absolute', left: '7%', top: '8%', width: '63%', height: '74%',
-            zIndex: 3, pointerEvents: 'none', borderRadius: 4,
-            background: 'linear-gradient(transparent 50%, rgba(0,0,0,.04) 50%)',
-            backgroundSize: '100% 3px',
-          }} />
-        )}
-
-        {/* 5. TV frame image ON TOP of everything */}
-        <img src="/img/tv-vieja.png" alt="TV" style={{
-          width: '100%', height: '100%', objectFit: 'contain',
-          position: 'relative', zIndex: 5, pointerEvents: 'none',
-        }} />
-
-        {/* Power light */}
-        {on && <div style={{ position: 'absolute', bottom: '14%', right: '18%', width: 5, height: 5, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e', zIndex: 6 }} />}
-      </div>
-
-      <div style={{ fontSize: 7, color: 'rgba(255,255,255,.3)', fontWeight: 600, marginTop: 2 }}>
-        {on ? 'FORD TV' : 'CLICK PARA PRENDER'}
-      </div>
-
-      <style>{`@keyframes tvStatic{0%{opacity:.7}25%{opacity:.9}50%{opacity:.5}75%{opacity:.8}100%{opacity:.6}}`}</style>
-    </div>
+      <style>{`
+        @keyframes tvPopIn { from { opacity: 0; transform: translateY(20px) scale(.9) } to { opacity: 1; transform: translateY(0) scale(1) } }
+        @keyframes tvGlitch { 0%{opacity:.5;transform:translateX(-2px)} 50%{opacity:.8;transform:translateX(3px)} 100%{opacity:.6;transform:translateX(-1px)} }
+      `}</style>
+    </>
   );
 }
