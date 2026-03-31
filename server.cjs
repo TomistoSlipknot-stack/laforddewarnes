@@ -272,7 +272,7 @@ app.post('/api/upload', requireAuth(['admin', 'employee']), (req, res) => {
 
 // ─── ANALYTICS API ──
 // Sales history
-app.get('/api/sales-history', (req, res) => {
+app.get('/api/sales-history', requireAuth(['admin', 'employee']), (req, res) => {
   const today = new Date().toDateString();
   const todaySales = salesHistory.filter(s => new Date(s.date).toDateString() === today);
   const todayTotal = todaySales.reduce((sum, s) => sum + (s.amount || 0), 0);
@@ -285,7 +285,7 @@ app.get('/api/sales-history', (req, res) => {
   });
 });
 
-app.post('/api/sales-history', (req, res) => {
+app.post('/api/sales-history', requireAuth(['admin', 'employee']), (req, res) => {
   const { clientName, products, total, notes } = req.body;
   salesHistory.push({
     id: 'sale_' + Date.now(),
@@ -305,7 +305,7 @@ app.get('/api/client-notes/:name', (req, res) => {
   res.json({ notes: clientNotes[req.params.name] || '' });
 });
 
-app.post('/api/client-notes', (req, res) => {
+app.post('/api/client-notes', requireAuth(['admin', 'employee']), (req, res) => {
   const { clientName, note } = req.body;
   if (clientName) {
     clientNotes[clientName] = note || '';
@@ -324,7 +324,7 @@ app.get('/api/popular-products', (req, res) => {
 });
 
 // Frequent clients
-app.get('/api/frequent-clients', (req, res) => {
+app.get('/api/frequent-clients', requireAuth(['admin', 'employee']), (req, res) => {
   const clientCounts = {};
   salesHistory.forEach(s => {
     clientCounts[s.clientName] = (clientCounts[s.clientName] || 0) + 1;

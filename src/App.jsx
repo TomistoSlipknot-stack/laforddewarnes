@@ -1312,8 +1312,8 @@ function ResultRow({r,isLast,isBest,delay,onClick}){const theme=_globalTheme;
   const Ic=getIcon(r.cat);
   const pImg=(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
-    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:hov?"#12141e":"#0f1018",border:`1px solid ${isBest?"rgba(34,197,94,.2)":"#181c26"}`,borderRadius:isLast?"4px 4px 12px 12px":"4px",padding:"12px 16px",cursor:"pointer",opacity:vis?(r.disponible?1:.45):0,transform:vis?"translateY(0)":"translateY(4px)",transition:"all .2s",display:"flex",alignItems:"center",gap:12,marginBottom:2}}>
-      <div style={{width:46,height:46,background:"#f8f8f8",borderRadius:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid #1a1e2a",overflow:"hidden"}}>
+    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:theme.card||'#fff',border:`1px solid ${isBest?"rgba(34,197,94,.2)":(theme.cardBorder||'#e0e0e0')}`,borderRadius:isLast?"4px 4px 12px 12px":"4px",padding:"12px 16px",cursor:"pointer",opacity:vis?(r.disponible?1:.45):0,transform:vis?"translateY(0)":"translateY(4px)",transition:"all .2s",display:"flex",alignItems:"center",gap:12,marginBottom:2}}>
+      <div style={{width:46,height:46,background:"#f8f8f8",borderRadius:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid "+(theme.cardBorder||'#e0e0e0'),overflow:"hidden"}}>
         {pImg&&!imgE?<img src={pImg} alt={r.cat} onError={()=>setImgE(true)} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<Ic size={30}/>}
       </div>
       <div style={{flex:1,minWidth:0}}>
@@ -1321,13 +1321,13 @@ function ResultRow({r,isLast,isBest,delay,onClick}){const theme=_globalTheme;
           <span style={{fontSize:10,color:"#4d8eff",background:"rgba(0,61,165,.12)",border:"1px solid rgba(0,61,165,.2)",padding:"2px 7px",borderRadius:4}}>{r.modelo_nombre}</span>
           {isBest&&<span style={{fontSize:10,color:"#22c55e",background:"rgba(34,197,94,.08)",border:"1px solid rgba(34,197,94,.2)",padding:"2px 7px",borderRadius:4}}>Mejor precio</span>}
         </div>
-        <div style={{fontSize:13,fontWeight:500,color:"#444",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.nombre}</div>
+        <div style={{fontSize:13,fontWeight:500,color:theme.text||'#333',overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.nombre}</div>
         <div style={{display:"flex",gap:10,marginTop:3}}>
-          <span style={{fontSize:11,color:"#bbb",fontFamily:"monospace"}}>{r.numero_parte}</span>
+          <span style={{fontSize:11,color:theme.textMuted||'#999',fontFamily:"monospace"}}>{r.numero_parte}</span>
           <div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:5,height:5,borderRadius:"50%",background:sc}}/><span style={{fontSize:11,color:sc}}>{stockLabel(r.stock)}</span></div>
         </div>
       </div>
-      <div style={{textAlign:"right",flexShrink:0}}><div style={{fontSize:16,fontWeight:800}}>{r.precio}</div><div style={{fontSize:9,color:"#bbb"}}>ARS · Ver →</div></div>
+      <div style={{textAlign:"right",flexShrink:0}}><div style={{fontSize:16,fontWeight:800}}>{r.precio}</div><div style={{fontSize:9,color:theme.textMuted||'#999'}}>ARS · Ver →</div></div>
     </div>
   );
 }

@@ -55,7 +55,7 @@ export default function ChatBubble({ onAction, unread }) {
                   transition: 'all .15s',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = '#003478'; e.currentTarget.style.background = '#f0f4ff'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e0e0e0'; e.currentTarget.style.background = '#fff'; }}>
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--fw-cardBorder, #e0e0e0)'; e.currentTarget.style.background = 'var(--fw-card, #fff)'; }}>
                 <span style={{ fontSize: 16 }}>{opt.icon}</span>
                 {opt.label}
               </button>

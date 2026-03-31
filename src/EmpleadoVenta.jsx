@@ -264,7 +264,7 @@ export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRe
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: t.accent || '#003478' }}>
-                    ${(p.precio || 0).toLocaleString('es-AR')}
+                    {p.precio || '$0'}
                   </div>
                   <div style={{ fontSize: 11, color: p.stock > 0 ? '#16a34a' : '#dc2626', fontWeight: 600, marginTop: 2 }}>
                     {p.stock > 0 ? `Stock: ${p.stock}` : 'Sin stock'}

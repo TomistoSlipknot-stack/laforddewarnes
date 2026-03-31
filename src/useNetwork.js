@@ -136,6 +136,7 @@ export function useNetwork() {
     };
 
     ws.onclose = () => {
+      ws._cleanActivity?.();
       setConnected(false);
       wsRef.current = null;
       reconnectTimer.current = setTimeout(() => connect(name, role), 2000);

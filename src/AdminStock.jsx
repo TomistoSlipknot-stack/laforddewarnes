@@ -56,7 +56,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
   if (!selModelo) {
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--fw-bg, #fafafa)' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--fw-cardBorder, #e0e0e0)', flexShrink: 0 }}>
           <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--fw-text, #333)', marginBottom: 10 }}>Gestionar Stock y Precios</div>
           {/* Category tabs */}
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
@@ -91,7 +91,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
             if (!ms.length) return null;
             return (
               <div key={cat} style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#003478', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8, paddingBottom: 4, borderBottom: '1px solid #e0e0e0' }}>{cat}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#003478', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8, paddingBottom: 4, borderBottom: '1px solid var(--fw-cardBorder, #e0e0e0)' }}>{cat}</div>
                 {ms.map(m => {
                   const parts = catalogo[m.id] || [];
                   const inStock = parts.filter(p => p.stock > 0).length;
@@ -130,7 +130,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--fw-bg, #fafafa)' }}>
       {/* Header */}
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--fw-cardBorder, #e0e0e0)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <button onClick={() => setSelModelo(null)} style={{ background: 'none', border: 'none', color: '#003478', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', padding: 0 }}>← Volver</button>
           <div style={{ flex: 1 }}>
