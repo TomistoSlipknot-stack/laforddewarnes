@@ -130,8 +130,8 @@ export default function RadioVieja() {
             playsInline
             style={{
               position: 'absolute',
-              left: '9%', top: '12%', width: '58%', height: '64%',
-              objectFit: 'cover', borderRadius: 5, zIndex: 10,
+              left: '10%', top: '13%', width: '55%', height: '62%',
+              objectFit: 'cover', borderRadius: 6, zIndex: 10,
               background: '#000',
             }}
           />
@@ -140,7 +140,7 @@ export default function RadioVieja() {
         {/* CRT scanlines on top of video */}
         {on && (
           <div style={{
-            position: 'absolute', left: '9%', top: '12%', width: '58%', height: '64%',
+            position: 'absolute', left: '10%', top: '13%', width: '55%', height: '62%',
             zIndex: 11, pointerEvents: 'none', borderRadius: 5,
             background: 'linear-gradient(transparent 50%, rgba(0,0,0,.06) 50%)',
             backgroundSize: '100% 3px',
@@ -150,7 +150,7 @@ export default function RadioVieja() {
         {/* Glitch on top of everything */}
         {glitch && (
           <div style={{
-            position: 'absolute', left: '9%', top: '12%', width: '58%', height: '64%',
+            position: 'absolute', left: '10%', top: '13%', width: '55%', height: '62%',
             zIndex: 12, borderRadius: 5,
             background: 'repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0px,rgba(255,255,255,.15) 1px,transparent 1px,transparent 3px)',
             animation: 'tvGlitch .06s steps(4) infinite',
