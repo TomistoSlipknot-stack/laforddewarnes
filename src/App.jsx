@@ -980,7 +980,6 @@ export default function FordWarnesApp({ user, onLogout }){
                     <div>Sabados: <strong>8:00 - 13:00</strong></div>
                     <div>Domingos: <strong style={{color:"#dc2626"}}>Cerrado</strong></div>
                   </div>
-                  {filtered.length>showCount&&<div style={{textAlign:"center",padding:"20px 0"}}><button onClick={()=>setShowCount(c=>c+40)} style={{padding:"12px 32px",fontSize:14,fontWeight:700,border:"2px solid #003478",borderRadius:20,background:"transparent",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>Cargar mas ({filtered.length-showCount} restantes)</button></div>}
                 </div>
 
                 {/* Google Maps */}
