@@ -18,7 +18,7 @@ export default function ChatBubble({ onAction, unread }) {
     if (action === 'whatsapp') {
       window.open('https://wa.me/5491162756333?text=Hola! Quiero consultar por repuestos Ford', '_blank');
     } else if (action === 'map') {
-      window.open('https://maps.google.com/?q=Av.+Honorio+Pueyrredon+2180+CABA+Argentina', '_blank');
+      window.open('https://www.google.com/maps/place/La+Ford+de+Warnes/@-34.598777,-58.4563422,17z/data=!3m1!4b1!4m6!3m5!1s0x95bcca07865b0dfb:0xccc0a5e2fbbe584c', '_blank');
     } else {
       onAction(action);
     }

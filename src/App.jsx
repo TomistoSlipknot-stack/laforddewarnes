@@ -985,7 +985,7 @@ export default function FordWarnesApp({ user, onLogout }){
                 {/* Google Maps */}
                 <div style={{marginTop:20,borderRadius:10,overflow:"hidden",border:"1px solid "+theme.cardBorder}}>
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.0!2d-58.44!3d-34.60!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAv.+Honorio+Pueyrredon+2180%2C+CABA!5e0!3m2!1ses!2sar!4v1"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.0!2d-58.4563422!3d-34.598777!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcca07865b0dfb%3A0xccc0a5e2fbbe584c!2sLa%20Ford%20de%20Warnes!5e0!3m2!1ses!2sar!4v1"
                     width="100%" height="200" style={{border:0}} allowFullScreen="" loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade" title="Ubicacion La Ford de Warnes"
                   />
