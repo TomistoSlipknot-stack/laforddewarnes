@@ -8,7 +8,7 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
   const [nombre, setNombre] = useState(userName || '');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
-  const [entrega, setEntrega] = useState('retiro'); // 'retiro' | 'envio'
+  const [entrega, setEntrega] = useState('local'); // 'local' | 'envio'
   const [direccion, setDireccion] = useState('');
   const [localidad, setLocalidad] = useState('');
   const [codigoPostal, setCodigoPostal] = useState('');
@@ -77,7 +77,7 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
     return Object.keys(errs).length === 0;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validate()) return;
     setSubmitting(true);
 
@@ -94,23 +94,17 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
         telefono: telefono.trim(),
         email: email.trim() || null,
       },
-      entrega: entrega === 'retiro'
-        ? { tipo: 'retiro', direccion: 'Av. Honorio Pueyrredon 2180, Local 1, CABA' }
-        : {
-            tipo: 'envio',
-            direccion: direccion.trim(),
-            localidad: localidad.trim(),
-            codigo_postal: codigoPostal.trim(),
-            provincia: provincia.trim(),
-          },
+      entrega,
+      direccionEnvio: entrega === 'envio' ? `${direccion.trim()}, ${localidad.trim()}, CP ${codigoPostal.trim()}, ${provincia.trim()}` : '',
       comprobante: comprobante || null,
-      timestamp: new Date().toISOString(),
-      status: 'pendiente',
+      notas: '',
     };
 
+    try {
+      await onOrderComplete(order);
+      setSuccess(true);
+    } catch { }
     setSubmitting(false);
-    setSuccess(true);
-    onOrderComplete(order);
   }
 
   if (success) {
@@ -251,14 +245,14 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
 
           <label style={{
             display: 'flex', alignItems: 'flex-start', gap: 10, padding: '14px',
-            border: `2px solid ${entrega === 'retiro' ? '#003478' : (t.cardBorder || '#ddd')}`,
+            border: `2px solid ${entrega === 'local' ? '#003478' : (t.cardBorder || '#ddd')}`,
             borderRadius: 10, cursor: 'pointer', marginBottom: 10,
-            background: entrega === 'retiro' ? (t.bg || '#f0f4ff') : 'transparent',
+            background: entrega === 'local' ? (t.bg || '#f0f4ff') : 'transparent',
           }}>
             <input
               type="radio" name="entrega" value="retiro"
-              checked={entrega === 'retiro'}
-              onChange={() => setEntrega('retiro')}
+              checked={entrega === 'local'}
+              onChange={() => setEntrega('local')}
               style={{ marginTop: 2 }}
             />
             <div>

@@ -387,7 +387,7 @@ app.post('/api/pedidos', (req, res) => {
     return res.status(400).json({ ok: false, error: 'Datos incompletos' });
   }
   const order = {
-    id: 'PED-' + String(pedidos.length + 1).padStart(4, '0'),
+    id: 'PED-' + String(Date.now()).slice(-6),
     cliente: { nombre: sanitize(cliente.nombre), telefono: sanitize(cliente.telefono), email: sanitize(cliente.email || ''), direccion: sanitize(cliente.direccion || '') },
     items: items.map(i => ({ nombre: sanitize(i.nombre || ''), numero_parte: i.numero_parte, modelo: i.modelo_nombre || '', precio: i.precio, qty: i.qty || 1 })),
     total: total || 0,

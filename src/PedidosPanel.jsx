@@ -60,7 +60,7 @@ export default function PedidosPanel({ theme, esJefe }) {
 
   const openWhatsApp = (phone, pedido) => {
     const cleanPhone = (phone || '').replace(/\D/g, '');
-    const statusLabel = STATUS_CONFIG[pedido.status]?.label || pedido.status;
+    const statusLabel = STATUS_CONFIG[pedido.estado]?.label || pedido.estado;
     const msg = encodeURIComponent(
       `Hola! Tu pedido #${String(pedido.numero || pedido.id || '').padStart(4, '0')} ` +
       `tiene estado: *${statusLabel}*. Ford Warnes Repuestos.`
@@ -68,11 +68,11 @@ export default function PedidosPanel({ theme, esJefe }) {
     window.open(`https://wa.me/54${cleanPhone}?text=${msg}`, '_blank');
   };
 
-  const pendingCount = pedidos.filter(p => p.status === 'pendiente').length;
+  const pendingCount = pedidos.filter(p => p.estado === 'pendiente').length;
 
   const filtered = tab === 'todos'
     ? pedidos
-    : pedidos.filter(p => p.status === tab);
+    : pedidos.filter(p => p.estado === tab);
 
   const formatDate = (ts) => {
     if (!ts) return '';
@@ -151,7 +151,7 @@ export default function PedidosPanel({ theme, esJefe }) {
   // ── Action buttons per status ──
   const renderActions = (p) => {
     const actions = [];
-    const st = p.status;
+    const st = p.estado;
     const id = p._id || p.id;
 
     if (st === 'pendiente') {
@@ -199,9 +199,9 @@ export default function PedidosPanel({ theme, esJefe }) {
     }
 
     // WhatsApp button
-    if (p.telefono || p.cliente_telefono) {
+    if (p.cliente?.telefono || p.telefono) {
       actions.push(
-        <button key="wa" style={s.btn('#25d366')} onClick={() => openWhatsApp(p.telefono || p.cliente_telefono, p)}>
+        <button key="wa" style={s.btn('#25d366')} onClick={() => openWhatsApp(p.cliente?.telefono || p.telefono, p)}>
           WhatsApp
         </button>
       );
@@ -247,8 +247,8 @@ export default function PedidosPanel({ theme, esJefe }) {
         )}
 
         {filtered.map((p, idx) => {
-          const clientName = p.cliente_nombre || p.nombre_cliente || p.cliente || 'Sin nombre';
-          const clientPhone = p.telefono || p.cliente_telefono || '';
+          const clientName = p.cliente?.nombre || p.cliente_nombre || 'Sin nombre';
+          const clientPhone = p.cliente?.telefono || p.telefono || '';
           const items = p.items || p.productos || [];
           const total = p.total || items.reduce((s, i) => s + (i.precio || 0) * (i.qty || i.cantidad || 1), 0);
           const envio = isEnvio(p);
@@ -261,7 +261,7 @@ export default function PedidosPanel({ theme, esJefe }) {
               <div style={s.cardRow}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontWeight: 700, fontSize: 15 }}>{formatOrderNum(p)}</span>
-                  <span style={s.statusBadge(p.status)}>{STATUS_CONFIG[p.status]?.label || p.status}</span>
+                  <span style={s.statusBadge(p.estado)}>{STATUS_CONFIG[p.estado]?.label || p.estado}</span>
                 </div>
                 <span style={{ fontSize: 12, color: theme.textMuted }}>{formatDate(p.createdAt || p.fecha || p.timestamp)}</span>
               </div>
