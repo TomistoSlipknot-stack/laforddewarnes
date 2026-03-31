@@ -38,6 +38,8 @@ async function connectDB() {
     if (analyticsDoc) searchAnalytics = analyticsDoc.data;
     const pedidosDoc = await db.collection('config').findOne({ _id: 'pedidos' });
     if (pedidosDoc) pedidos = pedidosDoc.data;
+    const clientAccDoc = await db.collection('config').findOne({ _id: 'clientAccounts' });
+    if (clientAccDoc) clientAccounts = clientAccDoc.data;
     console.log('Data loaded from MongoDB');
   } catch (e) {
     console.error('MongoDB connection failed, using local files:', e.message);
@@ -89,6 +91,8 @@ function saveClientNotes() { saveToDB('clientNotes', clientNotes); }
 function saveSearchAnalytics() { saveToDB('searchAnalytics', searchAnalytics); }
 let pedidos = [];
 function savePedidos() { saveToDB('pedidos', pedidos); }
+let clientAccounts = [];
+function saveClientAccounts() { saveToDB('clientAccounts', clientAccounts); }
 
 // ─── CONNECTED CLIENTS ──────────────────────────────────────────────────────
 const clients = new Map();
@@ -245,7 +249,65 @@ app.post('/api/login', async (req, res) => {
       return res.json({ ok: true, role: 'employee', name: emp.name, token });
     }
   }
+  // Client login
+  for (const cli of clientAccounts) {
+    if ((cli.email === username || cli.phone === username) && await bcrypt.compare(password, cli.pass)) {
+      const token = createSession('client', cli.name);
+      return res.json({ ok: true, role: 'client', name: cli.name, clientId: cli.id, token });
+    }
+  }
   return res.json({ ok: false });
+});
+
+// Client register
+app.post('/api/register', async (req, res) => {
+  const ip = req.ip || req.connection.remoteAddress;
+  if (!rateLimit(ip, 5, 60000)) return res.status(429).json({ ok: false, error: 'Demasiados intentos' });
+  const { name, email, phone, password } = req.body;
+  if (!name || !password || password.length < 4) return res.json({ ok: false, error: 'Nombre y contraseña (mín 4 caracteres) requeridos' });
+  if (!email && !phone) return res.json({ ok: false, error: 'Email o teléfono requerido' });
+  // Check if email/phone already exists
+  if (email && clientAccounts.find(c => c.email === email)) return res.json({ ok: false, error: 'Ese email ya tiene cuenta' });
+  if (phone && clientAccounts.find(c => c.phone === phone)) return res.json({ ok: false, error: 'Ese teléfono ya tiene cuenta' });
+  const hashed = await bcrypt.hash(password, 10);
+  const client = {
+    id: 'cli_' + Date.now(),
+    name: sanitize(name),
+    email: sanitize(email || ''),
+    phone: sanitize(phone || ''),
+    pass: hashed,
+    createdAt: Date.now(),
+  };
+  clientAccounts.push(client);
+  saveClientAccounts();
+  const token = createSession('client', client.name);
+  res.json({ ok: true, role: 'client', name: client.name, clientId: client.id, token });
+});
+
+// Get client pedidos
+app.get('/api/mis-pedidos', (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const session = token && sessions[token];
+  if (!session) return res.json({ pedidos: [] });
+  const mine = pedidos.filter(p => p.cliente?.nombre === session.name).reverse();
+  res.json({ pedidos: mine });
+});
+
+// Client accounts list (staff can see)
+app.get('/api/clientes', requireAuth(['admin', 'employee']), (req, res) => {
+  const list = clientAccounts.map(c => {
+    const clientPedidos = pedidos.filter(p => p.cliente?.nombre === c.name || p.cliente?.email === c.email);
+    const enProgreso = clientPedidos.filter(p => !['entregado', 'cancelado'].includes(p.estado)).length;
+    const completados = clientPedidos.filter(p => p.estado === 'entregado').length;
+    return {
+      id: c.id, name: c.name, email: c.email, phone: c.phone,
+      createdAt: c.createdAt,
+      pedidosEnProgreso: enProgreso,
+      pedidosCompletados: completados,
+      totalPedidos: clientPedidos.length,
+    };
+  });
+  res.json({ clientes: list });
 });
 
 // Account management (admin only — requires auth)
