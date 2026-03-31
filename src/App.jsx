@@ -987,7 +987,7 @@ export default function FordWarnesApp({ user, onLogout }){
                       <div style={{fontSize:13,fontWeight:600,color:_globalTheme.text||"#333"}}>{u.name}</div>
                       <div style={{fontSize:10,color:_globalTheme.textSecondary||"#777"}}>{u.role==="admin"?"Admin":u.role==="employee"?"Empleado":"Cliente"} · <span style={{color:u.active?"#22c55e":"#f59e0b"}}>{u.active?"Activo":"Ausente"}</span></div>
                     </div>
-                    <div style={{fontSize:10,color:u.role==="admin"?"#fbbf24":u.role==="employee"?"#22c55e":"#6699ff",background:u.role==="admin"?"rgba(234,179,8,.1)":u.role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.1)",padding:"2px 8px",borderRadius:6}}>{u.role==="admin"?"JEFE":u.role==="employee"?"STAFF":"CLIENTE"}
+                    <div style={{fontSize:10,color:u.role==="admin"?"#fbbf24":u.role==="employee"?"#22c55e":"#6699ff",background:u.role==="admin"?"rgba(234,179,8,.1)":u.role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.1)",padding:"2px 8px",borderRadius:6}}>{u.role==="admin"?"JEFE":u.role==="employee"?"STAFF":"CLIENTE"}</div>
                   </div>
                 ))}
               </div>
