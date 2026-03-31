@@ -703,6 +703,15 @@ export default function FordWarnesApp({ user, onLogout }){
   const [carrito, setCarrito] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-cart")||"[]");}catch{return[];}});
   const [showCarrito, setShowCarrito] = useState(false);
   useEffect(()=>{try{localStorage.setItem("fw-cart",JSON.stringify(carrito));}catch{}},[carrito]);
+  const [favoritos, setFavoritos] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-favs")||"[]");}catch{return[];}});
+  useEffect(()=>{try{localStorage.setItem("fw-favs",JSON.stringify(favoritos));}catch{}},[favoritos]);
+  const toggleFav=(nro)=>setFavoritos(f=>f.includes(nro)?f.filter(x=>x!==nro):[...f,nro]);
+  const isFav=(nro)=>favoritos.includes(nro);
+  
+  // Search history (localStorage)
+  const [searchHistory, setSearchHistory] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-search-hist")||"[]");}catch{return[];}});
+  const addSearchHistory=(q)=>{if(!q||q.length<2)return;const h=[q,...searchHistory.filter(x=>x!==q)].slice(0,8);setSearchHistory(h);try{localStorage.setItem("fw-search-hist",JSON.stringify(h));}catch{}};
+  
   const addToCart=(item)=>{if(!carrito.find(c=>c.numero_parte===item.numero_parte))setCarrito(c=>[...c,item]);};
   const removeFromCart=(nro)=>setCarrito(c=>c.filter(x=>x.numero_parte!==nro));
   const [chatOpen,  setChatOpen]  = useState(false);
@@ -733,6 +742,7 @@ export default function FordWarnesApp({ user, onLogout }){
     setBotState("loading");
     await new Promise(r=>setTimeout(r,1600+Math.random()*900));
     network.broadcastSearch(q);
+    addSearchHistory(q);
     const res=mockBuscar(q);
     if(res){setMessages(m=>[...m,{id:Date.now()+1,type:"result",resultados:res}]);setBotState("result");}
     else   {setMessages(m=>[...m,{id:Date.now()+1,type:"notfound",query:q}]);      setBotState("notfound");}
