@@ -789,8 +789,11 @@ export default function FordWarnesApp({ user, onLogout }){
             <div style={{fontWeight:800,fontSize:17,color:theme.text,letterSpacing:"-.02em"}}>La Ford de Warnes</div>
             <div style={{fontSize:11,color:_globalTheme.textMuted||"#999",fontWeight:500}}>Repuestos y Stock</div>
           </div>
-          <div className="fw-role-badge" style={{background:esJefe?"rgba(234,179,8,.12)":role==="employee"?"rgba(34,197,94,.1)":"rgba(0,52,120,.06)",border:`1px solid ${esJefe?"rgba(234,179,8,.3)":role==="employee"?"rgba(34,197,94,.25)":"rgba(0,52,120,.15)"}`,borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:700,color:esJefe?"#b8860b":role==="employee"?"#16a34a":"#003478",textTransform:"uppercase",letterSpacing:".04em"}}>
-            {esJefe?"Jefe":role==="employee"?"Empleado":"Cliente"}
+          <div className="fw-role-badge" style={{display:"flex",alignItems:"center",gap:8}}>
+            <span style={{background:esJefe?"rgba(234,179,8,.12)":role==="employee"?"rgba(34,197,94,.1)":"rgba(0,52,120,.06)",border:`1px solid ${esJefe?"rgba(234,179,8,.3)":role==="employee"?"rgba(34,197,94,.25)":"rgba(0,52,120,.15)"}`,borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:700,color:esJefe?"#b8860b":role==="employee"?"#16a34a":"#003478",textTransform:"uppercase",letterSpacing:".04em"}}>
+              {esJefe?"Jefe":role==="employee"?"Empleado":"Cliente"}
+            </span>
+            <span style={{fontSize:12,fontWeight:600,color:theme.text}}>{user?.name||""}</span>
           </div>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
@@ -868,10 +871,10 @@ export default function FordWarnesApp({ user, onLogout }){
             {[
               {id:"dashboard",label:"Dashboard",icon:"📊",badge:0},
               {id:"stock",label:"Stock",icon:"📦",badge:0},
-              {id:"cuentas",label:"Cuentas",icon:"👥",badge:0},
+              ...(esJefe?[{id:"cuentas",label:"Cuentas",icon:"👥",badge:0}]:[]),
               {id:"chats",label:"Chats",icon:"💬",badge:adminTotalUnread},
               {id:"online",label:"En Linea",icon:"🟢",badge:network.onlineUsers.length},
-              {id:"logs",label:"Busquedas",icon:"🔍",badge:network.searchLogs.length},
+              ...(esJefe?[{id:"logs",label:"Busquedas",icon:"🔍",badge:network.searchLogs.length}]:[]),
             ].map(t=>(
               <button key={t.id} onClick={()=>setAdminTab(t.id)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 14px",borderRadius:8,border:"none",background:adminTab===t.id?(isDark?"rgba(0,52,120,.3)":"#e8f0fe"):"transparent",color:adminTab===t.id?(isDark?"#58a6ff":"#003478"):theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:adminTab===t.id?600:500,transition:"all .15s",textAlign:"left",position:"relative"}}>
                 <span style={{fontSize:16,width:20,textAlign:"center"}}>{t.icon}</span>
@@ -1082,7 +1085,7 @@ export default function FordWarnesApp({ user, onLogout }){
             <AdminChats network={network}/>
           ):(
             /* Clients/Employees see PrivateChat inline */
-            <PrivateChatInline network={network} userName={user?.name}/>
+            <PrivateChatInline network={network} userName={user?.name} pendingConsulta={pendingConsulta} onConsultaSent={()=>setPendingConsulta(null)}/>
           )}
         </div>
       )}

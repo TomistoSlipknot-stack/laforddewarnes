@@ -68,10 +68,16 @@ function broadcastAll(data, excludeWs) {
   }
 }
 function getOnlineList() {
-  // Only show registered users (not bots/crawlers)
+  // Only show registered users with active connections (not bots/crawlers/dead sockets)
   const list = [];
-  for (const [, info] of clients) {
-    if (info.registered && info.name) list.push({ id: info.id, name: info.name, role: info.role, roomId: info.roomId, connectedAt: info.connectedAt });
+  const seen = new Set(); // dedupe by name+role
+  for (const [ws, info] of clients) {
+    if (ws.readyState !== 1) continue; // skip dead connections
+    if (!info.registered || !info.name) continue;
+    const key = info.name + '_' + info.role;
+    if (seen.has(key)) continue; // skip duplicate connections from same user
+    seen.add(key);
+    list.push({ id: info.id, name: info.name, role: info.role, roomId: info.roomId, connectedAt: info.connectedAt });
   }
   return list;
 }
@@ -510,8 +516,26 @@ wss.on('connection', (ws) => {
       }
     }
     broadcastToRole('admin', { type: 'online_list', users: getOnlineList() });
+    broadcastToRole('employee', { type: 'online_list', users: getOnlineList() });
     broadcastToRole('admin', { type: 'chat_list', rooms: getChatList() });
   });
+});
+
+// Ping/pong to detect dead connections
+const PING_INTERVAL = 30000;
+setInterval(() => {
+  for (const [ws, info] of clients) {
+    if (ws.readyState !== 1) { clients.delete(ws); continue; }
+    if (info._pongWaiting) { ws.terminate(); clients.delete(ws); continue; }
+    info._pongWaiting = true;
+    ws.ping();
+  }
+  // Broadcast updated online list after cleanup
+  broadcastToRole('admin', { type: 'online_list', users: getOnlineList() });
+  broadcastToRole('employee', { type: 'online_list', users: getOnlineList() });
+}, PING_INTERVAL);
+wss.on('connection', (ws2) => {
+  ws2.on('pong', () => { const info = clients.get(ws2); if (info) info._pongWaiting = false; });
 });
 
 server.listen(PORT, '0.0.0.0', () => {
