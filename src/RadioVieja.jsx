@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 
 const SONGS = [
-  { file: '/videos/song1.mp4', title: 'Dschinghis Khan' },
-  { file: '/videos/song2.mp4', title: 'Dschinghis Khan II' },
-  { file: '/videos/song3.mp4', title: 'Another Song' },
-  { file: '/videos/song4.mp4', title: 'Dschinghis Khan (ZDF 1979)' },
+  '/videos/song1.mp4',
+  '/videos/song2.mp4',
+  '/videos/song3.mp4',
+  '/videos/song4.mp4',
+  '/videos/song5.mp4',
 ];
 
 export default function RadioVieja() {
@@ -74,7 +75,7 @@ export default function RadioVieja() {
           boxShadow: on ? 'inset 0 0 20px rgba(100,200,255,.08)' : 'inset 0 0 20px rgba(0,0,0,.5)',
         }}>
           {on && (
-            <video ref={videoRef} key={idx} src={SONGS[idx].file} onEnded={onEnded}
+            <video ref={videoRef} key={idx} src={SONGS[idx]} onEnded={onEnded}
               autoPlay playsInline
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           )}
@@ -105,7 +106,7 @@ export default function RadioVieja() {
 
           {/* Song title */}
           <div style={{ flex: 1, fontSize: big ? 11 : 8, fontWeight: 600, color: on ? '#fbbf24' : '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {on ? '♪ ' + SONGS[idx].title : 'FORD TV'}
+            {on ? '♪ FORD TV' : 'FORD TV'}
           </div>
 
           {/* Vol down */}
