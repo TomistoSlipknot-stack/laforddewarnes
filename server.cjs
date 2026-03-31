@@ -56,9 +56,10 @@ function broadcastAll(data, excludeWs) {
   }
 }
 function getOnlineList() {
+  // Only show registered users (not bots/crawlers)
   const list = [];
   for (const [, info] of clients) {
-    list.push({ id: info.id, name: info.name, role: info.role, roomId: info.roomId, connectedAt: info.connectedAt });
+    if (info.registered && info.name) list.push({ id: info.id, name: info.name, role: info.role, roomId: info.roomId, connectedAt: info.connectedAt });
   }
   return list;
 }
@@ -186,7 +187,7 @@ const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws) => {
   const clientId = 'u' + (idCounter++);
-  clients.set(ws, { id: clientId, name: 'Anon', role: 'public', roomId: null, connectedAt: Date.now() });
+  clients.set(ws, { id: clientId, name: null, role: null, roomId: null, connectedAt: Date.now(), registered: false });
 
   ws.on('message', (raw) => {
     try {
@@ -198,6 +199,7 @@ wss.on('connection', (ws) => {
           const roomId = data.role === 'admin' ? null : clientId;
           clientInfo.name = data.name || 'Anon';
           clientInfo.role = data.role || 'public';
+            clientInfo.registered = true;
           clientInfo.roomId = roomId;
 
           if (roomId && !chatRooms[roomId]) {
