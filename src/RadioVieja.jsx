@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 
-// Dschinghis Khan songs - YouTube video IDs
 const SONGS = [
   { id: 'NvS351QKFV4', title: 'Moskau' },
   { id: 'otna9Pe3jWg', title: 'Genghis Khan' },
@@ -10,64 +9,106 @@ const SONGS = [
   { id: 'Nl_Eos2Ql_4', title: 'Corrida' },
 ];
 
+let ytReady = false;
+let ytReadyCallbacks = [];
+function loadYTApi() {
+  if (window.YT && window.YT.Player) { ytReady = true; return; }
+  if (document.getElementById('yt-api-script')) return;
+  const tag = document.createElement('script');
+  tag.id = 'yt-api-script';
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady = () => {
+    ytReady = true;
+    ytReadyCallbacks.forEach(cb => cb());
+    ytReadyCallbacks = [];
+  };
+}
+
+function whenYTReady(cb) {
+  if (ytReady) cb();
+  else ytReadyCallbacks.push(cb);
+}
+
 export default function RadioVieja() {
   const [playing, setPlaying] = useState(false);
   const [currentSong, setCurrentSong] = useState(null);
   const [showStatic, setShowStatic] = useState(false);
   const [glow, setGlow] = useState(false);
   const playerRef = useRef(null);
-  const staticAudioRef = useRef(null);
+  const containerRef = useRef(null);
 
-  // Generate static noise using Web Audio API
+  useEffect(() => { loadYTApi(); }, []);
+
   const playStaticSound = () => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const bufferSize = ctx.sampleRate * 0.8;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * (i < bufferSize * 0.3 ? 0.15 : 0.15 * (1 - i / bufferSize));
+      const buf = ctx.createBuffer(1, ctx.sampleRate * 0.6, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.12 * (1 - i / d.length);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start();
+      src.onended = () => ctx.close();
+    } catch {}
+  };
+
+  const destroyPlayer = () => {
+    try { if (playerRef.current) { playerRef.current.destroy(); playerRef.current = null; } } catch {}
+  };
+
+  const playSong = (song) => {
+    setCurrentSong(song);
+    setPlaying(true);
+    setGlow(true);
+
+    whenYTReady(() => {
+      destroyPlayer();
+      // Create a tiny div for the player
+      const div = document.createElement('div');
+      div.id = 'yt-radio-player';
+      if (containerRef.current) {
+        const old = containerRef.current.querySelector('#yt-radio-player');
+        if (old) old.remove();
+        containerRef.current.appendChild(div);
       }
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = 3000;
-      filter.Q.value = 0.5;
-      const gain = ctx.createGain();
-      gain.gain.value = 0.3;
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      source.start();
-      source.onended = () => ctx.close();
-    } catch (e) { /* ignore */ }
+      playerRef.current = new window.YT.Player('yt-radio-player', {
+        height: '1', width: '1',
+        videoId: song.id,
+        playerVars: { autoplay: 1, loop: 1, playlist: song.id, controls: 0 },
+        events: {
+          onStateChange: (e) => {
+            // When video ends, play next random
+            if (e.data === 0) {
+              const next = SONGS[Math.floor(Math.random() * SONGS.length)];
+              setCurrentSong(next);
+              playerRef.current.loadVideoById(next.id);
+            }
+          }
+        }
+      });
+    });
   };
 
   const toggle = () => {
     if (playing) {
-      // Turn off
+      destroyPlayer();
       setPlaying(false);
       setCurrentSong(null);
       setGlow(false);
-      if (playerRef.current) {
-        playerRef.current.src = '';
-      }
     } else {
-      // Turn on with static effect
       setShowStatic(true);
       playStaticSound();
       setTimeout(() => {
         setShowStatic(false);
-        const song = SONGS[Math.floor(Math.random() * SONGS.length)];
-        setCurrentSong(song);
-        setPlaying(true);
-        setGlow(true);
-      }, 800);
+        playSong(SONGS[Math.floor(Math.random() * SONGS.length)]);
+      }, 700);
     }
   };
 
-  const nextSong = () => {
+  const nextSong = (e) => {
+    e.stopPropagation();
     if (!playing) return;
     setShowStatic(true);
     playStaticSound();
@@ -75,31 +116,32 @@ export default function RadioVieja() {
       setShowStatic(false);
       const song = SONGS[Math.floor(Math.random() * SONGS.length)];
       setCurrentSong(song);
-    }, 600);
+      try { playerRef.current.loadVideoById(song.id); } catch {}
+    }, 500);
   };
 
   return (
-    <div style={{ position: 'fixed', bottom: 16, left: 16, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      {/* Now playing label */}
+    <div ref={containerRef} style={{ position: 'fixed', bottom: 16, left: 16, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      {/* Now playing */}
       {playing && currentSong && (
         <div style={{
-          background: 'rgba(0,0,0,.75)', backdropFilter: 'blur(8px)',
-          borderRadius: 10, padding: '6px 14px', marginBottom: 4,
-          fontSize: 11, color: '#fbbf24', fontWeight: 600, fontFamily: 'inherit',
+          background: 'rgba(0,0,0,.8)', backdropFilter: 'blur(8px)',
+          borderRadius: 10, padding: '6px 12px',
+          fontSize: 11, color: '#fbbf24', fontWeight: 600,
           display: 'flex', alignItems: 'center', gap: 6, maxWidth: 180,
-          animation: 'fadeIn .3s ease',
+          animation: 'radioFadeIn .3s ease',
         }}>
-          <span style={{ animation: 'pulse-dot 1s ease infinite' }}>♪</span>
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentSong.title}</span>
-          <button onClick={nextSong} title="Siguiente" style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 14, padding: 0, marginLeft: 4 }}>⏭</button>
+          <span style={{ fontSize: 14 }}>♪</span>
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{currentSong.title}</span>
+          <button onClick={nextSong} title="Siguiente" style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 11, padding: '2px 6px', borderRadius: 4 }}>⏭</button>
         </div>
       )}
 
       {/* Static overlay */}
       {showStatic && (
         <div style={{
-          position: 'absolute', inset: 0, borderRadius: 8, zIndex: 2,
-          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,.03) 2px, rgba(255,255,255,.03) 4px)',
+          position: 'absolute', bottom: 0, left: 0, width: 80, height: 65, borderRadius: 8, zIndex: 2,
+          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,.05) 2px, rgba(255,255,255,.05) 4px)',
           animation: 'static-flicker .1s linear infinite',
         }} />
       )}
@@ -115,11 +157,10 @@ export default function RadioVieja() {
         title={playing ? 'Click para apagar' : 'Click para prender la radio'}
       >
         <img src="/img/radio.png" alt="Radio" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-        {/* Power indicator */}
         {playing && <div style={{
-          position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)',
+          position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)',
           width: 6, height: 6, borderRadius: '50%', background: '#22c55e',
-          boxShadow: '0 0 8px #22c55e', animation: 'pulse-dot 2s ease infinite',
+          boxShadow: '0 0 8px #22c55e',
         }} />}
       </div>
 
@@ -127,20 +168,9 @@ export default function RadioVieja() {
         {playing ? 'ON' : 'RADIO'}
       </div>
 
-      {/* Hidden YouTube iframe */}
-      {playing && currentSong && (
-        <iframe
-          ref={playerRef}
-          src={`https://www.youtube.com/embed/${currentSong.id}?autoplay=1&loop=1&playlist=${currentSong.id}`}
-          style={{ position: 'absolute', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
-          allow="autoplay"
-          title="radio"
-        />
-      )}
-
       <style>{`
         @keyframes static-flicker { 0% { opacity: .8 } 50% { opacity: .3 } 100% { opacity: .7 } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes radioFadeIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
       `}</style>
     </div>
   );
