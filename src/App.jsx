@@ -854,7 +854,7 @@ export default function FordWarnesApp({ user, onLogout }){
             {id:"about",label:"Nosotros",icon:"M12 12a5 5 0 100-10 5 5 0 000 10zM20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87"},{id:"chat",label:"Buscar",icon:"M21 21l-4.35-4.35M11 3a8 8 0 100 16 8 8 0 000-16z"},
             ...((esJefe||role==='employee')?[{id:"admin",label:esJefe?"Panel":"Consultas",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
           ].map(t=>(
-            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":theme.card,border:`2px solid ${vista===t.id?"#003478":theme.cardBorder}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
+            <button className="fw-nav-btn" key={t.id} onClick={()=>{setVista(t.id);setChatOpen(false);}} style={{background:vista===t.id?"#003478":theme.card,border:`2px solid ${vista===t.id?"#003478":theme.cardBorder}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
               {t.label}
             </button>
