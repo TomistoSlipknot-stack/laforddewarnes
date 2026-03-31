@@ -36,6 +36,8 @@ async function connectDB() {
     if (notesDoc) clientNotes = notesDoc.data;
     const analyticsDoc = await db.collection('config').findOne({ _id: 'searchAnalytics' });
     if (analyticsDoc) searchAnalytics = analyticsDoc.data;
+    const pedidosDoc = await db.collection('config').findOne({ _id: 'pedidos' });
+    if (pedidosDoc) pedidos = pedidosDoc.data;
     console.log('Data loaded from MongoDB');
   } catch (e) {
     console.error('MongoDB connection failed, using local files:', e.message);
@@ -85,6 +87,8 @@ function saveSales() { saveToDB('sales', salesLog); }
 function saveSalesHistory() { saveToDB('salesHistory', salesHistory); }
 function saveClientNotes() { saveToDB('clientNotes', clientNotes); }
 function saveSearchAnalytics() { saveToDB('searchAnalytics', searchAnalytics); }
+let pedidos = [];
+function savePedidos() { saveToDB('pedidos', pedidos); }
 
 // ─── CONNECTED CLIENTS ──────────────────────────────────────────────────────
 const clients = new Map();
@@ -373,6 +377,54 @@ app.get('/api/frequent-clients', requireAuth(['admin', 'employee']), (req, res) 
     .slice(0, 20)
     .map(([name, count]) => ({ name, count, notes: clientNotes[name] || '' }));
   res.json({ clients: sorted });
+});
+
+// ─── PEDIDOS (Orders) ────────────────────────────────────────────────────
+// Create order (public - clients can order)
+app.post('/api/pedidos', (req, res) => {
+  const { cliente, items, total, entrega, comprobante, notas } = req.body;
+  if (!cliente?.nombre || !cliente?.telefono || !items?.length) {
+    return res.status(400).json({ ok: false, error: 'Datos incompletos' });
+  }
+  const order = {
+    id: 'PED-' + String(pedidos.length + 1).padStart(4, '0'),
+    cliente: { nombre: sanitize(cliente.nombre), telefono: sanitize(cliente.telefono), email: sanitize(cliente.email || ''), direccion: sanitize(cliente.direccion || '') },
+    items: items.map(i => ({ nombre: sanitize(i.nombre || ''), numero_parte: i.numero_parte, modelo: i.modelo_nombre || '', precio: i.precio, qty: i.qty || 1 })),
+    total: total || 0,
+    entrega: entrega || 'local', // 'local' or 'envio'
+    direccionEnvio: sanitize(req.body.direccionEnvio || ''),
+    comprobante: comprobante || null, // base64 image
+    notas: sanitize(notas || ''),
+    estado: 'pendiente',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+  pedidos.push(order);
+  savePedidos();
+  // Notify admin/employees via WebSocket
+  broadcastToRole('admin', { type: 'new_order', order });
+  broadcastToRole('employee', { type: 'new_order', order });
+  res.json({ ok: true, orderId: order.id });
+});
+
+// List orders (staff only)
+app.get('/api/pedidos', requireAuth(['admin', 'employee']), (req, res) => {
+  res.json({ pedidos: pedidos.slice().reverse() });
+});
+
+// Update order status (staff only)
+app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) => {
+  const { orderId, status } = req.body;
+  const valid = ['pendiente', 'pagado', 'preparando', 'listo', 'enviado', 'entregado', 'cancelado'];
+  if (!valid.includes(status)) return res.status(400).json({ ok: false, error: 'Estado invalido' });
+  const order = pedidos.find(p => p.id === orderId);
+  if (!order) return res.status(404).json({ ok: false, error: 'Pedido no encontrado' });
+  order.estado = status;
+  order.updatedAt = Date.now();
+  savePedidos();
+  broadcastToRole('admin', { type: 'order_updated', order });
+  broadcastToRole('employee', { type: 'order_updated', order });
+  res.json({ ok: true });
 });
 
 // Static

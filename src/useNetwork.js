@@ -105,6 +105,12 @@ export function useNetwork() {
           case 'online_list':
             setOnlineUsers(data.users);
             break;
+          case 'new_order':
+            playNotifSound('alert');
+            if (document.hidden) showBrowserNotif('Nuevo Pedido!', data.order.cliente.nombre + ' - $' + (data.order.total || 0).toLocaleString('es-AR'));
+            break;
+          case 'order_updated':
+            break;
           case 'chat_list':
             setChatRooms(data.rooms);
             break;

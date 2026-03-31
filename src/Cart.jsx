@@ -1,7 +1,7 @@
 import { generatePresupuesto } from "./GeneratePDF.jsx";
 import { useState } from 'react';
 
-export default function Cart({ items, onRemove, onClear, onConsultar, theme }) {
+export default function Cart({ items, onRemove, onClear, onConsultar, onCheckout, theme }) {
   const [open, setOpen] = useState(false);
   const t = theme || {};
   const total = items.reduce((sum, item) => {
@@ -81,6 +81,11 @@ export default function Cart({ items, onRemove, onClear, onConsultar, theme }) {
                   ${total.toLocaleString('es-AR')}
                 </span>
               </div>
+              {/* Main action: Realizar Pedido */}
+              {onCheckout && <button onClick={() => { onCheckout(); setOpen(false); }}
+                style={{ width: '100%', padding: 14, fontSize: 15, fontWeight: 800, border: 'none', borderRadius: 10, background: 'linear-gradient(135deg, #003478, #0055b0)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8 }}>
+                Realizar Pedido y Pagar
+              </button>}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => {
                   const msg = 'Hola! Quiero consultar por estos productos:\n' +
