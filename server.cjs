@@ -223,8 +223,17 @@ app.post('/api/accounts/employee', requireAuth(['admin']), async (req, res) => {
   res.json({ ok: true });
 });
 app.delete('/api/accounts/employee/:id', requireAuth(['admin']), (req, res) => {
+  const emp = accounts.employees.find(e => e.id === req.params.id);
   accounts.employees = accounts.employees.filter(e => e.id !== req.params.id);
   saveAccounts();
+  // Kick the employee in real-time via WebSocket
+  if (emp) {
+    for (const [ws, info] of clients) {
+      if (info.role === 'employee' && info.name === emp.name && ws.readyState === 1) {
+        sendTo(ws, { type: 'kicked' });
+      }
+    }
+  }
   res.json({ ok: true });
 });
 app.post('/api/accounts/admin-pass', requireAuth(['admin']), async (req, res) => {

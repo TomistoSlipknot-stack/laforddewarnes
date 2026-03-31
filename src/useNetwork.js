@@ -85,6 +85,11 @@ export function useNetwork() {
           case 'stock_update':
             setStock(data.stock);
             break;
+          case 'kicked':
+            alert('Tu cuenta fue eliminada por el administrador.');
+            localStorage.removeItem('fw_token');
+            window.location.reload();
+            break;
           case 'online_list':
             setOnlineUsers(data.users);
             break;
