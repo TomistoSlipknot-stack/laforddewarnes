@@ -5,47 +5,86 @@ const http = require('http');
 const { WebSocketServer } = require('ws');
 const bcrypt = require('bcryptjs');
 const helmet = require('helmet');
+const { MongoClient } = require('mongodb');
 
 const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://fordwarnes:q8JDvqAazcuGSOz1@fordwarnes.k9lihgv.mongodb.net/fordwarnes?retryWrites=true&w=majority';
 
-// ─── DATA DIRECTORY ──────────────────────────────────────────────────────────
+// ─── DATA DIRECTORY (fallback for uploads only) ─────────────────────────────
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 const uploadsDir = path.join(dataDir, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+// ─── MONGODB CONNECTION ─────────────────────────────────────────────────────
+let db;
+const mongoClient = new MongoClient(MONGO_URI);
+
+async function connectDB() {
+  try {
+    await mongoClient.connect();
+    db = mongoClient.db('fordwarnes');
+    console.log('MongoDB connected!');
+    // Load data from MongoDB into memory
+    const accDoc = await db.collection('config').findOne({ _id: 'accounts' });
+    if (accDoc) accounts = accDoc.data;
+    const stockDoc = await db.collection('config').findOne({ _id: 'stock' });
+    if (stockDoc) stockData = stockDoc.data;
+    const histDoc = await db.collection('config').findOne({ _id: 'salesHistory' });
+    if (histDoc) salesHistory = histDoc.data;
+    const notesDoc = await db.collection('config').findOne({ _id: 'clientNotes' });
+    if (notesDoc) clientNotes = notesDoc.data;
+    const analyticsDoc = await db.collection('config').findOne({ _id: 'searchAnalytics' });
+    if (analyticsDoc) searchAnalytics = analyticsDoc.data;
+    console.log('Data loaded from MongoDB');
+  } catch (e) {
+    console.error('MongoDB connection failed, using local files:', e.message);
+    // Fallback to JSON files
+    accounts = loadJSON('accounts.json', accounts);
+    stockData = loadJSON('stock.json', stockData);
+    salesHistory = loadJSON('salesHistory.json', salesHistory);
+    clientNotes = loadJSON('clientNotes.json', clientNotes);
+    searchAnalytics = loadJSON('searchAnalytics.json', searchAnalytics);
+  }
+}
+
+// Save to MongoDB (with JSON fallback)
+async function saveToDB(key, data) {
+  try {
+    if (db) await db.collection('config').updateOne({ _id: key }, { $set: { data } }, { upsert: true });
+  } catch (e) { console.error('MongoDB save error:', e.message); }
+  // Also save locally as backup
+  try { saveJSON(key + '.json', data); } catch {}
+}
 
 function loadJSON(name, fallback) {
   const f = path.join(dataDir, name);
   try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return fallback; }
 }
 function saveJSON(name, data) {
-  fs.writeFileSync(path.join(dataDir, name), JSON.stringify(data, null, 2), 'utf8');
+  try { fs.writeFileSync(path.join(dataDir, name), JSON.stringify(data, null, 2), 'utf8'); } catch {}
 }
 
-// ─── STOCK & CHAT ────────────────────────────────────────────────────────────
-let stockData = loadJSON('stock.json', { modelos: [], partes: [] });
-function saveStock() { saveJSON('stock.json', stockData); }
-
+// ─── IN-MEMORY DATA (loaded from MongoDB on startup) ────────────────────────
+let stockData = { modelos: [], partes: [] };
 let chatRooms = {};
-let salesLog = loadJSON('sales.json', []);
+let salesLog = [];
+let salesHistory = [];
+let clientNotes = {};
+let searchAnalytics = {};
+
+function saveStock() { saveToDB('stock', stockData); }
 function saveChats() {
   const toSave = {};
   for (const [id, room] of Object.entries(chatRooms)) {
     if (room.status === 'scheduled' || room.status === 'sold') toSave[id] = room;
   }
-  saveJSON('chats.json', toSave);
+  saveToDB('chats', toSave);
 }
-function saveSales() { saveJSON('sales.json', salesLog); }
-
-
-// ─── ANALYTICS & CRM ────────────────────────────────────────────────────────
-let salesHistory = loadJSON('salesHistory.json', []);
-let clientNotes = loadJSON('clientNotes.json', {});
-let searchAnalytics = loadJSON('searchAnalytics.json', {});
-
-function saveSalesHistory() { saveJSON('salesHistory.json', salesHistory); }
-function saveClientNotes() { saveJSON('clientNotes.json', clientNotes); }
-function saveSearchAnalytics() { saveJSON('searchAnalytics.json', searchAnalytics); }
+function saveSales() { saveToDB('sales', salesLog); }
+function saveSalesHistory() { saveToDB('salesHistory', salesHistory); }
+function saveClientNotes() { saveToDB('clientNotes', clientNotes); }
+function saveSearchAnalytics() { saveToDB('searchAnalytics', searchAnalytics); }
 
 // ─── CONNECTED CLIENTS ──────────────────────────────────────────────────────
 const clients = new Map();
@@ -165,7 +204,7 @@ let accounts = loadJSON('accounts.json', {
   admin: { user: 'juan', pass: '1234', name: 'Juan', role: 'admin' },
   employees: []
 });
-function saveAccounts() { saveJSON('accounts.json', accounts); }
+function saveAccounts() { saveToDB('accounts', accounts); }
 
 // Auto-migrate plaintext passwords to bcrypt on first run
 function isHashed(p) { return p && p.startsWith('$2'); }
@@ -553,6 +592,13 @@ wss.on('connection', (ws2) => {
   ws2.on('pong', () => { const info = clients.get(ws2); if (info) info._pongWaiting = false; });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Ford Warnes server running on port ${PORT}`);
+// Connect to MongoDB then start server
+connectDB().then(() => {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Ford Warnes server running on port ${PORT}`);
+  });
+}).catch(() => {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Ford Warnes server running on port ${PORT} (without MongoDB)`);
+  });
 });
