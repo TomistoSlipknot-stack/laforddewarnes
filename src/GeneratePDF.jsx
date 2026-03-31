@@ -35,7 +35,7 @@ ${items.map((it, i) => `<tr><td>${i + 1}</td><td>${it.nombre}</td><td>${it.numer
 </table>
 <div class="total">Total estimado: $${total.toLocaleString('es-AR')}</div>
 <p style="font-size:12px;color:#666">* Precios orientativos sujetos a disponibilidad. Validez: 48 horas.<br>* No incluye mano de obra de instalacion.</p>
-<div class="footer">La Ford de Warnes — Repuestos Ford Originales y Alternativos<br>laforddewarnes.onrender.com</div>
+<div class="footer">La Ford de Warnes — Repuestos Ford Originales y Alternativos<br>laforddewarnes.com</div>
 <script>window.print();</script>
 </body></html>`;
 

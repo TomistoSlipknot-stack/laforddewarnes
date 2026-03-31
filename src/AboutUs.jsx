@@ -63,7 +63,7 @@ export default function AboutUs({ theme }) {
       <div style={{ background: t.card || "#fff", border: "1px solid " + (t.cardBorder || "#e0e0e0"), borderRadius: 12, padding: 24, marginBottom: 20, textAlign: "center" }}>
         <h2 style={{ fontSize: 22, fontWeight: 700, color: "#003478", marginBottom: 12 }}>QR del Taller</h2>
         <p style={{ fontSize: 14, color: t.textSecondary || "#666", marginBottom: 16 }}>Escanea para entrar directo a nuestra web</p>
-        <img src={"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://laforddewarnes.onrender.com"} alt="QR La Ford de Warnes" style={{ width: 200, height: 200, borderRadius: 8 }} />
+        <img src={"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://laforddewarnes.com"} alt="QR La Ford de Warnes" style={{ width: 200, height: 200, borderRadius: 8 }} />
         <p style={{ fontSize: 12, color: t.textMuted || "#999", marginTop: 10 }}>Imprimí este QR y pegalo en el mostrador del taller</p>
       </div>
 
