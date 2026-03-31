@@ -77,7 +77,7 @@ function getOnlineList() {
     const key = info.name + '_' + info.role;
     if (seen.has(key)) continue; // skip duplicate connections from same user
     seen.add(key);
-    list.push({ id: info.id, name: info.name, role: info.role, roomId: info.roomId, connectedAt: info.connectedAt });
+    list.push({ id: info.id, name: info.name, role: info.role, roomId: info.roomId, connectedAt: info.connectedAt, active: info.active !== false });
   }
   return list;
 }
@@ -459,6 +459,12 @@ wss.on('connection', (ws) => {
           break;
         }
 
+        case 'status': {
+          clientInfo.active = data.active !== false;
+          broadcastToRole('admin', { type: 'online_list', users: getOnlineList() });
+          broadcastToRole('employee', { type: 'online_list', users: getOnlineList() });
+          break;
+        }
         case 'mark_read': {
           if (clientInfo.role !== 'admin') break;
           if (data.roomId && chatRooms[data.roomId]) {

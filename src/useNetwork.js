@@ -72,6 +72,18 @@ export function useNetwork() {
       setConnected(true);
       const token = localStorage.getItem('fw_token') || '';
       ws.send(JSON.stringify({ type: 'register', name, role, token }));
+      // Activity detection
+      let lastActivity = Date.now();
+      let isActive = true;
+      const onActivity = () => { lastActivity = Date.now(); if (!isActive) { isActive = true; ws.readyState === 1 && ws.send(JSON.stringify({ type: 'status', active: true })); } };
+      const checkIdle = setInterval(() => {
+        const idle = Date.now() - lastActivity > 60000;
+        if (idle && isActive) { isActive = false; ws.readyState === 1 && ws.send(JSON.stringify({ type: 'status', active: false })); }
+      }, 15000);
+      const onVis = () => { if (document.hidden) { isActive = false; ws.readyState === 1 && ws.send(JSON.stringify({ type: 'status', active: false })); } else onActivity(); };
+      document.addEventListener('visibilitychange', onVis);
+      ['mousemove','keydown','click','scroll','touchstart'].forEach(e => document.addEventListener(e, onActivity, { passive: true }));
+      ws._cleanActivity = () => { clearInterval(checkIdle); document.removeEventListener('visibilitychange', onVis); ['mousemove','keydown','click','scroll','touchstart'].forEach(e => document.removeEventListener(e, onActivity)); };
     };
 
     ws.onmessage = (e) => {

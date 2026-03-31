@@ -982,12 +982,12 @@ export default function FordWarnesApp({ user, onLogout }){
                 {network.onlineUsers.length===0?<div style={{color:_globalTheme.textSecondary||"#777",fontSize:13,textAlign:"center",marginTop:30}}>Nadie conectado</div>
                 :network.onlineUsers.map((u,i)=>(
                   <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:10,marginBottom:8}}>
-                    <div style={{width:8,height:8,borderRadius:"50%",background:"#22c55e",flexShrink:0}}/>
+                    <div style={{width:10,height:10,borderRadius:"50%",background:u.active?"#22c55e":"#f59e0b",flexShrink:0,boxShadow:u.active?"0 0 6px #22c55e":"none"}}/>
                     <div style={{flex:1}}>
                       <div style={{fontSize:13,fontWeight:600,color:_globalTheme.text||"#333"}}>{u.name}</div>
-                      <div style={{fontSize:10,color:_globalTheme.textSecondary||"#777"}}>{u.role==="admin"?"Admin":u.role==="employee"?"Empleado":"Cliente"}</div>
+                      <div style={{fontSize:10,color:_globalTheme.textSecondary||"#777"}}>{u.role==="admin"?"Admin":u.role==="employee"?"Empleado":"Cliente"} · <span style={{color:u.active?"#22c55e":"#f59e0b"}}>{u.active?"Activo":"Ausente"}</span></div>
                     </div>
-                    <div style={{fontSize:10,color:u.role==="admin"?"#fbbf24":u.role==="employee"?"#22c55e":"#6699ff",background:u.role==="admin"?"rgba(234,179,8,.1)":u.role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.1)",padding:"2px 8px",borderRadius:6}}>{u.role==="admin"?"JEFE":u.role==="employee"?"STAFF":"CLIENTE"}</div>
+                    <div style={{fontSize:10,color:u.role==="admin"?"#fbbf24":u.role==="employee"?"#22c55e":"#6699ff",background:u.role==="admin"?"rgba(234,179,8,.1)":u.role==="employee"?"rgba(34,197,94,.1)":"rgba(102,153,255,.1)",padding:"2px 8px",borderRadius:6}}>{u.role==="admin"?"JEFE":u.role==="employee"?"STAFF":"CLIENTE"}
                   </div>
                 ))}
               </div>
