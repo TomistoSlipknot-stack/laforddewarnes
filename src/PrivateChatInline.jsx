@@ -110,7 +110,7 @@ export default function PrivateChatInline({ network, userName }) {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6, paddingLeft: 4 }}>
                   {msg.options.map((opt, oi) => (
                     <button key={oi} onClick={() => handleOption(opt)}
-                      style={{ background: 'rgba(0,61,165,.06)', border: '1px solid rgba(0,61,165,.2)', borderRadius: 16, padding: '5px 10px', fontSize: 11, color: '#003478', cursor: 'pointer', fontFamily: 'inherit', transition: 'all .1s' }}>
+                      style={{ background: 'var(--fw-card, rgba(0,61,165,.06))', border: '1px solid var(--fw-cardBorder, rgba(0,61,165,.2))', borderRadius: 16, padding: '5px 10px', fontSize: 11, color: '#003478', cursor: 'pointer', fontFamily: 'inherit', transition: 'all .1s' }}>
                       {opt}
                     </button>
                   ))}
@@ -123,7 +123,7 @@ export default function PrivateChatInline({ network, userName }) {
       </div>
 
       <div style={{ padding: '8px 10px', borderTop: '1px solid #e0e0e0', flexShrink: 0, background: '#fafafa' }}>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: 'var(--fw-inputBg, #f5f5f5)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, padding: '3px 3px 3px 10px' }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: 'var(--fw-card, #f5f5f5)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, padding: '3px 3px 3px 10px' }}>
           <input value={inp} onChange={e => setInp(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             placeholder={botMode ? (step === 2 ? 'Ej: Filtro de aceite...' : step === 4 ? 'Carlos 1155551234' : 'Escribi...') : 'Mensaje a Juan...'}

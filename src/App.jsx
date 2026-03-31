@@ -769,7 +769,7 @@ export default function FordWarnesApp({ user, onLogout }){
             {id:"about",label:"Nosotros",icon:"M12 12a5 5 0 100-10 5 5 0 000 10zM20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87"},{id:"chat",label:"Buscar",icon:"M21 21l-4.35-4.35M11 3a8 8 0 100 16 8 8 0 000-16z"},
             ...((esJefe||role==='employee')?[{id:"admin",label:esJefe?"Panel":"Consultas",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
           ].map(t=>(
-            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":"#fff",border:`2px solid ${vista===t.id?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":"#555",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
+            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":_globalTheme.card||"#fff",border:`2px solid ${vista===t.id?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":"#555",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
               {t.label}
             </button>
@@ -786,7 +786,7 @@ export default function FordWarnesApp({ user, onLogout }){
             )}
           </button>
           <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
-          <button onClick={onLogout} style={{background:theme.card,border:"2px solid #d0d0d0",borderRadius:10,padding:"8px 14px",fontSize:13,color:_globalTheme.textSecondary||"#888",cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}
+          <button onClick={onLogout} style={{background:theme.card||"#fff",border:"2px solid "+(theme.cardBorder||"#d0d0d0"),borderRadius:10,padding:"8px 14px",fontSize:13,color:_globalTheme.textSecondary||"#888",cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}
             onMouseEnter={e=>e.currentTarget.style.borderColor="#dc2626"} onMouseLeave={e=>e.currentTarget.style.borderColor="#d0d0d0"}>
             Salir
           </button>
@@ -1044,7 +1044,7 @@ export default function FordWarnesApp({ user, onLogout }){
 
       {/* RIGHT: Chat Sidebar */}
       {chatOpen&&(
-        <div className="fw-chat-sidebar" style={{position:"fixed",right:0,top:64,bottom:0,width:esJefe?"min(480px,45vw)":"min(380px,100vw)",borderLeft:"2px solid #003478",display:"flex",flexDirection:"column",background:theme.card,overflow:"hidden",zIndex:30,boxShadow:"-4px 0 20px rgba(0,0,0,.1)"}}>
+        <div className="fw-chat-sidebar" style={{position:"fixed",right:0,top:64,bottom:0,width:esJefe?"min(480px,45vw)":"min(380px,100vw)",borderLeft:"2px solid #003478",display:"flex",flexDirection:"column",background:theme.card||"#fff",overflow:"hidden",zIndex:30,boxShadow:"-4px 0 20px rgba(0,0,0,.1)"}}>
           {esJefe?(
             /* Juan sees AdminChats inline as sidebar */
             <AdminChats network={network}/>
