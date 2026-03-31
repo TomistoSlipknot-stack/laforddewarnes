@@ -83,7 +83,7 @@ export default function PrivateChatInline({ network, userName }) {
           <span style={{ color: '#fff', fontWeight: 800, fontSize: 9, fontStyle: 'italic', fontFamily: 'Georgia,serif' }}>Ford</span>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: 13, color: '#333' }}>Ford de Warnes</div>
+          <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--fw-text, #333)' }}>Ford de Warnes</div>
           <div style={{ fontSize: 10, color: botMode ? '#003478' : '#22c55e' }}>{botMode ? 'Asistente' : 'Chat con Juan'}</div>
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function PrivateChatInline({ network, userName }) {
                   borderRadius: isUser ? '10px 3px 10px 10px' : '3px 10px 10px 10px',
                   color: isUser ? '#fff' : isJuan ? '#2a6b2a' : '#444',
                 }}>{msg.text}</div>
-                {msg.ts && <div style={{ fontSize: 8, color: '#ccc', marginTop: 1 }}>{fmt(msg.ts)}</div>}
+                {msg.ts && <div style={{ fontSize: 8, color: 'var(--fw-textMuted, #ccc)', marginTop: 1 }}>{fmt(msg.ts)}</div>}
               </div>
               {msg.options && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6, paddingLeft: 4 }}>
@@ -123,11 +123,11 @@ export default function PrivateChatInline({ network, userName }) {
       </div>
 
       <div style={{ padding: '8px 10px', borderTop: '1px solid #e0e0e0', flexShrink: 0, background: '#fafafa' }}>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: 10, padding: '3px 3px 3px 10px' }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: 'var(--fw-inputBg, #f5f5f5)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, padding: '3px 3px 3px 10px' }}>
           <input value={inp} onChange={e => setInp(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             placeholder={botMode ? (step === 2 ? 'Ej: Filtro de aceite...' : step === 4 ? 'Carlos 1155551234' : 'Escribi...') : 'Mensaje a Juan...'}
-            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: '#333', fontFamily: 'inherit', padding: '8px 0', caretColor: '#003478' }} />
+            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: 'var(--fw-text, #333)', fontFamily: 'inherit', padding: '8px 0', caretColor: '#003478' }} />
           <button onClick={handleSend} disabled={!inp.trim()}
             style={{ width: 34, height: 34, background: inp.trim() ? '#003478' : '#ccc', border: 'none', borderRadius: 8, cursor: inp.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={inp.trim() ? '#fff' : '#333'} strokeWidth="2.5"><path d="M22 2L11 13" /><path d="M22 2L15 22 11 13 2 9l20-7z" /></svg>

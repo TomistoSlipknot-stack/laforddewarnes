@@ -32,10 +32,10 @@ export default function Login({ onLogin }) {
     onLogin({ role: 'public', name: name.trim() || 'Cliente' });
   };
 
-  const inputStyle = { width: '100%', padding: '12px 14px', fontSize: 15, border: '1px solid #ddd', borderRadius: 8, background: '#fafafa', color: '#333', outline: 'none', fontFamily: 'inherit', marginBottom: 14, transition: 'border .2s' };
+  const inputStyle = { width: '100%', padding: '12px 14px', fontSize: 15, border: '1px solid var(--fw-cardBorder, #ddd)', borderRadius: 8, background: 'var(--fw-inputBg, #fafafa)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit', marginBottom: 14, transition: 'border .2s' };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column', fontFamily: "'Inter',system-ui,sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: 'var(--fw-bg, #fff)', display: 'flex', flexDirection: 'column', fontFamily: "'Inter',system-ui,sans-serif" }}>
       <div style={{ background: '#003478', padding: '10px 0', textAlign: 'center' }}>
         <span style={{ color: '#fff', fontSize: 12, fontWeight: 500 }}>Repuestos Originales Ford — La Ford de Warnes</span>
       </div>
@@ -47,7 +47,7 @@ export default function Login({ onLogin }) {
               <span style={{ color: '#fff', fontWeight: 800, fontSize: 22, fontStyle: 'italic', fontFamily: 'Georgia,serif' }}>Ford</span>
             </div>
             <h1 style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 4px' }}>La Ford de Warnes</h1>
-            <p style={{ color: '#888', fontSize: 14 }}>Repuestos y Partes — Stock disponible</p>
+            <p style={{ color: 'var(--fw-textSecondary, #888)', fontSize: 14 }}>Repuestos y Partes — Stock disponible</p>
           </div>
 
           <div style={{ display: 'flex', borderBottom: '2px solid #e8e8e8' }}>
@@ -59,10 +59,10 @@ export default function Login({ onLogin }) {
             ))}
           </div>
 
-          <div style={{ background: '#fff', border: '1px solid #e8e8e8', borderTop: 'none', borderRadius: '0 0 12px 12px', padding: '28px 24px', textAlign: 'left' }}>
+          <div style={{ background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e8e8e8)', borderTop: 'none', borderRadius: '0 0 12px 12px', padding: '28px 24px', textAlign: 'left' }}>
             {mode === 'public' ? (
               <>
-                <label style={{ fontSize: 13, color: '#555', marginBottom: 6, display: 'block', fontWeight: 500 }}>Tu nombre</label>
+                <label style={{ fontSize: 13, color: 'var(--fw-textSecondary, #555)', marginBottom: 6, display: 'block', fontWeight: 500 }}>Tu nombre</label>
                 <input value={name} onChange={e => setName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handlePublicEnter(); }}
                   placeholder="Ej: Carlos, Maria..." style={inputStyle} />
@@ -70,13 +70,13 @@ export default function Login({ onLogin }) {
                   style={{ width: '100%', padding: 14, fontSize: 15, fontWeight: 700, border: 'none', borderRadius: 8, background: '#003478', color: '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>
                   Ver Catalogo y Precios
                 </button>
-                <p style={{ textAlign: 'center', fontSize: 12, color: '#aaa', marginTop: 12 }}>Acceso libre — sin cuenta necesaria</p>
+                <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--fw-textMuted, #aaa)', marginTop: 12 }}>Acceso libre — sin cuenta necesaria</p>
               </>
             ) : (
               <>
-                <label style={{ fontSize: 13, color: '#555', marginBottom: 6, display: 'block', fontWeight: 500 }}>Usuario</label>
+                <label style={{ fontSize: 13, color: 'var(--fw-textSecondary, #555)', marginBottom: 6, display: 'block', fontWeight: 500 }}>Usuario</label>
                 <input value={user} onChange={e => setUser(e.target.value)} placeholder="Tu nombre de usuario" style={inputStyle} />
-                <label style={{ fontSize: 13, color: '#555', marginBottom: 6, display: 'block', fontWeight: 500 }}>Contraseña</label>
+                <label style={{ fontSize: 13, color: 'var(--fw-textSecondary, #555)', marginBottom: 6, display: 'block', fontWeight: 500 }}>Contraseña</label>
                 <input type="password" value={pass} onChange={e => setPass(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleStaffLogin(); }}
                   placeholder="••••••••" style={inputStyle} />
@@ -92,7 +92,7 @@ export default function Login({ onLogin }) {
         </div>
       </div>
 
-      <div style={{ textAlign: 'center', padding: '16px 0', borderTop: '1px solid #eee', color: '#bbb', fontSize: 11 }}>
+      <div style={{ textAlign: 'center', padding: '16px 0', borderTop: '1px solid #eee', color: 'var(--fw-textMuted, #bbb)', fontSize: 11 }}>
         La Ford de Warnes — Repuestos Ford Originales y Alternativos
       </div>
       <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>

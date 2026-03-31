@@ -903,10 +903,10 @@ export default function FordWarnesApp({ user, onLogout }){
         </div>
       ):(
         <div style={{flex:1,overflowY:"auto"}}>
-          <div className="fw-catalog-wrap" style={{maxWidth:1000,margin:"0 auto",padding:"24px 16px"}}>
+          <div className="fw-catalog-wrap" style={{maxWidth:1400,margin:"0 auto",padding:"24px 24px"}}>
             {!modeloSel?(
               <>
-                <h2 style={{fontSize:24,fontWeight:800,color:theme.text,margin:"0 0 4px"}}>Repuestos Ford</h2>
+                <h2 style={{fontSize:28,fontWeight:800,color:theme.text,margin:"0 0 4px"}}>Repuestos Ford</h2>
                 <p style={{fontSize:14,color:_globalTheme.textSecondary||"#888",margin:"0 0 12px"}}>Selecciona tu modelo o busca directamente</p>
                 {/* Buscador rapido en home */}
                 <SearchAutocomplete theme={theme} allProducts={repTodos} onSearch={q=>setHomeSearch(q)} onSelect={p=>setParteSel(p)} />
@@ -919,7 +919,7 @@ export default function FordWarnesApp({ user, onLogout }){
                   return(
                     <div style={{marginBottom:24}}>
                       <div style={{fontSize:14,fontWeight:700,color:"#003478",marginBottom:12}}>{results.length} resultado{results.length!==1?"s":""} para "{homeSearch}"</div>
-                      <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
+                      <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:16}}>
                         {results.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onConsultar={(part)=>{
                           network.sendChat(`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`);
                           setChatOpen(true);
@@ -935,8 +935,8 @@ export default function FordWarnesApp({ user, onLogout }){
                   if(!filteredModels.length)return null;
                   return(
                   <div key={cat} style={{marginBottom:28}}>
-                    <div style={{fontSize:15,fontWeight:800,color:"#003478",marginBottom:14,paddingBottom:8,borderBottom:"2px solid #003478",display:"inline-block"}}>{cat}</div>
-                    <div className="fw-cat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:14}}>
+                    <div style={{fontSize:17,fontWeight:800,color:"#003478",marginBottom:14,paddingBottom:8,borderBottom:"2px solid #003478",display:"inline-block"}}>{cat}</div>
+                    <div className="fw-cat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:14}}>
                       {filteredModels.map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>setModeloSel(m)}/>)}
                     </div>
                   </div>
@@ -1084,13 +1084,13 @@ function ModeloCard({modelo,onClick}){const theme = _globalTheme;
   const [hov,setHov]=useState(false);const [imgErr,setImgErr]=useState(false);
   return(
     <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:theme.card,border:`1px solid ${hov?"#003478":"#e0e0e0"}`,borderRadius:8,cursor:"pointer",transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,52,120,.12)":"0 1px 3px rgba(0,0,0,.04)"}}>
-      <div style={{width:"100%",height:120,background:"#f0f4f8",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{width:"100%",height:160,background:"#f0f4f8",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
         {!imgErr&&IMGS_MODELO[modelo.id]
           ?<img src={IMGS_MODELO[modelo.id]} alt={modelo.nombre} onError={()=>setImgErr(true)} style={{width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s",transform:hov?"scale(1.05)":"scale(1)"}}/>
           :<span style={{fontSize:42,opacity:.15}}>🚗</span>}
       </div>
       <div style={{padding:"14px 16px"}}>
-        <div style={{fontSize:16,fontWeight:800,color:theme.text}}>{modelo.nombre}</div>
+        <div style={{fontSize:18,fontWeight:800,color:theme.text}}>{modelo.nombre}</div>
         <div style={{fontSize:12,color:_globalTheme.textSecondary||"#888",marginTop:3}}>{modelo.año}</div>
         <div style={{marginTop:8,fontSize:12,color:"#003478",fontWeight:600}}>{modelo.total_repuestos} repuestos disponibles</div>
       </div>
@@ -1156,7 +1156,7 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
   );
 }
 
-function Msg({msg,last,onParte}){
+function Msg({msg,last,onParte}){const theme=_globalTheme;
   const [vis,setVis]=useState(!last);
   useEffect(()=>{if(last){const t=setTimeout(()=>setVis(true),40);return()=>clearTimeout(t);}},[last]);
   const fade={opacity:vis?1:0,transform:vis?"translateY(0)":"translateY(8px)",transition:"opacity .25s,transform .25s"};

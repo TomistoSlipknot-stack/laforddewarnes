@@ -54,9 +54,9 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
   // ── MODEL LIST VIEW ──
   if (!selModelo) {
     return (
-      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#fafafa' }}>
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--fw-bg, #fafafa)' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 16, color: '#333', marginBottom: 10 }}>Gestionar Stock y Precios</div>
+          <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--fw-text, #333)', marginBottom: 10 }}>Gestionar Stock y Precios</div>
           {/* Category tabs */}
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
             <button onClick={() => setCatFilter('all')} style={{ background: catFilter === 'all' ? '#003478' : 'transparent', border: `1px solid ${catFilter === 'all' ? '#0050a0' : '#e0e0e0'}`, borderRadius: 7, padding: '4px 10px', fontSize: 11, color: catFilter === 'all' ? '#fff' : '#888', cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -72,17 +72,17 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
             })}
           </div>
           {/* Bulk price */}
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 10, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, padding: '6px 10px' }}>
-            <span style={{ fontSize: 11, color: '#666', flexShrink: 0 }}>Subir/bajar TODO:</span>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 10, background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, padding: '6px 10px' }}>
+            <span style={{ fontSize: 11, color: 'var(--fw-textSecondary, #666)', flexShrink: 0 }}>Subir/bajar TODO:</span>
             <input value={bulkPct} onChange={e => setBulkPct(e.target.value)} placeholder="+15 o -10" type="number"
-              style={{ width: 70, padding: '4px 8px', fontSize: 13, border: '1px solid #e0e0e0', borderRadius: 6, background: '#fafafa', color: '#333', outline: 'none', fontFamily: 'inherit', textAlign: 'center' }} />
-            <span style={{ fontSize: 13, color: '#888' }}>%</span>
+              style={{ width: 70, padding: '4px 8px', fontSize: 13, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 6, background: 'var(--fw-bg, #fafafa)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit', textAlign: 'center' }} />
+            <span style={{ fontSize: 13, color: 'var(--fw-textSecondary, #888)' }}>%</span>
             <button onClick={applyBulk} disabled={!bulkPct.trim()} style={{ padding: '4px 12px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 6, background: bulkPct.trim() ? '#003478' : '#ccc', color: '#fff', cursor: bulkPct.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
               Aplicar
             </button>
           </div>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar modelo..."
-            style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fff', color: '#333', outline: 'none', fontFamily: 'inherit' }} />
+            style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-card, #fff)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit' }} />
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
           {categorias.filter(c => catFilter === 'all' || c === catFilter).map(cat => {
@@ -96,20 +96,20 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
                   const inStock = parts.filter(p => p.stock > 0).length;
                   const outStock = parts.filter(p => p.stock === 0).length;
                   return (
-                    <div key={m.id} onClick={() => { setSelModelo(m); setSearch(''); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 10, marginBottom: 4, cursor: 'pointer', transition: 'background .1s' }}
+                    <div key={m.id} onClick={() => { setSelModelo(m); setSearch(''); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, marginBottom: 4, cursor: 'pointer', transition: 'background .1s' }}
                       onMouseEnter={e => e.currentTarget.style.background = '#f0f4f8'} onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
                       <div style={{ width: 50, height: 36, borderRadius: 6, overflow: 'hidden', background: m.color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontSize: 16, opacity: .5 }}>🚗</span>
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: '#333' }}>{m.nombre}</div>
-                        <div style={{ fontSize: 10, color: '#777' }}>{m.año} · {parts.length} repuestos</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--fw-text, #333)' }}>{m.nombre}</div>
+                        <div style={{ fontSize: 10, color: 'var(--fw-textSecondary, #777)' }}>{m.año} · {parts.length} repuestos</div>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{ fontSize: 11, color: '#22c55e' }}>{inStock} en stock</div>
                         {outStock > 0 && <div style={{ fontSize: 10, color: '#ef4444' }}>{outStock} agotados</div>}
                       </div>
-                      <div style={{ color: '#333', fontSize: 14 }}>→</div>
+                      <div style={{ color: 'var(--fw-text, #333)', fontSize: 14 }}>→</div>
                     </div>
                   );
                 })}
@@ -123,47 +123,47 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
 
   // ── PARTS LIST VIEW (for selected model) ──
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#fafafa' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--fw-bg, #fafafa)' }}>
       {/* Header */}
       <div style={{ padding: '12px 16px', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <button onClick={() => setSelModelo(null)} style={{ background: 'none', border: 'none', color: '#003478', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', padding: 0 }}>← Volver</button>
           <div style={{ flex: 1 }}>
-            <span style={{ fontWeight: 700, fontSize: 16, color: '#333' }}>{selModelo.nombre}</span>
-            <span style={{ fontSize: 12, color: '#777', marginLeft: 8 }}>{selModelo.año} · {partsForModel.length} repuestos</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: 'var(--fw-text, #333)' }}>{selModelo.nombre}</span>
+            <span style={{ fontSize: 12, color: 'var(--fw-textSecondary, #777)', marginLeft: 8 }}>{selModelo.año} · {partsForModel.length} repuestos</span>
           </div>
         </div>
         {/* Bulk for this model */}
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, padding: '6px 10px' }}>
-          <span style={{ fontSize: 11, color: '#666', flexShrink: 0 }}>Precios {selModelo.nombre}:</span>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, padding: '6px 10px' }}>
+          <span style={{ fontSize: 11, color: 'var(--fw-textSecondary, #666)', flexShrink: 0 }}>Precios {selModelo.nombre}:</span>
           <input value={bulkPct} onChange={e => setBulkPct(e.target.value)} placeholder="+15" type="number"
-            style={{ width: 60, padding: '4px 8px', fontSize: 13, border: '1px solid #e0e0e0', borderRadius: 6, background: '#fafafa', color: '#333', outline: 'none', fontFamily: 'inherit', textAlign: 'center' }} />
-          <span style={{ fontSize: 13, color: '#888' }}>%</span>
+            style={{ width: 60, padding: '4px 8px', fontSize: 13, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 6, background: 'var(--fw-bg, #fafafa)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit', textAlign: 'center' }} />
+          <span style={{ fontSize: 13, color: 'var(--fw-textSecondary, #888)' }}>%</span>
           <button onClick={applyBulk} disabled={!bulkPct.trim()} style={{ padding: '4px 12px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 6, background: bulkPct.trim() ? '#003478' : '#ccc', color: '#fff', cursor: bulkPct.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
             Aplicar
           </button>
         </div>
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar repuesto..."
-          style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fff', color: '#333', outline: 'none', fontFamily: 'inherit' }} />
+          style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-card, #fff)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit' }} />
       </div>
 
       {/* Parts list */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
         {searchedParts.map((p, i) => (
           <div key={p.numero_parte || i} onClick={() => setEditPart({ ...p })}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, marginBottom: 3, cursor: 'pointer', transition: 'background .1s' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, marginBottom: 3, cursor: 'pointer', transition: 'background .1s' }}
             onMouseEnter={e => e.currentTarget.style.background = '#f0f4f8'} onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: sc(p.stock), flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#444', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.nombre}</div>
-              <div style={{ fontSize: 10, color: '#777' }}>{p.cat} · {p.numero_parte}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--fw-text, #444)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.nombre}</div>
+              <div style={{ fontSize: 10, color: 'var(--fw-textSecondary, #777)' }}>{p.cat} · {p.numero_parte}</div>
             </div>
             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>{p.precio}</div>
-              {p.precio_oem && <div style={{ fontSize: 9, color: '#888', textDecoration: 'line-through' }}>OEM {p.precio_oem}</div>}
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--fw-text, #333)' }}>{p.precio}</div>
+              {p.precio_oem && <div style={{ fontSize: 9, color: 'var(--fw-textSecondary, #888)', textDecoration: 'line-through' }}>OEM {p.precio_oem}</div>}
             </div>
             <div style={{ fontSize: 11, color: sc(p.stock), minWidth: 30, textAlign: 'right' }}>{p.stock}</div>
-            <div style={{ color: '#333', fontSize: 12 }}>✏️</div>
+            <div style={{ color: 'var(--fw-text, #333)', fontSize: 12 }}>✏️</div>
           </div>
         ))}
       </div>
@@ -171,16 +171,16 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
       {/* ── EDIT MODAL ── */}
       {editPart && (
         <div onClick={() => setEditPart(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: 16, width: '100%', maxWidth: 480, padding: 20, maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ fontWeight: 700, fontSize: 16, color: '#333', marginBottom: 4 }}>Editar Repuesto</div>
-            <div style={{ fontSize: 12, color: '#777', marginBottom: 16 }}>{editPart.numero_parte} · {selModelo.nombre}</div>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 16, width: '100%', maxWidth: 480, padding: 20, maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--fw-text, #333)', marginBottom: 4 }}>Editar Repuesto</div>
+            <div style={{ fontSize: 12, color: 'var(--fw-textSecondary, #777)', marginBottom: 16 }}>{editPart.numero_parte} · {selModelo.nombre}</div>
 
             {/* Photo */}
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 11, color: '#666', display: 'block', marginBottom: 4 }}>Foto del repuesto</label>
+              <label style={{ fontSize: 11, color: 'var(--fw-textSecondary, #666)', display: 'block', marginBottom: 4 }}>Foto del repuesto</label>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                {(editPart.img_custom) && <img src={editPart.img_custom} alt="" style={{ width: 64, height: 48, borderRadius: 8, objectFit: 'cover', border: '1px solid #e0e0e0' }} />}
-                <button onClick={() => fileRef.current?.click()} style={{ padding: '8px 14px', fontSize: 12, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fafafa', color: '#003478', cursor: 'pointer', fontFamily: 'inherit' }}>
+                {(editPart.img_custom) && <img src={editPart.img_custom} alt="" style={{ width: 64, height: 48, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--fw-cardBorder, #e0e0e0)' }} />}
+                <button onClick={() => fileRef.current?.click()} style={{ padding: '8px 14px', fontSize: 12, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: '#003478', cursor: 'pointer', fontFamily: 'inherit' }}>
                   {editPart.img_custom ? 'Cambiar foto' : 'Subir foto'}
                 </button>
                 <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhoto} />
@@ -189,9 +189,9 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
 
             {/* Name */}
             <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 11, color: '#666', display: 'block', marginBottom: 4 }}>Nombre</label>
+              <label style={{ fontSize: 11, color: 'var(--fw-textSecondary, #666)', display: 'block', marginBottom: 4 }}>Nombre</label>
               <input value={editPart.nombre || ''} onChange={e => setEditPart({ ...editPart, nombre: e.target.value })}
-                style={{ width: '100%', padding: '8px 12px', fontSize: 14, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fafafa', color: '#333', outline: 'none', fontFamily: 'inherit' }} />
+                style={{ width: '100%', padding: '8px 12px', fontSize: 14, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit' }} />
             </div>
 
             {/* Prices side by side */}
@@ -199,33 +199,33 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
               <div style={{ flex: 1 }}>
                 <label style={{ fontSize: 11, color: '#22c55e', display: 'block', marginBottom: 4 }}>Precio Nuestro (lo que cobra Juan)</label>
                 <input value={editPart.precio || ''} onChange={e => setEditPart({ ...editPart, precio: e.target.value })}
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, fontWeight: 700, border: '1px solid #22c55e33', borderRadius: 8, background: '#fafafa', color: '#22c55e', outline: 'none', fontFamily: 'inherit' }} />
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, fontWeight: 700, border: '1px solid #22c55e33', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: '#22c55e', outline: 'none', fontFamily: 'inherit' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ fontSize: 11, color: '#003478', display: 'block', marginBottom: 4 }}>Precio OEM Ford (referencia)</label>
                 <input value={editPart.precio_oem || ''} onChange={e => setEditPart({ ...editPart, precio_oem: e.target.value })}
                   placeholder="Ej: $180.000"
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, fontWeight: 700, border: '1px solid #0050a033', borderRadius: 8, background: '#fafafa', color: '#003478', outline: 'none', fontFamily: 'inherit' }} />
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, fontWeight: 700, border: '1px solid #0050a033', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: '#003478', outline: 'none', fontFamily: 'inherit' }} />
               </div>
             </div>
 
             {/* Stock */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
               <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 11, color: '#666', display: 'block', marginBottom: 4 }}>Stock (unidades disponibles)</label>
+                <label style={{ fontSize: 11, color: 'var(--fw-textSecondary, #666)', display: 'block', marginBottom: 4 }}>Stock (unidades disponibles)</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <button onClick={() => setEditPart({ ...editPart, stock: Math.max(0, (editPart.stock || 0) - 1), disponible: Math.max(0, (editPart.stock || 0) - 1) > 0 })}
-                    style={{ width: 36, height: 36, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fafafa', color: '#ef4444', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+                    style={{ width: 36, height: 36, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: '#ef4444', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
                   <input type="number" value={editPart.stock ?? 0} onChange={e => setEditPart({ ...editPart, stock: parseInt(e.target.value) || 0, disponible: (parseInt(e.target.value) || 0) > 0 })}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: 20, fontWeight: 700, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fafafa', color: '#333', outline: 'none', fontFamily: 'inherit', textAlign: 'center' }} />
+                    style={{ flex: 1, padding: '8px 12px', fontSize: 20, fontWeight: 700, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit', textAlign: 'center' }} />
                   <button onClick={() => setEditPart({ ...editPart, stock: (editPart.stock || 0) + 1, disponible: true })}
-                    style={{ width: 36, height: 36, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fafafa', color: '#22c55e', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                    style={{ width: 36, height: 36, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: '#22c55e', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                 </div>
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 11, color: '#666', display: 'block', marginBottom: 4 }}>Categoria</label>
+                <label style={{ fontSize: 11, color: 'var(--fw-textSecondary, #666)', display: 'block', marginBottom: 4 }}>Categoria</label>
                 <input value={editPart.cat || ''} onChange={e => setEditPart({ ...editPart, cat: e.target.value })}
-                  style={{ width: '100%', padding: '8px 12px', fontSize: 14, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fafafa', color: '#333', outline: 'none', fontFamily: 'inherit' }} />
+                  style={{ width: '100%', padding: '8px 12px', fontSize: 14, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit' }} />
               </div>
             </div>
 
@@ -241,7 +241,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
               <button onClick={savePart} style={{ flex: 1, padding: 12, fontSize: 14, fontWeight: 600, border: 'none', borderRadius: 10, background: '#003478', color: '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>
                 Guardar Cambios
               </button>
-              <button onClick={() => setEditPart(null)} style={{ padding: '12px 20px', fontSize: 14, border: '1px solid #e0e0e0', borderRadius: 10, background: 'transparent', color: '#888', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => setEditPart(null)} style={{ padding: '12px 20px', fontSize: 14, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, background: 'transparent', color: 'var(--fw-textSecondary, #888)', cursor: 'pointer', fontFamily: 'inherit' }}>
                 Cancelar
               </button>
             </div>

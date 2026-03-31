@@ -36,11 +36,11 @@ export default function AdminChats({ network }) {
   const activeRoomInfo = rooms.find(r => r.id === activeRoom);
 
   return (
-    <div style={{ display: 'flex', height: '100%', background: '#fafafa' }}>
+    <div style={{ display: 'flex', height: '100%', background: 'var(--fw-bg, #fafafa)' }}>
       {/* Sidebar - chat list */}
       <div style={{ width: activeRoom ? 'min(220px,35%)' : '100%', borderRight: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '12px', borderBottom: '1px solid #e0e0e0' }}>
-          <div style={{ fontWeight: 700, fontSize: 14, color: '#333', marginBottom: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--fw-text, #333)', marginBottom: 8 }}>
             Conversaciones {totalUnread > 0 && <span style={{ background: '#ef4444', color: '#fff', fontSize: 10, padding: '2px 7px', borderRadius: 10, marginLeft: 6 }}>{totalUnread}</span>}
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
@@ -58,7 +58,7 @@ export default function AdminChats({ network }) {
           </div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {filtered.length === 0 && <div style={{ padding: 20, textAlign: 'center', color: '#333', fontSize: 12 }}>Sin conversaciones</div>}
+          {filtered.length === 0 && <div style={{ padding: 20, textAlign: 'center', color: 'var(--fw-text, #333)', fontSize: 12 }}>Sin conversaciones</div>}
           {filtered.map(room => (
             <div key={room.id} onClick={() => openRoom(room.id)}
               style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0', cursor: 'pointer', background: activeRoom === room.id ? '#f0f4f8' : 'transparent', display: 'flex', gap: 10, alignItems: 'center', transition: 'background .1s' }}>
@@ -67,16 +67,16 @@ export default function AdminChats({ network }) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>{room.name}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--fw-text, #333)' }}>{room.name}</span>
                   <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
                     {room.claimedBy && <span style={{ fontSize: 8, background: 'rgba(0,52,120,.08)', color: '#003478', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{room.claimedBy}</span>}
                     {room.status === 'scheduled' && <span style={{ fontSize: 8, background: 'rgba(234,179,8,.15)', color: '#b8860b', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>AGENDADO</span>}
                     {room.status === 'sold' && <span style={{ fontSize: 8, background: 'rgba(34,197,94,.15)', color: '#16a34a', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>VENTA</span>}
-                    <span style={{ fontSize: 9, color: '#999' }}>{room.role === 'employee' ? 'STAFF' : 'CLIENTE'}</span>
+                    <span style={{ fontSize: 9, color: 'var(--fw-textMuted, #999)' }}>{room.role === 'employee' ? 'STAFF' : 'CLIENTE'}</span>
                   </div>
                 </div>
                 {room.lastMsg && (
-                  <div style={{ fontSize: 11, color: '#777', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: 'var(--fw-textSecondary, #777)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>
                     {room.lastMsg.text}
                   </div>
                 )}
@@ -95,13 +95,13 @@ export default function AdminChats({ network }) {
       {activeRoom ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           {/* Header */}
-          <div style={{ padding: '10px 14px', borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', gap: 10, background: '#fff', flexShrink: 0 }}>
-            <button onClick={() => setActiveRoom(null)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: 18, padding: 0, fontFamily: 'inherit' }}>←</button>
+          <div style={{ padding: '10px 14px', borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', gap: 10, background: 'var(--fw-card, #fff)', flexShrink: 0 }}>
+            <button onClick={() => setActiveRoom(null)} style={{ background: 'none', border: 'none', color: 'var(--fw-textSecondary, #888)', cursor: 'pointer', fontSize: 18, padding: 0, fontFamily: 'inherit' }}>←</button>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: activeRoomInfo?.role === 'employee' ? '#e8ffe8' : '#e8f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
               {activeRoomInfo?.role === 'employee' ? '🔧' : '👤'}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 14, color: '#333' }}>{activeRoomInfo?.name}</div>
+              <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--fw-text, #333)' }}>{activeRoomInfo?.name}</div>
               <div style={{ fontSize: 10, color: activeRoomInfo?.role === 'employee' ? '#22c55e' : '#003478' }}>
                 {activeRoomInfo?.role === 'employee' ? 'Empleado' : 'Cliente'}
                 {activeRoomInfo?.status === 'scheduled' && ' · Agendado'}
@@ -140,12 +140,12 @@ export default function AdminChats({ network }) {
           </div>
           {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {activeMessages.length === 0 && <div style={{ textAlign: 'center', color: '#333', fontSize: 12, marginTop: 30 }}>Sin mensajes todavia</div>}
+            {activeMessages.length === 0 && <div style={{ textAlign: 'center', color: 'var(--fw-text, #333)', fontSize: 12, marginTop: 30 }}>Sin mensajes todavia</div>}
             {activeMessages.map((msg, i) => {
               const isMe = msg.fromRole === 'admin';
               return (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
-                  {!isMe && <div style={{ fontSize: 10, color: '#999', marginBottom: 2, paddingLeft: 4 }}>{msg.from}</div>}
+                  {!isMe && <div style={{ fontSize: 10, color: 'var(--fw-textMuted, #999)', marginBottom: 2, paddingLeft: 4 }}>{msg.from}</div>}
                   <div style={{ maxWidth: '80%', background: isMe ? '#003478' : '#f0f0f0', border: `1px solid ${isMe ? '#0050a0' : '#e0e0e0'}`, borderRadius: isMe ? '12px 4px 12px 12px' : '4px 12px 12px 12px', padding: '9px 13px', fontSize: 13, color: isMe ? '#fff' : '#444', lineHeight: 1.45 }}>{msg.text}</div>
                   <div style={{ fontSize: 9, color: '#ccc', marginTop: 2 }}>{fmt(msg.ts)}</div>
                 </div>
@@ -154,12 +154,12 @@ export default function AdminChats({ network }) {
             <div ref={bottomRef} />
           </div>
           {/* Input */}
-          <div style={{ padding: '10px 14px', borderTop: '1px solid #e0e0e0', flexShrink: 0, background: '#fafafa' }}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: 12, padding: '4px 4px 4px 12px' }}>
+          <div style={{ padding: '10px 14px', borderTop: '1px solid #e0e0e0', flexShrink: 0, background: 'var(--fw-bg, #fafafa)' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#f5f5f5', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 12, padding: '4px 4px 4px 12px' }}>
               <input value={inp} onChange={e => setInp(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder="Responder..."
-                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: '#333', fontFamily: 'inherit', padding: '9px 0', caretColor: '#003478' }} />
+                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: 'var(--fw-text, #333)', fontFamily: 'inherit', padding: '9px 0', caretColor: '#003478' }} />
               <button onClick={send} disabled={!inp.trim()}
                 style={{ width: 36, height: 36, background: inp.trim() ? '#003478' : '#ccc', border: 'none', borderRadius: 9, cursor: inp.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background .15s' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={inp.trim() ? '#fff' : '#333'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13" /><path d="M22 2L15 22 11 13 2 9l20-7z" /></svg>

@@ -29,13 +29,13 @@ export default function ChatBubble({ onAction, unread }) {
       {/* Popup */}
       {open && (
         <div style={{
-          position: 'fixed', bottom: 90, right: 20, width: 300, background: '#fff',
+          position: 'fixed', bottom: 90, right: 20, width: 300, background: 'var(--fw-card, #fff)',
           borderRadius: 16, boxShadow: '0 8px 30px rgba(0,0,0,.18)', zIndex: 1000,
           overflow: 'hidden', animation: 'bubble-up .25s ease',
         }}>
           {/* Header */}
           <div style={{ background: '#003478', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--fw-card, #fff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#003478', fontStyle: 'italic', fontFamily: 'Georgia,serif' }}>Ford</span>
             </div>
             <div>
@@ -50,8 +50,8 @@ export default function ChatBubble({ onAction, unread }) {
               <button key={i} onClick={() => handleOption(opt.action)}
                 style={{
                   width: '100%', padding: '11px 14px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 10,
-                  background: '#fff', border: '1.5px solid #e0e0e0', borderRadius: 10,
-                  fontSize: 13, fontWeight: 500, color: '#333', cursor: 'pointer', fontFamily: 'inherit',
+                  background: 'var(--fw-card, #fff)', border: '1.5px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10,
+                  fontSize: 13, fontWeight: 500, color: 'var(--fw-text, #333)', cursor: 'pointer', fontFamily: 'inherit',
                   transition: 'all .15s',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = '#003478'; e.currentTarget.style.background = '#f0f4ff'; }}
@@ -62,7 +62,7 @@ export default function ChatBubble({ onAction, unread }) {
             ))}
           </div>
           {/* Info */}
-          <div style={{ padding: '8px 14px 14px', borderTop: '1px solid #eee', fontSize: 11, color: '#999', textAlign: 'center' }}>
+          <div style={{ padding: '8px 14px 14px', borderTop: '1px solid #eee', fontSize: 11, color: 'var(--fw-textMuted, #999)', textAlign: 'center' }}>
             Av. Honorio Pueyrredon 2180, Local 1 · Tel: 4582-1565
           </div>
         </div>
