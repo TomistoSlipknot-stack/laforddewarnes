@@ -90,6 +90,32 @@ function getChatList() {
     });
 }
 
+
+// ─── SANITIZER ────────────────────────────────────────────────────────────
+function sanitize(str) {
+  if (typeof str !== "string") return str;
+  return str.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").slice(0, 2000);
+}
+
+// ─── RATE LIMITER ────────────────────────────────────────────────────────────
+const rateLimits = {};
+function rateLimit(ip, max, windowMs) {
+  const now = Date.now();
+  if (!rateLimits[ip]) rateLimits[ip] = [];
+  rateLimits[ip] = rateLimits[ip].filter(t => now - t < windowMs);
+  if (rateLimits[ip].length >= max) return false;
+  rateLimits[ip].push(now);
+  return true;
+}
+// Clean up old entries every 5 min
+setInterval(() => {
+  const now = Date.now();
+  for (const ip in rateLimits) {
+    rateLimits[ip] = rateLimits[ip].filter(t => now - t < 60000);
+    if (rateLimits[ip].length === 0) delete rateLimits[ip];
+  }
+}, 300000);
+
 // ─── EXPRESS ─────────────────────────────────────────────────────────────────
 const app = express();
 const distPath = path.join(__dirname, 'dist');
@@ -106,6 +132,8 @@ function saveAccounts() { saveJSON('accounts.json', accounts); }
 
 // Auth
 app.post('/api/login', (req, res) => {
+  const ip = req.ip || req.connection.remoteAddress;
+  if (!rateLimit(ip, 10, 60000)) return res.status(429).json({ ok: false, error: 'Demasiados intentos. Espera 1 minuto.' });
   const { password, username } = req.body;
   // Admin login
   if (password === accounts.admin.pass) {
@@ -312,9 +340,12 @@ wss.on('connection', (ws) => {
         }
 
         case 'chat_msg': {
+          // Rate limit: max 30 msgs per minute
+          const msgIp = 'ws_' + clientId;
+          if (!rateLimit(msgIp, 30, 60000)) break;
           const roomId = data.roomId || clientInfo.roomId;
           if (!roomId || !chatRooms[roomId]) break;
-          const msg = { from: clientInfo.name, fromRole: clientInfo.role, text: data.text, ts: Date.now() };
+          const msg = { from: sanitize(clientInfo.name), fromRole: clientInfo.role, text: sanitize(data.text), ts: Date.now() };
           chatRooms[roomId].messages.push(msg);
           if (chatRooms[roomId].messages.length > 500) chatRooms[roomId].messages.shift();
           if (clientInfo.role !== 'admin' && clientInfo.role !== 'employee') {
