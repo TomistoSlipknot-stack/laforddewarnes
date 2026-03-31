@@ -94,8 +94,33 @@ function getChatList() {
 // ─── SANITIZER ────────────────────────────────────────────────────────────
 function sanitize(str) {
   if (typeof str !== "string") return str;
-  return str.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").slice(0, 2000);
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;").slice(0, 2000);
 }
+
+// ─── AUTH TOKENS ─────────────────────────────────────────────────────────
+const crypto = require('crypto');
+const sessions = {};
+function createSession(role, name) {
+  const token = crypto.randomBytes(32).toString('hex');
+  sessions[token] = { role, name, created: Date.now() };
+  return token;
+}
+function requireAuth(roles) {
+  return (req, res, next) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    const session = token && sessions[token];
+    if (!session || !roles.includes(session.role)) {
+      return res.status(401).json({ ok: false, error: 'No autorizado' });
+    }
+    req.user = session;
+    next();
+  };
+}
+// Clean expired sessions every 30 min (24h lifetime)
+setInterval(() => {
+  const now = Date.now();
+  for (const t in sessions) { if (now - sessions[t].created > 86400000) delete sessions[t]; }
+}, 1800000);
 
 // ─── RATE LIMITER ────────────────────────────────────────────────────────────
 const rateLimits = {};
@@ -137,24 +162,26 @@ app.post('/api/login', (req, res) => {
   const { password, username } = req.body;
   // Admin login
   if (password === accounts.admin.pass) {
-    return res.json({ ok: true, role: 'admin', name: username || accounts.admin.name });
+    const token = createSession('admin', username || accounts.admin.name);
+    return res.json({ ok: true, role: 'admin', name: username || accounts.admin.name, token });
   }
   // Employee login — check all employee accounts
   const emp = accounts.employees.find(e => e.pass === password && (!e.user || e.user === username));
   if (emp) {
-    return res.json({ ok: true, role: 'employee', name: username || emp.name });
+    const token = createSession('employee', username || emp.name);
+    return res.json({ ok: true, role: 'employee', name: username || emp.name, token });
   }
   return res.json({ ok: false });
 });
 
-// Account management (admin only)
-app.get('/api/accounts', (req, res) => {
+// Account management (admin only — requires auth)
+app.get('/api/accounts', requireAuth(['admin']), (req, res) => {
   res.json({
     admin: { user: accounts.admin.user, name: accounts.admin.name },
     employees: accounts.employees.map(e => ({ id: e.id, user: e.user, name: e.name, createdAt: e.createdAt }))
   });
 });
-app.post('/api/accounts/employee', (req, res) => {
+app.post('/api/accounts/employee', requireAuth(['admin']), (req, res) => {
   const { name, user, pass } = req.body;
   if (!name || !pass) return res.json({ ok: false, error: 'Nombre y contraseña requeridos' });
   const id = 'emp_' + Date.now();
@@ -162,12 +189,12 @@ app.post('/api/accounts/employee', (req, res) => {
   saveAccounts();
   res.json({ ok: true });
 });
-app.delete('/api/accounts/employee/:id', (req, res) => {
+app.delete('/api/accounts/employee/:id', requireAuth(['admin']), (req, res) => {
   accounts.employees = accounts.employees.filter(e => e.id !== req.params.id);
   saveAccounts();
   res.json({ ok: true });
 });
-app.post('/api/accounts/admin-pass', (req, res) => {
+app.post('/api/accounts/admin-pass', requireAuth(['admin']), (req, res) => {
   const { newPass } = req.body;
   if (!newPass || newPass.length < 4) return res.json({ ok: false, error: 'Minimo 4 caracteres' });
   accounts.admin.pass = newPass;
@@ -177,7 +204,7 @@ app.post('/api/accounts/admin-pass', (req, res) => {
 
 // Stock
 app.get('/api/stock', (req, res) => res.json(stockData));
-app.post('/api/stock', (req, res) => {
+app.post('/api/stock', requireAuth(['admin', 'employee']), (req, res) => {
   stockData = req.body;
   saveStock();
   broadcastAll({ type: 'stock_update', stock: stockData });
@@ -185,7 +212,7 @@ app.post('/api/stock', (req, res) => {
 });
 
 // Image upload
-app.post('/api/upload', (req, res) => {
+app.post('/api/upload', requireAuth(['admin', 'employee']), (req, res) => {
   try {
     const { image, filename } = req.body;
     const match = image.match(/^data:image\/(png|jpe?g|webp);base64,(.+)$/);
@@ -196,7 +223,7 @@ app.post('/api/upload', (req, res) => {
     fs.writeFileSync(path.join(uploadsDir, fname), buf);
     res.json({ ok: true, url: '/uploads/' + fname });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: 'Error al subir imagen' });
   }
 });
 

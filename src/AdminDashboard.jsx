@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { authFetch } from './App.jsx';
 
 export default function AdminDashboard({ theme }) {
   const [sales, setSales] = useState({ today: { count: 0, total: 0 }, week: { count: 0 }, recent: [] });
@@ -10,24 +11,24 @@ export default function AdminDashboard({ theme }) {
   const t = theme || {};
 
   useEffect(() => {
-    fetch('/api/sales-history').then(r => r.json()).then(setSales).catch(() => {});
+    authFetch('/api/sales-history').then(r => r.json()).then(setSales).catch(() => {});
     fetch('/api/popular-products').then(r => r.json()).then(d => setPopular(d.popular || [])).catch(() => {});
     fetch('/api/frequent-clients').then(r => r.json()).then(d => setClients(d.clients || [])).catch(() => {});
   }, []);
 
   const addSale = async () => {
     if (!saleForm.total) return;
-    await fetch('/api/sales-history', {
+    await authFetch('/api/sales-history', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ clientName: saleForm.client || 'Cliente', total: parseInt(saleForm.total) || 0, notes: saleForm.notes }),
     });
     setSaleForm({ client: '', total: '', notes: '' });
-    fetch('/api/sales-history').then(r => r.json()).then(setSales);
+    authFetch('/api/sales-history').then(r => r.json()).then(setSales);
     fetch('/api/frequent-clients').then(r => r.json()).then(d => setClients(d.clients || []));
   };
 
   const saveNote = async (name) => {
-    await fetch('/api/client-notes', {
+    await authFetch('/api/client-notes', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ clientName: name, note: noteText }),
     });

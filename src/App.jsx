@@ -611,42 +611,43 @@ function AccountsPanel(){
   const [adminPass,setAdminPass]=useState('');
   const [msg,setMsg]=useState('');
   useEffect(()=>{
-    fetch('/api/accounts').then(r=>r.json()).then(d=>setEmps(d.employees||[])).catch(()=>{});
+    authFetch('/api/accounts').then(r=>r.json()).then(d=>setEmps(d.employees||[])).catch(()=>{});
   },[]);
   const addEmp=async()=>{
     if(!newName.trim()||!newPass.trim())return;
-    const res=await fetch('/api/accounts/employee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:newName,user:newUser||newName.toLowerCase().replace(/\s+/g,''),pass:newPass})});
+    const res=await authFetch('/api/accounts/employee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:newName,user:newUser||newName.toLowerCase().replace(/\s+/g,''),pass:newPass})});
     const d=await res.json();
     if(d.ok){setNewName('');setNewUser('');setNewPass('');setMsg('Empleado creado');
-      fetch('/api/accounts').then(r=>r.json()).then(d=>setEmps(d.employees||[]));
+      authFetch('/api/accounts').then(r=>r.json()).then(d=>setEmps(d.employees||[]));
     }else setMsg(d.error||'Error');
     setTimeout(()=>setMsg(''),3000);
   };
   const delEmp=async(id)=>{
-    await fetch('/api/accounts/employee/'+id,{method:'DELETE'});
+    await authFetch('/api/accounts/employee/'+id,{method:'DELETE'});
     setEmps(e=>e.filter(x=>x.id!==id));
   };
   const changeAdmin=async()=>{
     if(!adminPass.trim()||adminPass.length<4)return;
-    const res=await fetch('/api/accounts/admin-pass',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({newPass:adminPass})});
+    const res=await authFetch('/api/accounts/admin-pass',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({newPass:adminPass})});
     const d=await res.json();
     if(d.ok){setAdminPass('');setMsg('Contraseña de admin cambiada');}
     setTimeout(()=>setMsg(''),3000);
   };
-  const inp={width:'100%',padding:'10px 12px',fontSize:14,border:'1px solid #ddd',borderRadius:8,background:'#fff',color:'#333',outline:'none',fontFamily:'inherit',marginBottom:10};
+  const t=_globalTheme;
+  const inp={width:'100%',padding:'10px 12px',fontSize:14,border:'1px solid '+(t.cardBorder||'#ddd'),borderRadius:8,background:t.bg||'#fafafa',color:t.text||'#333',outline:'none',fontFamily:'inherit',marginBottom:10};
   return(
     <div style={{padding:20,overflowY:'auto',height:'100%',maxWidth:600}}>
-      <h3 style={{fontSize:18,fontWeight:800,color:'#1a1a1a',marginBottom:16}}>Gestionar Cuentas</h3>
-      {msg&&<div style={{background:'#e8f5e9',color:'#2e7d32',padding:'8px 14px',borderRadius:8,marginBottom:14,fontSize:13,fontWeight:600}}>{msg}</div>}
+      <h3 style={{fontSize:18,fontWeight:800,color:t.text||'#1a1a1a',marginBottom:16}}>Gestionar Cuentas</h3>
+      {msg&&<div style={{background:'rgba(34,197,94,.1)',color:'#22c55e',padding:'8px 14px',borderRadius:8,marginBottom:14,fontSize:13,fontWeight:600}}>{msg}</div>}
 
       {/* Crear empleado */}
-      <div style={{background:'#fff',border:'1px solid #e0e0e0',borderRadius:10,padding:20,marginBottom:20}}>
-        <div style={{fontSize:15,fontWeight:700,color:'#003478',marginBottom:12}}>Crear cuenta de empleado</div>
-        <label style={{fontSize:12,color:'#666',display:'block',marginBottom:4}}>Nombre</label>
+      <div style={{background:t.card||'#fff',border:'1px solid '+(t.cardBorder||'#e0e0e0'),borderRadius:10,padding:20,marginBottom:20}}>
+        <div style={{fontSize:15,fontWeight:700,color:'#4a9eff',marginBottom:12}}>Crear cuenta de empleado</div>
+        <label style={{fontSize:12,color:t.textSecondary||'#666',display:'block',marginBottom:4}}>Nombre</label>
         <input value={newName} onChange={e=>setNewName(e.target.value)} placeholder="Ej: Pedro" style={inp}/>
-        <label style={{fontSize:12,color:'#666',display:'block',marginBottom:4}}>Usuario (opcional)</label>
+        <label style={{fontSize:12,color:t.textSecondary||'#666',display:'block',marginBottom:4}}>Usuario (opcional)</label>
         <input value={newUser} onChange={e=>setNewUser(e.target.value)} placeholder="Ej: pedro" style={inp}/>
-        <label style={{fontSize:12,color:'#666',display:'block',marginBottom:4}}>Contraseña</label>
+        <label style={{fontSize:12,color:t.textSecondary||'#666',display:'block',marginBottom:4}}>Contraseña</label>
         <input value={newPass} onChange={e=>setNewPass(e.target.value)} placeholder="Minimo 4 caracteres" style={inp}/>
         <button onClick={addEmp} style={{width:'100%',padding:12,fontSize:14,fontWeight:700,border:'none',borderRadius:8,background:'#003478',color:'#fff',cursor:'pointer',fontFamily:'inherit'}}>
           Crear Empleado
@@ -654,17 +655,17 @@ function AccountsPanel(){
       </div>
 
       {/* Lista empleados */}
-      <div style={{background:'#fff',border:'1px solid #e0e0e0',borderRadius:10,padding:20,marginBottom:20}}>
-        <div style={{fontSize:15,fontWeight:700,color:'#003478',marginBottom:12}}>Empleados ({emps.length})</div>
-        {emps.length===0&&<div style={{color:'#999',fontSize:13}}>No hay empleados creados</div>}
+      <div style={{background:t.card||'#fff',border:'1px solid '+(t.cardBorder||'#e0e0e0'),borderRadius:10,padding:20,marginBottom:20}}>
+        <div style={{fontSize:15,fontWeight:700,color:'#4a9eff',marginBottom:12}}>Empleados ({emps.length})</div>
+        {emps.length===0&&<div style={{color:t.textMuted||'#999',fontSize:13}}>No hay empleados creados</div>}
         {emps.map(e=>(
-          <div key={e.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',background:'#fafafa',border:'1px solid #eee',borderRadius:8,marginBottom:6}}>
-            <div style={{width:36,height:36,borderRadius:'50%',background:'#e8ffe8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🔧</div>
+          <div key={e.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',background:t.bg||'#fafafa',border:'1px solid '+(t.cardBorder||'#eee'),borderRadius:8,marginBottom:6}}>
+            <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(34,197,94,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🔧</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:14,fontWeight:600,color:'#333'}}>{e.name}</div>
-              <div style={{fontSize:11,color:'#888'}}>Usuario: {e.user}</div>
+              <div style={{fontSize:14,fontWeight:600,color:t.text||'#333'}}>{e.name}</div>
+              <div style={{fontSize:11,color:t.textSecondary||'#888'}}>Usuario: {e.user}</div>
             </div>
-            <button onClick={()=>delEmp(e.id)} style={{padding:'6px 12px',fontSize:11,border:'1px solid #dc2626',borderRadius:6,background:'#fff',color:'#dc2626',cursor:'pointer',fontFamily:'inherit',fontWeight:600}}>
+            <button onClick={()=>delEmp(e.id)} style={{padding:'6px 12px',fontSize:11,border:'1px solid #dc2626',borderRadius:6,background:'transparent',color:'#dc2626',cursor:'pointer',fontFamily:'inherit',fontWeight:600}}>
               Eliminar
             </button>
           </div>
@@ -672,11 +673,11 @@ function AccountsPanel(){
       </div>
 
       {/* Cambiar contraseña admin */}
-      <div style={{background:'#fff',border:'1px solid #e0e0e0',borderRadius:10,padding:20}}>
-        <div style={{fontSize:15,fontWeight:700,color:'#003478',marginBottom:12}}>Cambiar contraseña del Jefe (Juan)</div>
-        <input value={adminPass} onChange={e=>setAdminPass(e.target.value)} placeholder="Nueva contraseña para Juan" type="password" style={inp}/>
+      <div style={{background:t.card||'#fff',border:'1px solid '+(t.cardBorder||'#e0e0e0'),borderRadius:10,padding:20}}>
+        <div style={{fontSize:15,fontWeight:700,color:'#4a9eff',marginBottom:12}}>Cambiar contraseña del Jefe</div>
+        <input value={adminPass} onChange={e=>setAdminPass(e.target.value)} placeholder="Nueva contraseña" type="password" style={inp}/>
         <button onClick={changeAdmin} style={{width:'100%',padding:12,fontSize:14,fontWeight:700,border:'none',borderRadius:8,background:'#b8860b',color:'#fff',cursor:'pointer',fontFamily:'inherit'}}>
-          Cambiar Contraseña de Juan
+          Cambiar Contraseña
         </button>
       </div>
     </div>
@@ -1076,7 +1077,7 @@ export default function FordWarnesApp({ user, onLogout }){
       )}
       </div>{/* end flex row */}
 
-      {parteSel&&<Modal parte={parteSel} onClose={()=>setParteSel(null)} onConsultar={esJefe?null:(part)=>{
+      {parteSel&&<Modal parte={parteSel} onClose={()=>setParteSel(null)} onAddCart={addToCart} onConsultar={esJefe?null:(part)=>{
         const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
         network.sendChat(msg);
         setChatOpen(true);
@@ -1103,6 +1104,15 @@ function ScrollToTop(){const[show,setShow]=useState(false);useEffect(()=>{const 
 
 // Global theme state
 let _globalTheme = { bg: "#d5d5d5", card: "#fff", cardBorder: "#e0e0e0", text: "#333", textSecondary: "#777", textMuted: "#999", headerBg: "#fff" };
+
+// Auth helper - adds token to fetch requests
+export function authFetch(url, opts = {}) {
+  const token = localStorage.getItem('fw_token');
+  if (token) {
+    opts.headers = { ...opts.headers, Authorization: 'Bearer ' + token };
+  }
+  return fetch(url, opts);
+}
 
 function ModeloCard({modelo,onClick}){const theme = _globalTheme;
   const [hov,setHov]=useState(false);const [imgErr,setImgErr]=useState(false);
@@ -1154,7 +1164,7 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
               {r.descuento&&<span style={{background:"#dc2626",color:"#fff",fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:4}}>{r.descuento}% OFF</span>}
             </div>
             <div style={{fontSize:11,color:"#4a9eff"}}>Precio La Ford de Warnes</div>
-            {r.precio_oem&&(()=>{const o=parseInt(String(r.precio_oem).replace(/D/g,""));const j=parseInt(String(r.precio).replace(/D/g,""));const s=o-j;return s>0?<div style={{fontSize:11,color:"#16a34a",fontWeight:700}}>Ahorrás ${s.toLocaleString("es-AR")} vs Ford oficial</div>:null;})()}
+            {r.precio_oem&&(()=>{const o=parseInt(String(r.precio_oem).replace(/\D/g,""));const j=parseInt(String(r.precio).replace(/\D/g,""));const s=o-j;return s>0?<div style={{fontSize:11,color:"#16a34a",fontWeight:700}}>Ahorrás ${s.toLocaleString("es-AR")} vs Ford oficial</div>:null;})()}
           </div>
           {/* Stock */}
           {r.stock>0
@@ -1237,7 +1247,7 @@ function ResultRow({r,isLast,isBest,delay,onClick}){const theme=_globalTheme;
   );
 }
 
-function Modal({parte:r,onClose,onConsultar}){const theme=_globalTheme;
+function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme;
   const sc=r.stock>0?"#16a34a":"#dc2626";
   const Ic=getIcon(r.cat);
   const pImg=r.foto||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];

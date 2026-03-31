@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { authFetch } from './App.jsx';
 
 export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPrice }) {
   const [catFilter, setCatFilter] = useState('all');
@@ -33,7 +34,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
     const reader = new FileReader();
     reader.onload = async (ev) => {
       try {
-        const res = await fetch('/api/upload', {
+        const res = await authFetch('/api/upload', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image: ev.target.result, filename: (editPart.numero_parte || 'img').replace(/[^a-zA-Z0-9]/g, '') }),
         });
@@ -97,7 +98,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
                   const outStock = parts.filter(p => p.stock === 0).length;
                   return (
                     <div key={m.id} onClick={() => { setSelModelo(m); setSearch(''); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, marginBottom: 4, cursor: 'pointer', transition: 'background .1s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#f0f4f8'} onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--fw-bg, #f0f4f8)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--fw-card, #fff)'}>
                       <div style={{ width: 50, height: 36, borderRadius: 6, overflow: 'hidden', background: m.color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontSize: 16, opacity: .5 }}>🚗</span>
                       </div>
@@ -152,7 +153,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
         {searchedParts.map((p, i) => (
           <div key={p.numero_parte || i} onClick={() => setEditPart({ ...p })}
             style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, marginBottom: 3, cursor: 'pointer', transition: 'background .1s' }}
-            onMouseEnter={e => e.currentTarget.style.background = '#f0f4f8'} onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--fw-bg, #f0f4f8)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--fw-card, #fff)'}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: sc(p.stock), flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--fw-text, #444)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.nombre}</div>

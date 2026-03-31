@@ -31,7 +31,7 @@ export default function PrivateChatInline({ network, userName }) {
   const handleOption = (option) => {
     addMsg('user', option);
     if (step === 0) {
-      if (option === 'Hablar con Juan') { setBotMode(false); setTimeout(() => addMsg('bot', 'Conectado con un asesor. Escribile abajo.'), 500); return; }
+      if (option === 'Hablar con un asesor') { setBotMode(false); setTimeout(() => addMsg('bot', 'Conectado con un asesor. Escribile abajo.'), 500); return; }
       setOrderData(d => ({ ...d, tipo: option }));
       setTimeout(() => addMsg('bot', STEPS[1].bot, STEPS[1].options), 600);
       setStep(1);
@@ -126,7 +126,7 @@ export default function PrivateChatInline({ network, userName }) {
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: 'var(--fw-card, #f5f5f5)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, padding: '3px 3px 3px 10px' }}>
           <input value={inp} onChange={e => setInp(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-            placeholder={botMode ? (step === 2 ? 'Ej: Filtro de aceite...' : step === 4 ? 'Carlos 1155551234' : 'Escribi...') : 'Mensaje a Juan...'}
+            placeholder={botMode ? (step === 2 ? 'Ej: Filtro de aceite...' : step === 4 ? 'Carlos 1155551234' : 'Escribi...') : 'Mensaje al asesor...'}
             style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: 'var(--fw-text, #333)', fontFamily: 'inherit', padding: '8px 0', caretColor: '#003478' }} />
           <button onClick={handleSend} disabled={!inp.trim()}
             style={{ width: 34, height: 34, background: inp.trim() ? '#003478' : '#ccc', border: 'none', borderRadius: 8, cursor: inp.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

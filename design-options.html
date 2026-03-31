@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin - Opciones de Diseno</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f0f0f0; }
+
+  .option-label {
+    text-align: center; padding: 40px 20px 20px; font-size: 28px; font-weight: 800;
+    color: #003478; letter-spacing: -0.5px;
+  }
+  .option-sublabel {
+    text-align: center; padding: 0 20px 30px; font-size: 14px; color: #666;
+  }
+  .separator {
+    height: 4px; background: linear-gradient(90deg, #003478, #0070c0, #003478);
+    margin: 60px 0;
+  }
+
+  /* ============================================ */
+  /* OPTION A - CARDS GRID (Modern Dashboard)     */
+  /* ============================================ */
+  .opt-a { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .opt-a .header {
+    background: linear-gradient(135deg, #003478, #0050a0);
+    border-radius: 16px; padding: 24px 28px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .opt-a .header h2 { color: #fff; font-size: 22px; font-weight: 800; }
+  .opt-a .header .subtitle { color: rgba(255,255,255,.7); font-size: 13px; margin-top: 2px; }
+  .opt-a .header .stats { display: flex; gap: 20px; }
+  .opt-a .header .stat-box {
+    background: rgba(255,255,255,.15); border-radius: 10px; padding: 10px 16px; text-align: center;
+  }
+  .opt-a .header .stat-num { font-size: 22px; font-weight: 800; color: #fff; }
+  .opt-a .header .stat-label { font-size: 10px; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .5px; }
+
+  .opt-a .toolbar {
+    display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap;
+  }
+  .opt-a .search-box {
+    flex: 1; min-width: 200px; padding: 12px 16px; font-size: 14px;
+    border: 2px solid #e0e0e0; border-radius: 12px; background: #fff;
+    outline: none; font-family: inherit; transition: border .2s;
+  }
+  .opt-a .search-box:focus { border-color: #003478; }
+  .opt-a .cat-pill {
+    padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 20px;
+    border: 2px solid #e0e0e0; background: #fff; cursor: pointer; font-family: inherit;
+    transition: all .2s;
+  }
+  .opt-a .cat-pill.active { background: #003478; color: #fff; border-color: #003478; }
+  .opt-a .cat-pill:hover:not(.active) { border-color: #003478; color: #003478; }
+
+  .opt-a .bulk-bar {
+    display: flex; gap: 8px; align-items: center; background: #fff;
+    border: 2px solid #e8e8e8; border-radius: 12px; padding: 8px 14px; margin-bottom: 20px;
+  }
+  .opt-a .bulk-bar label { font-size: 13px; font-weight: 600; color: #333; }
+  .opt-a .bulk-bar input {
+    width: 80px; padding: 8px 10px; font-size: 14px; font-weight: 700;
+    border: 2px solid #e0e0e0; border-radius: 8px; text-align: center;
+    font-family: inherit; outline: none;
+  }
+  .opt-a .bulk-bar button {
+    padding: 8px 20px; font-size: 13px; font-weight: 700; border: none;
+    border-radius: 8px; background: #003478; color: #fff; cursor: pointer; font-family: inherit;
+  }
+
+  .opt-a .cat-section { margin-bottom: 24px; }
+  .opt-a .cat-title {
+    font-size: 13px; font-weight: 700; color: #003478; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 12px; padding-left: 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .opt-a .cat-title::after {
+    content: ''; flex: 1; height: 2px; background: linear-gradient(90deg, #003478 0%, transparent 100%);
+  }
+
+  .opt-a .model-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;
+  }
+  .opt-a .model-card {
+    background: #fff; border: 2px solid #eee; border-radius: 14px;
+    padding: 16px; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .opt-a .model-card:hover { border-color: #003478; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,52,120,.1); }
+  .opt-a .model-img {
+    width: 70px; height: 50px; border-radius: 10px; object-fit: cover;
+    background: #f0f4f8; flex-shrink: 0;
+  }
+  .opt-a .model-info { flex: 1; }
+  .opt-a .model-name { font-size: 15px; font-weight: 700; color: #222; }
+  .opt-a .model-meta { font-size: 11px; color: #888; margin-top: 2px; }
+  .opt-a .model-stock { display: flex; gap: 8px; margin-top: 6px; }
+  .opt-a .stock-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+  }
+  .opt-a .stock-badge.green { background: #dcfce7; color: #16a34a; }
+  .opt-a .stock-badge.red { background: #fee2e2; color: #dc2626; }
+  .opt-a .stock-badge.gray { background: #f3f4f6; color: #6b7280; }
+
+  /* ============================================ */
+  /* OPTION B - TABLE STYLE (Pro/Spreadsheet)     */
+  /* ============================================ */
+  .opt-b { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .opt-b .header {
+    background: #fff; border: 2px solid #e0e0e0; border-radius: 14px;
+    padding: 20px 24px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .opt-b .header .ford-badge {
+    width: 48px; height: 48px; background: #003478; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .opt-b .header .ford-badge span { color: #fff; font-weight: 800; font-size: 14px; font-style: italic; font-family: Georgia, serif; }
+  .opt-b .header h2 { font-size: 20px; font-weight: 800; color: #222; flex: 1; }
+  .opt-b .header .count { font-size: 13px; color: #888; }
+
+  .opt-b .controls {
+    display: flex; gap: 10px; margin-bottom: 16px; align-items: stretch; flex-wrap: wrap;
+  }
+  .opt-b .search-box {
+    flex: 1; min-width: 220px; padding: 12px 16px 12px 40px; font-size: 14px;
+    border: 2px solid #e0e0e0; border-radius: 10px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") 12px center no-repeat;
+    outline: none; font-family: inherit;
+  }
+  .opt-b .bulk-inline {
+    display: flex; align-items: center; gap: 6px; background: #fff;
+    border: 2px solid #e0e0e0; border-radius: 10px; padding: 0 12px;
+  }
+  .opt-b .bulk-inline label { font-size: 12px; color: #666; white-space: nowrap; }
+  .opt-b .bulk-inline input {
+    width: 70px; padding: 8px; font-size: 14px; font-weight: 700; border: none;
+    text-align: center; outline: none; font-family: inherit; background: transparent;
+  }
+  .opt-b .bulk-inline button {
+    padding: 8px 16px; font-size: 12px; font-weight: 700; border: none;
+    border-radius: 8px; background: #003478; color: #fff; cursor: pointer; font-family: inherit;
+  }
+
+  .opt-b .cat-tabs {
+    display: flex; gap: 0; margin-bottom: 16px; border-bottom: 2px solid #e0e0e0;
+  }
+  .opt-b .cat-tab {
+    padding: 10px 18px; font-size: 13px; font-weight: 600; color: #888;
+    border: none; background: none; cursor: pointer; font-family: inherit;
+    border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all .2s;
+  }
+  .opt-b .cat-tab.active { color: #003478; border-bottom-color: #003478; }
+  .opt-b .cat-tab:hover:not(.active) { color: #555; }
+
+  .opt-b .model-table { width: 100%; background: #fff; border-radius: 14px; border: 2px solid #e0e0e0; overflow: hidden; }
+  .opt-b .model-table .t-head {
+    display: grid; grid-template-columns: 80px 1fr 100px 120px 60px;
+    padding: 12px 16px; background: #f8f9fa; border-bottom: 2px solid #e0e0e0;
+    font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px;
+  }
+  .opt-b .model-row {
+    display: grid; grid-template-columns: 80px 1fr 100px 120px 60px;
+    padding: 14px 16px; border-bottom: 1px solid #f0f0f0;
+    align-items: center; cursor: pointer; transition: background .15s;
+  }
+  .opt-b .model-row:hover { background: #f0f6ff; }
+  .opt-b .model-row:last-child { border-bottom: none; }
+  .opt-b .row-img {
+    width: 60px; height: 40px; border-radius: 8px; object-fit: cover; background: #f0f4f8;
+  }
+  .opt-b .row-name { font-size: 14px; font-weight: 700; color: #222; }
+  .opt-b .row-meta { font-size: 11px; color: #999; margin-top: 1px; }
+  .opt-b .row-parts { font-size: 13px; font-weight: 600; color: #555; text-align: center; }
+  .opt-b .row-stock { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .opt-b .row-stock .s-green { font-size: 12px; font-weight: 700; color: #16a34a; }
+  .opt-b .row-stock .s-red { font-size: 11px; color: #dc2626; }
+  .opt-b .row-arrow { font-size: 16px; color: #ccc; text-align: center; }
+
+  /* ============================================ */
+  /* OPTION C - SIDEBAR + DETAIL (Desktop App)    */
+  /* ============================================ */
+  .opt-c { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .opt-c .layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; min-height: 600px; }
+
+  .opt-c .sidebar {
+    background: #fff; border: 2px solid #e0e0e0; border-radius: 14px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .opt-c .sidebar-header {
+    padding: 16px 18px; border-bottom: 2px solid #f0f0f0;
+  }
+  .opt-c .sidebar-header h3 { font-size: 16px; font-weight: 800; color: #222; margin-bottom: 10px; }
+  .opt-c .sidebar-search {
+    width: 100%; padding: 10px 14px; font-size: 13px; border: 2px solid #e8e8e8;
+    border-radius: 10px; outline: none; font-family: inherit; background: #fafafa;
+  }
+  .opt-c .sidebar-cats {
+    display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px;
+  }
+  .opt-c .sidebar-cat {
+    padding: 5px 10px; font-size: 10px; font-weight: 700; border-radius: 6px;
+    border: 1.5px solid #e0e0e0; background: #fff; cursor: pointer;
+    font-family: inherit; text-transform: uppercase; letter-spacing: .3px;
+  }
+  .opt-c .sidebar-cat.active { background: #003478; color: #fff; border-color: #003478; }
+
+  .opt-c .sidebar-list { flex: 1; overflow-y: auto; padding: 8px; }
+  .opt-c .sidebar-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border-radius: 10px; cursor: pointer; transition: background .15s; margin-bottom: 2px;
+  }
+  .opt-c .sidebar-item:hover { background: #f0f6ff; }
+  .opt-c .sidebar-item.active { background: #003478; }
+  .opt-c .sidebar-item.active .si-name { color: #fff; }
+  .opt-c .sidebar-item.active .si-meta { color: rgba(255,255,255,.7); }
+  .opt-c .si-img {
+    width: 44px; height: 32px; border-radius: 6px; object-fit: cover;
+    background: #f0f4f8; flex-shrink: 0;
+  }
+  .opt-c .si-name { font-size: 13px; font-weight: 700; color: #333; }
+  .opt-c .si-meta { font-size: 10px; color: #999; }
+  .opt-c .si-stock { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; }
+  .opt-c .si-stock .green { font-size: 11px; font-weight: 700; color: #16a34a; }
+  .opt-c .si-stock .red { font-size: 10px; color: #dc2626; }
+
+  .opt-c .detail-panel {
+    background: #fff; border: 2px solid #e0e0e0; border-radius: 14px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .opt-c .detail-header {
+    padding: 20px 24px; border-bottom: 2px solid #f0f0f0;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .opt-c .detail-header .model-badge {
+    width: 80px; height: 56px; border-radius: 12px; object-fit: cover; background: #f0f4f8;
+  }
+  .opt-c .detail-header h3 { font-size: 20px; font-weight: 800; color: #222; }
+  .opt-c .detail-header .detail-meta { font-size: 12px; color: #888; margin-top: 2px; }
+  .opt-c .detail-header .bulk-mini {
+    margin-left: auto; display: flex; align-items: center; gap: 6px;
+  }
+  .opt-c .detail-header .bulk-mini input {
+    width: 60px; padding: 6px 8px; font-size: 13px; font-weight: 700;
+    border: 2px solid #e0e0e0; border-radius: 8px; text-align: center;
+    font-family: inherit; outline: none;
+  }
+  .opt-c .detail-header .bulk-mini button {
+    padding: 6px 14px; font-size: 12px; font-weight: 700; border: none;
+    border-radius: 8px; background: #003478; color: #fff; cursor: pointer; font-family: inherit;
+  }
+
+  .opt-c .parts-grid {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;
+  }
+  .opt-c .part-card {
+    border: 2px solid #eee; border-radius: 12px; padding: 14px; cursor: pointer;
+    transition: all .2s;
+  }
+  .opt-c .part-card:hover { border-color: #003478; box-shadow: 0 4px 16px rgba(0,52,120,.08); }
+  .opt-c .part-card .pc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .opt-c .part-card .pc-name { font-size: 13px; font-weight: 700; color: #333; line-height: 1.3; }
+  .opt-c .part-card .pc-num { font-size: 10px; color: #999; margin-top: 2px; }
+  .opt-c .part-card .pc-cat { font-size: 9px; font-weight: 700; color: #003478; background: #e8f0fe; padding: 2px 6px; border-radius: 4px; }
+  .opt-c .part-card .pc-prices { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f0f0; }
+  .opt-c .part-card .pc-our { font-size: 16px; font-weight: 800; color: #16a34a; }
+  .opt-c .part-card .pc-oem { font-size: 11px; color: #999; text-decoration: line-through; }
+  .opt-c .part-card .pc-stock { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+  .opt-c .part-card .pc-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .opt-c .part-card .pc-stock-text { font-size: 11px; font-weight: 600; }
+
+  /* ============================================ */
+  /* DARK MODE PREVIEWS                           */
+  /* ============================================ */
+  .dark-preview { background: #1a1a2e; padding: 40px 20px; border-radius: 20px; margin: 20px; }
+  .dark-preview .opt-a .header { background: linear-gradient(135deg, #0a1628, #003478); }
+  .dark-preview .opt-a .search-box { background: #2a2a3e; border-color: #3a3a4e; color: #e0e0e0; }
+  .dark-preview .opt-a .cat-pill { background: #2a2a3e; border-color: #3a3a4e; color: #aaa; }
+  .dark-preview .opt-a .cat-pill.active { background: #003478; border-color: #0050a0; color: #fff; }
+  .dark-preview .opt-a .bulk-bar { background: #2a2a3e; border-color: #3a3a4e; }
+  .dark-preview .opt-a .bulk-bar label { color: #ccc; }
+  .dark-preview .opt-a .bulk-bar input { border-color: #3a3a4e; background: #1a1a2e; color: #fff; }
+  .dark-preview .opt-a .model-card { background: #2a2a3e; border-color: #3a3a4e; }
+  .dark-preview .opt-a .model-card:hover { border-color: #0070c0; box-shadow: 0 8px 24px rgba(0,52,120,.3); }
+  .dark-preview .opt-a .model-name { color: #e8e8e8; }
+  .dark-preview .opt-a .model-meta { color: #888; }
+  .dark-preview .opt-a .cat-title { color: #4a9eff; }
+  .dark-preview .opt-a .cat-title::after { background: linear-gradient(90deg, #4a9eff 0%, transparent 100%); }
+</style>
+</head>
+<body>
+
+<!-- ========================================== -->
+<!-- OPTION A: CARDS GRID (Modern Dashboard)    -->
+<!-- ========================================== -->
+<div class="option-label">OPCION A — Cards Grid (Moderno)</div>
+<div class="option-sublabel">Tarjetas grandes con fotos reales, badges de stock coloridos, header con estadisticas rapidas</div>
+
+<div class="opt-a">
+  <!-- Header con stats -->
+  <div class="header">
+    <div>
+      <h2>Stock y Precios</h2>
+      <div class="subtitle">Gestiona el inventario de La Ford de Warnes</div>
+    </div>
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-num">33</div>
+        <div class="stat-label">Modelos</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">3,332</div>
+        <div class="stat-label">Repuestos</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">0</div>
+        <div class="stat-label">En Stock</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input class="search-box" placeholder="Buscar modelo o repuesto..." />
+    <button class="cat-pill active">Todos (33)</button>
+    <button class="cat-pill">Camionetas (6)</button>
+    <button class="cat-pill">SUVs (9)</button>
+    <button class="cat-pill">Autos (9)</button>
+    <button class="cat-pill">Comerciales (6)</button>
+    <button class="cat-pill">Pesados (3)</button>
+  </div>
+
+  <!-- Bulk price -->
+  <div class="bulk-bar">
+    <label>Ajustar precios:</label>
+    <input placeholder="+15" />
+    <span style="color:#888; font-size: 14px; font-weight:700;">%</span>
+    <button>Aplicar a todos</button>
+  </div>
+
+  <!-- Category: Camionetas -->
+  <div class="cat-section">
+    <div class="cat-title">Camionetas</div>
+    <div class="model-grid">
+      <div class="model-card">
+        <img class="model-img" src="/img/modelos/ranger.webp" alt="Ranger" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'; this.src=''">
+        <div class="model-info">
+          <div class="model-name">Ranger</div>
+          <div class="model-meta">2012-2026 &middot; 202 repuestos</div>
+          <div class="model-stock">
+            <span class="stock-badge green">12 en stock</span>
+            <span class="stock-badge red">190 agotados</span>
+          </div>
+        </div>
+      </div>
+      <div class="model-card">
+        <img class="model-img" src="/img/modelos/nueva-ranger.webp" alt="Nueva Ranger" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'; this.src=''">
+        <div class="model-info">
+          <div class="model-name">Nueva Ranger</div>
+          <div class="model-meta">2023-2026 &middot; 302 repuestos</div>
+          <div class="model-stock">
+            <span class="stock-badge gray">0 en stock</span>
+            <span class="stock-badge red">302 agotados</span>
+          </div>
+        </div>
+      </div>
+      <div class="model-card">
+        <img class="model-img" src="/img/modelos/f-150.webp" alt="F-150" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'; this.src=''">
+        <div class="model-info">
+          <div class="model-name">F-150</div>
+          <div class="model-meta">2016-2026 &middot; 57 repuestos</div>
+          <div class="model-stock">
+            <span class="stock-badge gray">0 en stock</span>
+            <span class="stock-badge red">57 agotados</span>
+          </div>
+        </div>
+      </div>
+      <div class="model-card">
+        <img class="model-img" src="/img/modelos/maverick.webp" alt="Maverick" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'; this.src=''">
+        <div class="model-info">
+          <div class="model-name">Maverick</div>
+          <div class="model-meta">2022-2026 &middot; 75 repuestos</div>
+          <div class="model-stock">
+            <span class="stock-badge gray">0 en stock</span>
+            <span class="stock-badge red">75 agotados</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: SUVs -->
+  <div class="cat-section">
+    <div class="cat-title">SUVs</div>
+    <div class="model-grid">
+      <div class="model-card">
+        <img class="model-img" src="/img/modelos/territory.webp" alt="Territory" onerror="this.style.background='linear-gradient(135deg,#7b241c,#c0392b)'; this.src=''">
+        <div class="model-info">
+          <div class="model-name">Territory</div>
+          <div class="model-meta">2020-2026 &middot; 71 repuestos</div>
+          <div class="model-stock">
+            <span class="stock-badge green">5 en stock</span>
+            <span class="stock-badge red">66 agotados</span>
+          </div>
+        </div>
+      </div>
+      <div class="model-card">
+        <img class="model-img" src="/img/modelos/bronco.webp" alt="Bronco" onerror="this.style.background='linear-gradient(135deg,#7b241c,#c0392b)'; this.src=''">
+        <div class="model-info">
+          <div class="model-name">Bronco</div>
+          <div class="model-meta">2021-2026 &middot; 18 repuestos</div>
+          <div class="model-stock">
+            <span class="stock-badge gray">0 en stock</span>
+            <span class="stock-badge red">18 agotados</span>
+          </div>
+        </div>
+      </div>
+      <div class="model-card">
+        <img class="model-img" src="/img/modelos/ecosport.webp" alt="EcoSport" onerror="this.style.background='linear-gradient(135deg,#7b241c,#c0392b)'; this.src=''">
+        <div class="model-info">
+          <div class="model-name">EcoSport</div>
+          <div class="model-meta">2012-2022 &middot; 232 repuestos</div>
+          <div class="model-stock">
+            <span class="stock-badge green">20 en stock</span>
+            <span class="stock-badge red">212 agotados</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="separator"></div>
+
+<!-- ========================================== -->
+<!-- OPTION B: TABLE STYLE (Pro/Spreadsheet)    -->
+<!-- ========================================== -->
+<div class="option-label">OPCION B — Tabla Profesional</div>
+<div class="option-sublabel">Estilo planilla/tabla, compacto, mucha info visible de golpe, ideal para gestionar rapido</div>
+
+<div class="opt-b">
+  <div class="header">
+    <div class="ford-badge"><span>Ford</span></div>
+    <div>
+      <h2>Gestionar Stock y Precios</h2>
+    </div>
+    <div class="count">33 modelos &middot; 3,332 repuestos</div>
+  </div>
+
+  <div class="controls">
+    <input class="search-box" placeholder="Buscar modelo..." />
+    <div class="bulk-inline">
+      <label>Ajustar precios:</label>
+      <input placeholder="+15" />
+      <span style="color:#888;font-weight:700">%</span>
+      <button>Aplicar</button>
+    </div>
+  </div>
+
+  <div class="cat-tabs">
+    <button class="cat-tab active">Todos (33)</button>
+    <button class="cat-tab">Camionetas (6)</button>
+    <button class="cat-tab">SUVs (9)</button>
+    <button class="cat-tab">Autos (9)</button>
+    <button class="cat-tab">Comerciales (6)</button>
+    <button class="cat-tab">Pesados (3)</button>
+  </div>
+
+  <div class="model-table">
+    <div class="t-head">
+      <div>Foto</div>
+      <div>Modelo</div>
+      <div style="text-align:center">Repuestos</div>
+      <div style="text-align:right">Stock</div>
+      <div></div>
+    </div>
+    <div class="model-row">
+      <img class="row-img" src="/img/modelos/ranger.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'">
+      <div>
+        <div class="row-name">Ranger</div>
+        <div class="row-meta">2012-2026 &middot; Camionetas</div>
+      </div>
+      <div class="row-parts">202</div>
+      <div class="row-stock">
+        <span class="s-green">12 en stock</span>
+        <span class="s-red">190 agotados</span>
+      </div>
+      <div class="row-arrow">&rsaquo;</div>
+    </div>
+    <div class="model-row">
+      <img class="row-img" src="/img/modelos/nueva-ranger.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'">
+      <div>
+        <div class="row-name">Nueva Ranger</div>
+        <div class="row-meta">2023-2026 &middot; Camionetas</div>
+      </div>
+      <div class="row-parts">302</div>
+      <div class="row-stock">
+        <span class="s-green">0 en stock</span>
+        <span class="s-red">302 agotados</span>
+      </div>
+      <div class="row-arrow">&rsaquo;</div>
+    </div>
+    <div class="model-row">
+      <img class="row-img" src="/img/modelos/f-150.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'">
+      <div>
+        <div class="row-name">F-150</div>
+        <div class="row-meta">2016-2026 &middot; Camionetas</div>
+      </div>
+      <div class="row-parts">57</div>
+      <div class="row-stock">
+        <span class="s-green">0 en stock</span>
+        <span class="s-red">57 agotados</span>
+      </div>
+      <div class="row-arrow">&rsaquo;</div>
+    </div>
+    <div class="model-row">
+      <img class="row-img" src="/img/modelos/territory.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#7b241c,#c0392b)'">
+      <div>
+        <div class="row-name">Territory</div>
+        <div class="row-meta">2020-2026 &middot; SUVs</div>
+      </div>
+      <div class="row-parts">71</div>
+      <div class="row-stock">
+        <span class="s-green">5 en stock</span>
+        <span class="s-red">66 agotados</span>
+      </div>
+      <div class="row-arrow">&rsaquo;</div>
+    </div>
+    <div class="model-row">
+      <img class="row-img" src="/img/modelos/ecosport.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#7b241c,#c0392b)'">
+      <div>
+        <div class="row-name">EcoSport</div>
+        <div class="row-meta">2012-2022 &middot; SUVs</div>
+      </div>
+      <div class="row-parts">232</div>
+      <div class="row-stock">
+        <span class="s-green">20 en stock</span>
+        <span class="s-red">212 agotados</span>
+      </div>
+      <div class="row-arrow">&rsaquo;</div>
+    </div>
+    <div class="model-row">
+      <img class="row-img" src="/img/modelos/focus.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#1a472a,#27ae60)'">
+      <div>
+        <div class="row-name">Focus</div>
+        <div class="row-meta">2008-2019 &middot; Autos</div>
+      </div>
+      <div class="row-parts">180</div>
+      <div class="row-stock">
+        <span class="s-green">8 en stock</span>
+        <span class="s-red">172 agotados</span>
+      </div>
+      <div class="row-arrow">&rsaquo;</div>
+    </div>
+  </div>
+</div>
+
+<div class="separator"></div>
+
+<!-- ========================================== -->
+<!-- OPTION C: SIDEBAR + DETAIL (Desktop App)   -->
+<!-- ========================================== -->
+<div class="option-label">OPCION C — Sidebar + Panel (App de Escritorio)</div>
+<div class="option-sublabel">Lista de modelos a la izquierda, repuestos en grilla a la derecha. Ves todo sin cambiar de vista.</div>
+
+<div class="opt-c">
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h3>Modelos</h3>
+        <input class="sidebar-search" placeholder="Buscar modelo..." />
+        <div class="sidebar-cats">
+          <button class="sidebar-cat active">Todos</button>
+          <button class="sidebar-cat">Camionetas</button>
+          <button class="sidebar-cat">SUVs</button>
+          <button class="sidebar-cat">Autos</button>
+          <button class="sidebar-cat">Comerciales</button>
+        </div>
+      </div>
+      <div class="sidebar-list">
+        <div class="sidebar-item active">
+          <img class="si-img" src="/img/modelos/ranger.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'">
+          <div>
+            <div class="si-name">Ranger</div>
+            <div class="si-meta">202 repuestos</div>
+          </div>
+          <div class="si-stock">
+            <span class="green">12</span>
+            <span class="red">190</span>
+          </div>
+        </div>
+        <div class="sidebar-item">
+          <img class="si-img" src="/img/modelos/nueva-ranger.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'">
+          <div>
+            <div class="si-name">Nueva Ranger</div>
+            <div class="si-meta">302 repuestos</div>
+          </div>
+          <div class="si-stock">
+            <span class="green">0</span>
+            <span class="red">302</span>
+          </div>
+        </div>
+        <div class="sidebar-item">
+          <img class="si-img" src="/img/modelos/territory.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#7b241c,#c0392b)'">
+          <div>
+            <div class="si-name">Territory</div>
+            <div class="si-meta">71 repuestos</div>
+          </div>
+          <div class="si-stock">
+            <span class="green">5</span>
+            <span class="red">66</span>
+          </div>
+        </div>
+        <div class="sidebar-item">
+          <img class="si-img" src="/img/modelos/ecosport.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#7b241c,#c0392b)'">
+          <div>
+            <div class="si-name">EcoSport</div>
+            <div class="si-meta">232 repuestos</div>
+          </div>
+          <div class="si-stock">
+            <span class="green">20</span>
+            <span class="red">212</span>
+          </div>
+        </div>
+        <div class="sidebar-item">
+          <img class="si-img" src="/img/modelos/focus.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#1a472a,#27ae60)'">
+          <div>
+            <div class="si-name">Focus</div>
+            <div class="si-meta">180 repuestos</div>
+          </div>
+          <div class="si-stock">
+            <span class="green">8</span>
+            <span class="red">172</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="detail-panel">
+      <div class="detail-header">
+        <img class="model-badge" src="/img/modelos/ranger.webp" alt="" onerror="this.style.background='linear-gradient(135deg,#1a5276,#2e86c1)'">
+        <div>
+          <h3>Ranger</h3>
+          <div class="detail-meta">2012-2026 &middot; 202 repuestos &middot; Camionetas</div>
+        </div>
+        <div class="bulk-mini">
+          <input placeholder="+15" />
+          <span style="color:#888;font-weight:700;font-size:13px">%</span>
+          <button>Aplicar</button>
+        </div>
+      </div>
+
+      <div class="parts-grid">
+        <div class="part-card">
+          <div class="pc-top">
+            <div>
+              <div class="pc-name">Filtro de aceite motor</div>
+              <div class="pc-num">EB3G-6714-BA</div>
+            </div>
+            <span class="pc-cat">Filtros</span>
+          </div>
+          <div class="pc-prices">
+            <span class="pc-our">$18.500</span>
+            <span class="pc-oem">$32.000</span>
+          </div>
+          <div class="pc-stock">
+            <span class="pc-dot" style="background:#16a34a"></span>
+            <span class="pc-stock-text" style="color:#16a34a">5 en stock</span>
+          </div>
+        </div>
+        <div class="part-card">
+          <div class="pc-top">
+            <div>
+              <div class="pc-name">Pastillas de freno delanteras</div>
+              <div class="pc-num">AB39-2M008-AB</div>
+            </div>
+            <span class="pc-cat">Frenos</span>
+          </div>
+          <div class="pc-prices">
+            <span class="pc-our">$45.000</span>
+            <span class="pc-oem">$78.000</span>
+          </div>
+          <div class="pc-stock">
+            <span class="pc-dot" style="background:#f59e0b"></span>
+            <span class="pc-stock-text" style="color:#f59e0b">2 en stock</span>
+          </div>
+        </div>
+        <div class="part-card">
+          <div class="pc-top">
+            <div>
+              <div class="pc-name">Amortiguador trasero</div>
+              <div class="pc-num">EB3G-18080-AA</div>
+            </div>
+            <span class="pc-cat">Suspension</span>
+          </div>
+          <div class="pc-prices">
+            <span class="pc-our">$62.000</span>
+            <span class="pc-oem">$110.000</span>
+          </div>
+          <div class="pc-stock">
+            <span class="pc-dot" style="background:#ef4444"></span>
+            <span class="pc-stock-text" style="color:#ef4444">Sin stock</span>
+          </div>
+        </div>
+        <div class="part-card">
+          <div class="pc-top">
+            <div>
+              <div class="pc-name">Kit embrague completo</div>
+              <div class="pc-num">AB39-7563-AA</div>
+            </div>
+            <span class="pc-cat">Motor</span>
+          </div>
+          <div class="pc-prices">
+            <span class="pc-our">$185.000</span>
+            <span class="pc-oem">$320.000</span>
+          </div>
+          <div class="pc-stock">
+            <span class="pc-dot" style="background:#16a34a"></span>
+            <span class="pc-stock-text" style="color:#16a34a">3 en stock</span>
+          </div>
+        </div>
+        <div class="part-card">
+          <div class="pc-top">
+            <div>
+              <div class="pc-name">Correa de distribucion</div>
+              <div class="pc-num">BB3Q-6268-BA</div>
+            </div>
+            <span class="pc-cat">Motor</span>
+          </div>
+          <div class="pc-prices">
+            <span class="pc-our">$28.000</span>
+            <span class="pc-oem">$52.000</span>
+          </div>
+          <div class="pc-stock">
+            <span class="pc-dot" style="background:#ef4444"></span>
+            <span class="pc-stock-text" style="color:#ef4444">Sin stock</span>
+          </div>
+        </div>
+        <div class="part-card">
+          <div class="pc-top">
+            <div>
+              <div class="pc-name">Radiador agua motor</div>
+              <div class="pc-num">EB3G-8005-AA</div>
+            </div>
+            <span class="pc-cat">Refrigeracion</span>
+          </div>
+          <div class="pc-prices">
+            <span class="pc-our">$95.000</span>
+            <span class="pc-oem">$165.000</span>
+          </div>
+          <div class="pc-stock">
+            <span class="pc-dot" style="background:#f59e0b"></span>
+            <span class="pc-stock-text" style="color:#f59e0b">1 en stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="separator"></div>
+
+<!-- DARK MODE PREVIEW OF OPTION A -->
+<div class="option-label">OPCION A en Dark Mode</div>
+<div class="option-sublabel">Asi se veria la Opcion A con el tema oscuro activado</div>
+<div class="dark-preview">
+  <div class="opt-a">
+    <div class="header">
+      <div>
+        <h2>Stock y Precios</h2>
+        <div class="subtitle">Gestiona el inventario de La Ford de Warnes</div>
+      </div>
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-num">33</div>
+          <div class="stat-label">Modelos</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">3,332</div>
+          <div class="stat-label">Repuestos</div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" placeholder="Buscar modelo o repuesto..." />
+      <button class="cat-pill active">Todos (33)</button>
+      <button class="cat-pill">Camionetas</button>
+      <button class="cat-pill">SUVs</button>
+    </div>
+    <div class="bulk-bar">
+      <label>Ajustar precios:</label>
+      <input placeholder="+15" />
+      <span style="color:#888; font-size: 14px; font-weight:700;">%</span>
+      <button style="padding:8px 20px;font-size:13px;font-weight:700;border:none;border-radius:8px;background:#003478;color:#fff;cursor:pointer">Aplicar</button>
+    </div>
+    <div class="cat-section">
+      <div class="cat-title">Camionetas</div>
+      <div class="model-grid">
+        <div class="model-card">
+          <div class="model-img" style="background:linear-gradient(135deg,#1a5276,#2e86c1)"></div>
+          <div class="model-info">
+            <div class="model-name">Ranger</div>
+            <div class="model-meta">2012-2026 &middot; 202 repuestos</div>
+            <div class="model-stock">
+              <span class="stock-badge green">12 en stock</span>
+              <span class="stock-badge red">190 agotados</span>
+            </div>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="model-img" style="background:linear-gradient(135deg,#1a5276,#2e86c1)"></div>
+          <div class="model-info">
+            <div class="model-name">Nueva Ranger</div>
+            <div class="model-meta">2023-2026 &middot; 302 repuestos</div>
+            <div class="model-stock">
+              <span class="stock-badge gray">0 en stock</span>
+              <span class="stock-badge red">302 agotados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="padding: 60px 20px; text-align: center; font-size: 16px; color: #888;">
+  Elegí tu favorita y la implemento. Tambien se pueden combinar elementos de distintas opciones.
+</div>
+
+</body>
+</html>

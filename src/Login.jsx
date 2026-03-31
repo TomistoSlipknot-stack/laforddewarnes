@@ -14,10 +14,11 @@ export default function Login({ onLogin }) {
     try {
       const res = await fetch('/api/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pass }),
+        body: JSON.stringify({ password: pass, username: user.trim() }),
       });
       const data = await res.json();
       if (data.ok) {
+        if (data.token) localStorage.setItem('fw_token', data.token);
         onLogin({ role: data.role, name: user.trim() || data.name });
       } else {
         setError('Usuario o contraseña incorrectos');
@@ -46,14 +47,14 @@ export default function Login({ onLogin }) {
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 80, height: 42, background: '#003478', borderRadius: 24, marginBottom: 12 }}>
               <span style={{ color: '#fff', fontWeight: 800, fontSize: 22, fontStyle: 'italic', fontFamily: 'Georgia,serif' }}>Ford</span>
             </div>
-            <h1 style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 4px' }}>La Ford de Warnes</h1>
+            <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--fw-text, #1a1a1a)', margin: '0 0 4px' }}>La Ford de Warnes</h1>
             <p style={{ color: 'var(--fw-textSecondary, #888)', fontSize: 14 }}>Repuestos y Partes — Stock disponible</p>
           </div>
 
-          <div style={{ display: 'flex', borderBottom: '2px solid #e8e8e8' }}>
+          <div style={{ display: 'flex', borderBottom: '2px solid var(--fw-cardBorder, #e8e8e8)' }}>
             {[{ id: 'public', label: 'Soy Cliente' }, { id: 'staff', label: 'Empleado / Admin' }].map(t => (
               <button key={t.id} onClick={() => { setMode(t.id); setError(''); }}
-                style={{ flex: 1, background: 'none', border: 'none', borderBottom: mode === t.id ? '3px solid #003478' : '3px solid transparent', padding: '12px 0', fontSize: 14, fontWeight: mode === t.id ? 700 : 400, color: mode === t.id ? '#003478' : '#999', cursor: 'pointer', fontFamily: 'inherit', marginBottom: -2 }}>
+                style={{ flex: 1, background: 'none', border: 'none', borderBottom: mode === t.id ? '3px solid #003478' : '3px solid transparent', padding: '12px 0', fontSize: 14, fontWeight: mode === t.id ? 700 : 400, color: mode === t.id ? '#4a9eff' : 'var(--fw-textMuted, #999)', cursor: 'pointer', fontFamily: 'inherit', marginBottom: -2 }}>
                 {t.label}
               </button>
             ))}
@@ -92,7 +93,7 @@ export default function Login({ onLogin }) {
         </div>
       </div>
 
-      <div style={{ textAlign: 'center', padding: '16px 0', borderTop: '1px solid #eee', color: 'var(--fw-textMuted, #bbb)', fontSize: 11 }}>
+      <div style={{ textAlign: 'center', padding: '16px 0', borderTop: '1px solid var(--fw-cardBorder, #eee)', color: 'var(--fw-textMuted, #bbb)', fontSize: 11 }}>
         La Ford de Warnes — Repuestos Ford Originales y Alternativos
       </div>
       <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
