@@ -189,17 +189,17 @@ app.post('/api/login', async (req, res) => {
   const ip = req.ip || req.connection.remoteAddress;
   if (!rateLimit(ip, 10, 60000)) return res.status(429).json({ ok: false, error: 'Demasiados intentos. Espera 1 minuto.' });
   const { password, username } = req.body;
-  if (!password) return res.json({ ok: false });
-  // Admin login
-  if (await bcrypt.compare(password, accounts.admin.pass)) {
-    const token = createSession('admin', username || accounts.admin.name);
-    return res.json({ ok: true, role: 'admin', name: username || accounts.admin.name, token });
+  if (!password || !username) return res.json({ ok: false });
+  // Admin login — username must match
+  if (username === accounts.admin.user && await bcrypt.compare(password, accounts.admin.pass)) {
+    const token = createSession('admin', accounts.admin.name);
+    return res.json({ ok: true, role: 'admin', name: accounts.admin.name, token });
   }
-  // Employee login
+  // Employee login — username must match
   for (const emp of accounts.employees) {
-    if ((!emp.user || emp.user === username) && await bcrypt.compare(password, emp.pass)) {
-      const token = createSession('employee', username || emp.name);
-      return res.json({ ok: true, role: 'employee', name: username || emp.name, token });
+    if (emp.user === username && await bcrypt.compare(password, emp.pass)) {
+      const token = createSession('employee', emp.name);
+      return res.json({ ok: true, role: 'employee', name: emp.name, token });
     }
   }
   return res.json({ ok: false });
