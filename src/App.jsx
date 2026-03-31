@@ -673,10 +673,10 @@ function AccountsPanel(){
 
       {/* Cambiar contraseña admin */}
       <div style={{background:'#fff',border:'1px solid #e0e0e0',borderRadius:10,padding:20}}>
-        <div style={{fontSize:15,fontWeight:700,color:'#003478',marginBottom:12}}>Cambiar contraseña de Admin (Admin)</div>
-        <input value={adminPass} onChange={e=>setAdminPass(e.target.value)} placeholder="Nueva contraseña" type="password" style={inp}/>
+        <div style={{fontSize:15,fontWeight:700,color:'#003478',marginBottom:12}}>Cambiar contraseña del Jefe (Juan)</div>
+        <input value={adminPass} onChange={e=>setAdminPass(e.target.value)} placeholder="Nueva contraseña para Juan" type="password" style={inp}/>
         <button onClick={changeAdmin} style={{width:'100%',padding:12,fontSize:14,fontWeight:700,border:'none',borderRadius:8,background:'#b8860b',color:'#fff',cursor:'pointer',fontFamily:'inherit'}}>
-          Cambiar Contraseña Admin
+          Cambiar Contraseña de Juan
         </button>
       </div>
     </div>
@@ -786,15 +786,15 @@ export default function FordWarnesApp({ user, onLogout }){
             {id:"about",label:"Nosotros",icon:"M12 12a5 5 0 100-10 5 5 0 000 10zM20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87"},{id:"chat",label:"Buscar",icon:"M21 21l-4.35-4.35M11 3a8 8 0 100 16 8 8 0 000-16z"},
             ...((esJefe||role==='employee')?[{id:"admin",label:esJefe?"Panel":"Consultas",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
           ].map(t=>(
-            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":_globalTheme.card||"#fff",border:`2px solid ${vista===t.id?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":(_globalTheme.textSecondary||"#555"),cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
+            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":theme.card,border:`2px solid ${vista===t.id?"#003478":theme.cardBorder}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
               {t.label}
             </button>
           ))}
           {/* Chat button */}
-          <button className="fw-juan-btn" onClick={()=>setChatOpen(o=>!o)} style={{position:"relative",display:"flex",alignItems:"center",gap:8,background:chatOpen?"#003478":"#fff",border:`2px solid ${chatOpen?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 18px",cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+          <button className="fw-juan-btn" onClick={()=>setChatOpen(o=>!o)} style={{position:"relative",display:"flex",alignItems:"center",gap:8,background:chatOpen?"#003478":theme.card,border:`2px solid ${chatOpen?"#003478":theme.cardBorder}`,borderRadius:10,padding:"8px 18px",cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={chatOpen?"#fff":"#003478"} strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            <span className="fw-juan-label" style={{fontSize:14,fontWeight:600,color:chatOpen?"#fff":"#003478"}}>{esJefe?"Chats":"Asesor"}</span>
+            <span className="fw-juan-label" style={{fontSize:14,fontWeight:600,color:chatOpen?"#fff":theme.text}}>{esJefe?"Chats":"Asesor"}</span>
             {(esJefe?adminTotalUnread:chatUnread)>0&&(
               <div style={{position:"absolute",top:-8,right:-8,minWidth:22,height:22,borderRadius:11,background:"#dc2626",border:"2px solid #fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:"#fff",padding:"0 5px",animation:"badge-pop .3s ease",zIndex:1}}>
                 {esJefe?adminTotalUnread:chatUnread}
@@ -803,8 +803,8 @@ export default function FordWarnesApp({ user, onLogout }){
             )}
           </button>
           <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
-          <button onClick={onLogout} style={{background:theme.card||"#fff",border:"2px solid "+(theme.cardBorder||"#d0d0d0"),borderRadius:10,padding:"8px 14px",fontSize:13,color:_globalTheme.textSecondary||"#888",cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}
-            onMouseEnter={e=>e.currentTarget.style.borderColor="#dc2626"} onMouseLeave={e=>e.currentTarget.style.borderColor="#d0d0d0"}>
+          <button onClick={onLogout} style={{background:theme.card,border:"2px solid "+theme.cardBorder,borderRadius:10,padding:"8px 14px",fontSize:13,color:theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",display:"flex",alignItems:"center",gap:5}}
+            onMouseEnter={e=>e.currentTarget.style.borderColor="#dc2626"} onMouseLeave={e=>e.currentTarget.style.borderColor=theme.cardBorder}>
             Salir
           </button>
         </div>
@@ -851,7 +851,7 @@ export default function FordWarnesApp({ user, onLogout }){
       ):vista==="admin"&&(esJefe||role==='employee')?(
         <div style={{flex:1,display:"flex",flexDirection:"column"}}>
           {/* Admin sub-tabs */}
-          <div style={{display:"flex",gap:6,padding:"10px 16px",borderBottom:"1px solid #e8e8e8",background:"#fafafa",flexShrink:0}}>
+          <div style={{display:"flex",gap:6,padding:"10px 16px",borderBottom:"1px solid "+theme.cardBorder,background:theme.card,flexShrink:0}}>
             {[
               {id:"dashboard",label:"Dashboard",badge:0},
               {id:"stock",label:"Stock",badge:0},
@@ -860,7 +860,7 @@ export default function FordWarnesApp({ user, onLogout }){
               {id:"online",label:"En Linea",badge:network.onlineUsers.length},
               {id:"logs",label:"Busquedas",badge:network.searchLogs.length},
             ].map(t=>(
-              <button key={t.id} onClick={()=>setAdminTab(t.id)} style={{background:adminTab===t.id?"#003478":"transparent",border:`1px solid ${adminTab===t.id?"#1a5cc8":"#1c2030"}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:adminTab===t.id?"#fff":"#555870",cursor:"pointer",fontFamily:"inherit",fontWeight:adminTab===t.id?600:400,transition:"all .15s",position:"relative"}}>
+              <button key={t.id} onClick={()=>setAdminTab(t.id)} style={{background:adminTab===t.id?"#003478":"transparent",border:`1px solid ${adminTab===t.id?"#1a5cc8":theme.cardBorder}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:adminTab===t.id?"#fff":theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontWeight:adminTab===t.id?600:400,transition:"all .15s",position:"relative"}}>
                 {t.label}
                 {t.badge>0&&<span style={{marginLeft:6,background:t.id==="chats"&&adminTotalUnread>0?"#ef4444":"rgba(255,255,255,.15)",padding:"1px 7px",borderRadius:10,fontSize:10,fontWeight:700}}>{t.badge}</span>}
               </button>
@@ -1027,14 +1027,14 @@ export default function FordWarnesApp({ user, onLogout }){
                 <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
                   {/* Sidebar categorías — como tiendaford.ar */}
                   <div className="fw-cat-sidebar" style={{width:200,flexShrink:0,background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:8,padding:16,position:"sticky",top:60,alignSelf:"flex-start"}}>
-                    <div style={{fontSize:14,fontWeight:700,color:"#003478",marginBottom:12}}>Categoria</div>
-                    <div onClick={()=>setCatFilter(null)} style={{padding:"6px 0",fontSize:13,color:!catFilter?"#003478":"#555",fontWeight:!catFilter?700:400,cursor:"pointer",borderBottom:"1px solid #f0f0f0"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#4a9eff",marginBottom:12}}>Categoria</div>
+                    <div onClick={()=>setCatFilter(null)} style={{padding:"6px 0",fontSize:13,color:!catFilter?"#4a9eff":theme.textSecondary,fontWeight:!catFilter?700:400,cursor:"pointer",borderBottom:"1px solid "+theme.cardBorder}}>
                       Todos ({allParts.length})
                     </div>
                     {partCats.map(c=>{
                       const count=allParts.filter(p=>p.cat===c).length;
                       return(
-                        <div key={c} onClick={()=>setCatFilter(c)} style={{padding:"6px 0",fontSize:13,color:catFilter===c?"#003478":"#555",fontWeight:catFilter===c?700:400,cursor:"pointer",borderBottom:"1px solid #f0f0f0"}}>
+                        <div key={c} onClick={()=>setCatFilter(c)} style={{padding:"6px 0",fontSize:13,color:catFilter===c?"#4a9eff":theme.textSecondary,fontWeight:catFilter===c?700:400,cursor:"pointer",borderBottom:"1px solid "+theme.cardBorder}}>
                           {c} ({count})
                         </div>
                       );
@@ -1130,7 +1130,7 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
     <div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:4,transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,0,0,.08)":"none"}}
       onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
       {/* Image */}
-      <div className="fw-rep-card-img" onClick={onClick} style={{width:"100%",height:180,background:theme.card,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid #eee",cursor:"pointer"}}>
+      <div className="fw-rep-card-img" onClick={onClick} style={{width:"100%",height:180,background:theme.card,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid "+theme.cardBorder,cursor:"pointer"}}>
         {partImg&&!imgErr?<img src={partImg} alt={r.cat} onError={()=>setImgErr(true)} style={{maxWidth:"85%",maxHeight:"85%",objectFit:"contain",transition:"transform .2s",transform:hov?"scale(1.05)":"scale(1)"}}/>:<Ic size={64}/>}
       </div>
       <div style={{padding:"16px 18px"}}>
@@ -1138,7 +1138,7 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
           <div style={{fontSize:14,fontWeight:800,color:theme.text,lineHeight:1.35,marginBottom:8,textTransform:"uppercase",minHeight:40}}>{r.nombre}</div>
           {/* Part number */}
           <div style={{background:theme.bg,padding:"6px 10px",borderRadius:4,marginBottom:10}}>
-            <span style={{fontSize:11,color:_globalTheme.textSecondary||"#666"}}>Cod. Ref: </span>
+            <span style={{fontSize:11,color:theme.textSecondary||"#666"}}>Cod. Ref: </span>
             <span style={{fontSize:12,fontWeight:700,color:theme.text}}>{r.numero_parte}</span>
           </div>
           {/* Prices */}
@@ -1152,7 +1152,7 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
               <span style={{fontSize:22,fontWeight:800,color:theme.text}}>{r.precio}</span>
               {r.descuento&&<span style={{background:"#dc2626",color:"#fff",fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:4}}>{r.descuento}% OFF</span>}
             </div>
-            <div style={{fontSize:11,color:"#003478"}}>Precio La Ford de Warnes</div>
+            <div style={{fontSize:11,color:"#4a9eff"}}>Precio La Ford de Warnes</div>
             {r.precio_oem&&(()=>{const o=parseInt(String(r.precio_oem).replace(/D/g,""));const j=parseInt(String(r.precio).replace(/D/g,""));const s=o-j;return s>0?<div style={{fontSize:11,color:"#16a34a",fontWeight:700}}>Ahorrás ${s.toLocaleString("es-AR")} vs Ford oficial</div>:null;})()}
           </div>
           {/* Stock */}
@@ -1162,16 +1162,16 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
           }
         </div>
         {/* Buttons */}
-        <div className="fw-rep-card-btns" style={{display:"flex",gap:6}}>
-          <button onClick={onClick} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:theme.card,color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>
+        <div className="fw-rep-card-btns" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:4}}>
+          <button onClick={onClick} style={{padding:"10px 0",fontSize:12,fontWeight:700,border:"2px solid #003478",borderRadius:8,background:"transparent",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>
             Ver detalle
           </button>
-          <button onClick={(e)=>{e.stopPropagation();onConsultar&&onConsultar(r);}} style={{flex:1,padding:"9px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
+          <button onClick={(e)=>{e.stopPropagation();onConsultar&&onConsultar(r);}} style={{padding:"10px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:8,background:"#003478",color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
             Consultar
           </button>
-          <button onClick={(e)=>{e.stopPropagation();onAddCart&&onAddCart(r);}} style={{padding:"9px 10px",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#f0f0f0",color:_globalTheme.text||"#333",cursor:"pointer",fontFamily:"inherit"}} title="Agregar a mi lista">+</button>
+          <button onClick={(e)=>{e.stopPropagation();onAddCart&&onAddCart(r);}} style={{padding:"10px 0",fontSize:12,fontWeight:700,border:`2px solid ${theme.cardBorder}`,borderRadius:8,background:"transparent",color:theme.text,cursor:"pointer",fontFamily:"inherit"}} title="Agregar a mi lista">+ Agregar a lista</button>
           <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola! Consulto por: ${r.nombre} (N° ${r.numero_parte}). Precio: ${r.precio}. Esta disponible?`)}`} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()}
-            style={{padding:"9px 12px",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#25d366",color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            style={{padding:"10px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:8,background:"#25d366",color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
             WhatsApp
           </a>
         </div>
@@ -1185,7 +1185,7 @@ function Msg({msg,last,onParte}){const theme=_globalTheme;
   useEffect(()=>{if(last){const t=setTimeout(()=>setVis(true),40);return()=>clearTimeout(t);}},[last]);
   const fade={opacity:vis?1:0,transform:vis?"translateY(0)":"translateY(8px)",transition:"opacity .25s,transform .25s"};
   if(msg.type==="system")return <div style={{textAlign:"center",...fade}}><span style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:20,padding:"6px 18px",fontSize:12,color:_globalTheme.textMuted||"#999",display:"inline-block"}}>{msg.text}</span></div>;
-  if(msg.type==="result_text")return <div style={{display:"flex",gap:12,...fade}}><div style={{width:36,height:36,background:"#003478",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:"4px 14px 14px 14px",padding:"14px 18px",fontSize:14,color:"#444",lineHeight:1.6,whiteSpace:"pre-line",maxWidth:"85%"}}>{msg.text}</div></div>;
+  if(msg.type==="result_text")return <div style={{display:"flex",gap:12,...fade}}><div style={{width:36,height:36,background:"#003478",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:"4px 14px 14px 14px",padding:"14px 18px",fontSize:14,color:theme.text,lineHeight:1.6,whiteSpace:"pre-line",maxWidth:"85%"}}>{msg.text}</div></div>;
   if(msg.type==="user")return <div style={{display:"flex",justifyContent:"flex-end",...fade}}><div style={{background:"#003478",borderRadius:"12px 4px 12px 12px",padding:"11px 16px",maxWidth:"72%",fontSize:14,color:"#fff",fontWeight:500,lineHeight:1.45}}>{msg.text}</div></div>;
   if(msg.type==="notfound")return <div style={{display:"flex",gap:12,...fade}}><BotAv/><div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:"4px 12px 12px 12px",padding:"13px 18px",fontSize:13,color:_globalTheme.textSecondary||"#888",lineHeight:1.55}}>No encontré nada para "<strong style={{color:_globalTheme.textSecondary||"#555"}}>{msg.query}</strong>". Probá con el número de parte o el modelo exacto.</div></div>;
   if(msg.type==="result"){
