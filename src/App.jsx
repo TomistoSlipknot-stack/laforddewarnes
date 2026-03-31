@@ -671,7 +671,7 @@ function AccountsPanel(){
 
       {/* Cambiar contraseña admin */}
       <div style={{background:'#fff',border:'1px solid #e0e0e0',borderRadius:10,padding:20}}>
-        <div style={{fontSize:15,fontWeight:700,color:'#003478',marginBottom:12}}>Cambiar contraseña de Juan (Admin)</div>
+        <div style={{fontSize:15,fontWeight:700,color:'#003478',marginBottom:12}}>Cambiar contraseña de Admin (Admin)</div>
         <input value={adminPass} onChange={e=>setAdminPass(e.target.value)} placeholder="Nueva contraseña" type="password" style={inp}/>
         <button onClick={changeAdmin} style={{width:'100%',padding:12,fontSize:14,fontWeight:700,border:'none',borderRadius:8,background:'#b8860b',color:'#fff',cursor:'pointer',fontFamily:'inherit'}}>
           Cambiar Contraseña Admin
@@ -699,8 +699,9 @@ export default function FordWarnesApp({ user, onLogout }){
   const [parteSel,  setParteSel]  = useState(null);
   const [catFilter, setCatFilter] = useState(null);
   const [homeSearch, setHomeSearch] = useState('');
-  const [carrito, setCarrito] = useState([]);
+  const [carrito, setCarrito] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-cart")||"[]");}catch{return[];}});
   const [showCarrito, setShowCarrito] = useState(false);
+  useEffect(()=>{try{localStorage.setItem("fw-cart",JSON.stringify(carrito));}catch{}},[carrito]);
   const addToCart=(item)=>{if(!carrito.find(c=>c.numero_parte===item.numero_parte))setCarrito(c=>[...c,item]);};
   const removeFromCart=(nro)=>setCarrito(c=>c.filter(x=>x.numero_parte!==nro));
   const [chatOpen,  setChatOpen]  = useState(false);
@@ -769,7 +770,7 @@ export default function FordWarnesApp({ user, onLogout }){
             {id:"about",label:"Nosotros",icon:"M12 12a5 5 0 100-10 5 5 0 000 10zM20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87"},{id:"chat",label:"Buscar",icon:"M21 21l-4.35-4.35M11 3a8 8 0 100 16 8 8 0 000-16z"},
             ...((esJefe||role==='employee')?[{id:"admin",label:esJefe?"Panel":"Consultas",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
           ].map(t=>(
-            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":_globalTheme.card||"#fff",border:`2px solid ${vista===t.id?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":"#555",cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
+            <button className="fw-nav-btn" key={t.id} onClick={()=>setVista(t.id)} style={{background:vista===t.id?"#003478":_globalTheme.card||"#fff",border:`2px solid ${vista===t.id?"#003478":"#d0d0d0"}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":(_globalTheme.textSecondary||"#555"),cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
               {t.label}
             </button>
@@ -814,14 +815,14 @@ export default function FordWarnesApp({ user, onLogout }){
               <div style={{display:"flex",flexWrap:"wrap",gap:6}}>{SUGERENCIAS.map(s=><Chip key={s} label={s} onClick={()=>buscar(s)}/>)}</div>
             </div>
           )}
-          <div className="fw-input-bar" style={{background:"rgba(8,9,12,.97)",borderTop:"1px solid #181c26",padding:"10px 16px 14px",flexShrink:0}}>
+          <div className="fw-input-bar" style={{background:_globalTheme.headerBg||"rgba(8,9,12,.97)",borderTop:"1px solid #181c26",padding:"10px 16px 14px",flexShrink:0}}>
             <div style={{maxWidth:760,margin:"0 auto"}}>
               <div style={{display:"flex",gap:8,alignItems:"center",background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:14,padding:"4px 4px 4px 14px"}}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#333840" strokeWidth="2" style={{flexShrink:0}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 <input className="fw-input-field" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();buscar();}}}
                   placeholder="Motor 302, filtro Ranger, pastillas..." disabled={botState==="loading"}
                   style={{flex:1,background:"transparent",border:"none",outline:"none",fontSize:15,color:_globalTheme.text||"#333",fontFamily:"inherit",padding:"11px 0",caretColor:"#003478"}}/>
-                <button onClick={()=>buscar()} disabled={!input.trim()||botState==="loading"} style={{width:42,height:42,background:input.trim()&&botState!=="loading"?"#003478":"#13151e",border:"none",borderRadius:10,cursor:input.trim()&&botState!=="loading"?"pointer":"not-allowed",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .15s",flexShrink:0}}>
+                <button onClick={()=>buscar()} disabled={!input.trim()||botState==="loading"} style={{width:42,height:42,background:input.trim()&&botState!=="loading"?"#003478":(_globalTheme.cardBorder||"#ccc"),border:"none",borderRadius:10,cursor:input.trim()&&botState!=="loading"?"pointer":"not-allowed",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .15s",flexShrink:0}}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={input.trim()&&botState!=="loading"?"#fff":"#252830"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
                 </button>
               </div>
@@ -1279,6 +1280,6 @@ function Modal({parte:r,onClose,onConsultar}){const theme=_globalTheme;
   );
 }
 
-function BuscandoRow(){const theme=_globalTheme;return(<div style={{display:"flex",gap:12}}><BotAv/><div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:"4px 12px 12px 12px",padding:"13px 18px",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:13,color:_globalTheme.textMuted||"#999"}}>Juan está buscando...</span><span style={{display:"inline-flex",gap:4}}>{[0,1,2].map(i=><span key={i} style={{width:5,height:5,borderRadius:"50%",background:"#003478",display:"inline-block",animation:`dp 1.2s ease-in-out ${i*.2}s infinite`}}/>)}</span></div></div>);}
+function BuscandoRow(){const theme=_globalTheme;return(<div style={{display:"flex",gap:12}}><BotAv/><div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:"4px 12px 12px 12px",padding:"13px 18px",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:13,color:_globalTheme.textMuted||"#999"}}>Buscando...</span><span style={{display:"inline-flex",gap:4}}>{[0,1,2].map(i=><span key={i} style={{width:5,height:5,borderRadius:"50%",background:"#003478",display:"inline-block",animation:`dp 1.2s ease-in-out ${i*.2}s infinite`}}/>)}</span></div></div>);}
 function BotAv(){return <div style={{width:30,height:30,background:"#003478",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2,border:"1px solid rgba(26,92,200,.4)"}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>;}
 function Chip({label,onClick}){const [hov,setHov]=useState(false);return <button onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:hov?"rgba(0,61,165,.12)":"transparent",border:`1px solid ${hov?"rgba(0,61,165,.4)":"#181c26"}`,borderRadius:20,padding:"5px 14px",fontSize:12,color:hov?"#6699ff":"#444860",cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>{label}</button>;}

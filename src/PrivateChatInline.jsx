@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 
 const STEPS = [
-  { id: 'inicio', bot: 'Hola! Soy el asistente de Ford de Warnes. En que te puedo ayudar?', options: ['Comprar un repuesto', 'Consultar precio', 'Hablar con Juan'] },
+  { id: 'inicio', bot: 'Hola! Soy el asistente de Ford de Warnes. En que te puedo ayudar?', options: ['Comprar un repuesto', 'Consultar precio', 'Hablar con un asesor'] },
   { id: 'modelo', bot: 'Para que modelo de Ford?', options: ['F-150', 'Ranger', 'Explorer', 'Mustang', 'EcoSport', 'Focus', 'Ka', 'Bronco', 'Escape', 'Fiesta', 'Transit', 'Falcon', 'Otro'] },
   { id: 'pieza', bot: 'Que pieza necesitas? Escribila abajo.' },
   { id: 'cuando', bot: 'Para cuando?', options: ['Hoy', 'Maniana', 'Esta semana', 'No tengo apuro'] },
-  { id: 'contacto', bot: 'Tu nombre y telefono para que Juan te contacte:' },
+  { id: 'contacto', bot: 'Tu nombre y telefono para que un asesor te contacte:' },
 ];
 
 export default function PrivateChatInline({ network, userName }) {
@@ -31,7 +31,7 @@ export default function PrivateChatInline({ network, userName }) {
   const handleOption = (option) => {
     addMsg('user', option);
     if (step === 0) {
-      if (option === 'Hablar con Juan') { setBotMode(false); setTimeout(() => addMsg('bot', 'Conectado con Juan. Escribile abajo.'), 500); return; }
+      if (option === 'Hablar con Juan') { setBotMode(false); setTimeout(() => addMsg('bot', 'Conectado con un asesor. Escribile abajo.'), 500); return; }
       setOrderData(d => ({ ...d, tipo: option }));
       setTimeout(() => addMsg('bot', STEPS[1].bot, STEPS[1].options), 600);
       setStep(1);
@@ -59,7 +59,7 @@ export default function PrivateChatInline({ network, userName }) {
       const summary = `NUEVO PEDIDO:\nCliente: ${userName || 'Sin nombre'}\nTipo: ${order.tipo}\nModelo: ${order.modelo}\nPieza: ${order.pieza}\nPara: ${order.cuando}\nContacto: ${order.contacto}`;
       network.sendChat(summary);
       setTimeout(() => {
-        addMsg('bot', `Pedido enviado a Juan!\n\nModelo: ${order.modelo}\nPieza: ${order.pieza}\nPara: ${order.cuando}\n\nJuan te va a responder por aca.`);
+        addMsg('bot', `Pedido enviado!\n\nModelo: ${order.modelo}\nPieza: ${order.pieza}\nPara: ${order.cuando}\n\nUn asesor te va a responder por aca.`);
         setBotMode(false);
       }, 800);
       setStep(5);
@@ -84,18 +84,18 @@ export default function PrivateChatInline({ network, userName }) {
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--fw-text, #333)' }}>Ford de Warnes</div>
-          <div style={{ fontSize: 10, color: botMode ? '#003478' : '#22c55e' }}>{botMode ? 'Asistente' : 'Chat con Juan'}</div>
+          <div style={{ fontSize: 10, color: botMode ? '#003478' : '#22c55e' }}>{botMode ? 'Asistente' : 'Chat con asesor'}</div>
         </div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {allMessages.map((msg) => {
           const isUser = msg.from === 'user';
-          const isJuan = msg.from === 'juan';
+          const isJuan = msg.fromRole === 'admin' || msg.fromRole === 'employee';
           return (
             <div key={msg.id}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', animation: 'msg-in .2s ease' }}>
-                {isJuan && <div style={{ fontSize: 9, color: '#fbbf24', marginBottom: 2, paddingLeft: 4, fontWeight: 600 }}>Juan</div>}
+                {isJuan && <div style={{ fontSize: 9, color: '#fbbf24', marginBottom: 2, paddingLeft: 4, fontWeight: 600 }}>Asesor</div>}
                 {msg.from === 'bot' && <div style={{ fontSize: 9, color: '#003478', marginBottom: 2, paddingLeft: 4 }}>Asistente</div>}
                 <div style={{
                   maxWidth: '88%', padding: '8px 12px', fontSize: 12, lineHeight: 1.5, whiteSpace: 'pre-line',
