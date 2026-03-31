@@ -683,7 +683,9 @@ function AccountsPanel(){
 
 // ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
 export default function FordWarnesApp({ user, onLogout }){
+  
   const { isDark, toggle: toggleTheme, theme } = useTheme();
+  _globalTheme = theme;
   const role = user?.role || 'public';
   const esJefe = role === 'admin';
   const [vista,     setVista]     = useState("catalogo");
@@ -1075,7 +1077,10 @@ export default function FordWarnesApp({ user, onLogout }){
 }
 
 // ─── COMPONENTES ──────────────────────────────────────────────────────────────
-function ModeloCard({modelo,onClick}){
+// Global theme state
+let _globalTheme = { bg: "#d5d5d5", card: "#fff", cardBorder: "#e0e0e0", text: "#333", textSecondary: "#777", textMuted: "#999", headerBg: "#fff" };
+
+function ModeloCard({modelo,onClick}){const theme = _globalTheme;
   const [hov,setHov]=useState(false);const [imgErr,setImgErr]=useState(false);
   return(
     <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:theme.card,border:`1px solid ${hov?"#003478":"#e0e0e0"}`,borderRadius:8,cursor:"pointer",transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,52,120,.12)":"0 1px 3px rgba(0,0,0,.04)"}}>
@@ -1093,7 +1098,7 @@ function ModeloCard({modelo,onClick}){
   );
 }
 
-function RepCard({r,onClick,onConsultar,onAddCart}){
+function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
   const [hov,setHov]=useState(false);
   const [imgErr,setImgErr]=useState(false);
   const Ic=getIcon(r.cat);
