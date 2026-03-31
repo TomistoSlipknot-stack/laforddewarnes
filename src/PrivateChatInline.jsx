@@ -78,7 +78,7 @@ export default function PrivateChatInline({ network, userName }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, background: '#fff' }}>
+      <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--fw-cardBorder, #e0e0e0)', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, background: 'var(--fw-card, #fff)' }}>
         <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#003478,#0050a0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ color: '#fff', fontWeight: 800, fontSize: 9, fontStyle: 'italic', fontFamily: 'Georgia,serif' }}>Ford</span>
         </div>
@@ -99,10 +99,10 @@ export default function PrivateChatInline({ network, userName }) {
                 {msg.from === 'bot' && <div style={{ fontSize: 9, color: '#003478', marginBottom: 2, paddingLeft: 4 }}>Asistente</div>}
                 <div style={{
                   maxWidth: '88%', padding: '8px 12px', fontSize: 12, lineHeight: 1.5, whiteSpace: 'pre-line',
-                  background: isUser ? '#003478' : isJuan ? '#e8ffe8' : '#f5f5f5',
-                  border: `1px solid ${isUser ? '#0050a0' : isJuan ? '#b0d8b0' : '#e0e0e0'}`,
+                  background: isUser ? '#003478' : isJuan ? 'var(--fw-card, #e8ffe8)' : 'var(--fw-card, #f5f5f5)',
+                  border: `1px solid ${isUser ? '#0050a0' : 'var(--fw-cardBorder, #e0e0e0)'}`,
                   borderRadius: isUser ? '10px 3px 10px 10px' : '3px 10px 10px 10px',
-                  color: isUser ? '#fff' : isJuan ? '#2a6b2a' : '#444',
+                  color: isUser ? '#fff' : 'var(--fw-text, #444)',
                 }}>{msg.text}</div>
                 {msg.ts && <div style={{ fontSize: 8, color: 'var(--fw-textMuted, #ccc)', marginTop: 1 }}>{fmt(msg.ts)}</div>}
               </div>
@@ -110,7 +110,7 @@ export default function PrivateChatInline({ network, userName }) {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6, paddingLeft: 4 }}>
                   {msg.options.map((opt, oi) => (
                     <button key={oi} onClick={() => handleOption(opt)}
-                      style={{ background: 'var(--fw-card, rgba(0,61,165,.06))', border: '1px solid var(--fw-cardBorder, rgba(0,61,165,.2))', borderRadius: 16, padding: '5px 10px', fontSize: 11, color: '#003478', cursor: 'pointer', fontFamily: 'inherit', transition: 'all .1s' }}>
+                      style={{ background: 'var(--fw-card, rgba(0,61,165,.06))', border: '1px solid var(--fw-cardBorder, rgba(0,61,165,.2))', borderRadius: 16, padding: '5px 10px', fontSize: 11, color: 'var(--fw-text, #003478)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all .1s' }}>
                       {opt}
                     </button>
                   ))}
@@ -122,7 +122,7 @@ export default function PrivateChatInline({ network, userName }) {
         <div ref={bottomRef} />
       </div>
 
-      <div style={{ padding: '8px 10px', borderTop: '1px solid #e0e0e0', flexShrink: 0, background: '#fafafa' }}>
+      <div style={{ padding: '8px 10px', borderTop: '1px solid var(--fw-cardBorder, #e0e0e0)', flexShrink: 0, background: 'var(--fw-card, #fafafa)' }}>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: 'var(--fw-card, #f5f5f5)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, padding: '3px 3px 3px 10px' }}>
           <input value={inp} onChange={e => setInp(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
