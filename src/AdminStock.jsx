@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { authFetch } from './App.jsx';
 
-export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPrice, imgModelos }) {
+export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPrice, imgModelos, readOnly }) {
   const [catFilter, setCatFilter] = useState('all');
   const [selModelo, setSelModelo] = useState(null);
   const [editPart, setEditPart] = useState(null);
@@ -72,8 +72,8 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
               );
             })}
           </div>
-          {/* Bulk price */}
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 10, background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, padding: '6px 10px' }}>
+          {/* Bulk price - admin only */}
+          {!readOnly && <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 10, background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, padding: '6px 10px' }}>
             <span style={{ fontSize: 11, color: 'var(--fw-textSecondary, #666)', flexShrink: 0 }}>Subir/bajar TODO:</span>
             <input value={bulkPct} onChange={e => setBulkPct(e.target.value)} placeholder="+15 o -10" type="number"
               style={{ width: 70, padding: '4px 8px', fontSize: 13, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 6, background: 'var(--fw-bg, #fafafa)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit', textAlign: 'center' }} />
@@ -81,7 +81,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
             <button onClick={applyBulk} disabled={!bulkPct.trim()} style={{ padding: '4px 12px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 6, background: bulkPct.trim() ? '#003478' : '#ccc', color: '#fff', cursor: bulkPct.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
               Aplicar
             </button>
-          </div>
+          </div>}
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar modelo..."
             style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-card, #fff)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit' }} />
         </div>
@@ -138,8 +138,8 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
             <span style={{ fontSize: 12, color: 'var(--fw-textSecondary, #777)', marginLeft: 8 }}>{selModelo.año} · {partsForModel.length} repuestos</span>
           </div>
         </div>
-        {/* Bulk for this model */}
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, padding: '6px 10px' }}>
+        {/* Bulk for this model - admin only */}
+        {!readOnly && <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, padding: '6px 10px' }}>
           <span style={{ fontSize: 11, color: 'var(--fw-textSecondary, #666)', flexShrink: 0 }}>Precios {selModelo.nombre}:</span>
           <input value={bulkPct} onChange={e => setBulkPct(e.target.value)} placeholder="+15" type="number"
             style={{ width: 60, padding: '4px 8px', fontSize: 13, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 6, background: 'var(--fw-bg, #fafafa)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit', textAlign: 'center' }} />
@@ -147,7 +147,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
           <button onClick={applyBulk} disabled={!bulkPct.trim()} style={{ padding: '4px 12px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 6, background: bulkPct.trim() ? '#003478' : '#ccc', color: '#fff', cursor: bulkPct.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
             Aplicar
           </button>
-        </div>
+        </div>}
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar repuesto..."
           style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, background: 'var(--fw-card, #fff)', color: 'var(--fw-text, #333)', outline: 'none', fontFamily: 'inherit' }} />
       </div>
@@ -155,7 +155,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
       {/* Parts list */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
         {searchedParts.map((p, i) => (
-          <div key={p.numero_parte || i} onClick={() => setEditPart({ ...p })}
+          <div key={p.numero_parte || i} onClick={() => { if (!readOnly) setEditPart({ ...p }); }}
             style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, marginBottom: 6, cursor: 'pointer', transition: 'background .1s' }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--fw-bg, #f0f4f8)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--fw-card, #fff)'}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: sc(p.stock), flexShrink: 0 }} />
@@ -168,7 +168,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
               {p.precio_oem && <div style={{ fontSize: 11, color: 'var(--fw-textSecondary, #888)', textDecoration: 'line-through' }}>OEM {p.precio_oem}</div>}
             </div>
             <div style={{ fontSize: 14, fontWeight: 700, color: sc(p.stock), minWidth: 30, textAlign: 'right' }}>{p.stock || 0}</div>
-            <div style={{ color: 'var(--fw-text, #333)', fontSize: 12 }}>✏️</div>
+            {!readOnly && <div style={{ color: 'var(--fw-text, #333)', fontSize: 12 }}>✏️</div>}
           </div>
         ))}
       </div>
