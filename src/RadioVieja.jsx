@@ -113,7 +113,13 @@ export default function RadioVieja() {
       }}
         title={on ? '' : 'Click para prender Ford TV'}>
 
-        {/* Video inside the screen */}
+        {/* TV frame as background */}
+        <img src="/img/tv-vieja.png" alt="TV" style={{
+          width: '100%', height: '100%', objectFit: 'contain',
+          position: 'relative', zIndex: 1,
+        }} />
+
+        {/* Video ON TOP of the TV image, covering the screen area */}
         {on && (
           <video
             ref={videoRef}
@@ -124,55 +130,38 @@ export default function RadioVieja() {
             playsInline
             style={{
               position: 'absolute',
-              left: '8%', top: '9%', width: '61%', height: '70%',
-              objectFit: 'cover', borderRadius: 3, zIndex: 2,
+              left: '9%', top: '12%', width: '58%', height: '64%',
+              objectFit: 'cover', borderRadius: 5, zIndex: 10,
               background: '#000',
             }}
           />
         )}
 
-        {/* Screen background when off */}
-        {!on && (
-          <div style={{
-            position: 'absolute', left: '8%', top: '9%', width: '61%', height: '70%',
-            background: '#0a0a0a', borderRadius: 3, zIndex: 2,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <div style={{ width: 2, height: 2, borderRadius: '50%', background: '#222' }} />
-          </div>
-        )}
-
-        {/* CRT scanlines */}
+        {/* CRT scanlines on top of video */}
         {on && (
           <div style={{
-            position: 'absolute', left: '8%', top: '9%', width: '61%', height: '70%',
-            zIndex: 3, pointerEvents: 'none', borderRadius: 3,
-            background: 'linear-gradient(transparent 50%, rgba(0,0,0,.04) 50%)',
+            position: 'absolute', left: '9%', top: '12%', width: '58%', height: '64%',
+            zIndex: 11, pointerEvents: 'none', borderRadius: 5,
+            background: 'linear-gradient(transparent 50%, rgba(0,0,0,.06) 50%)',
             backgroundSize: '100% 3px',
           }} />
         )}
 
-        {/* Glitch */}
+        {/* Glitch on top of everything */}
         {glitch && (
           <div style={{
-            position: 'absolute', left: '8%', top: '9%', width: '61%', height: '70%',
-            zIndex: 4, borderRadius: 3,
-            background: 'repeating-linear-gradient(0deg,rgba(255,255,255,.12) 0px,rgba(255,255,255,.12) 1px,transparent 1px,transparent 3px)',
+            position: 'absolute', left: '9%', top: '12%', width: '58%', height: '64%',
+            zIndex: 12, borderRadius: 5,
+            background: 'repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0px,rgba(255,255,255,.15) 1px,transparent 1px,transparent 3px)',
             animation: 'tvGlitch .06s steps(4) infinite',
           }} />
         )}
-
-        {/* TV frame on top */}
-        <img src="/img/tv-vieja.png" alt="TV" style={{
-          width: '100%', height: '100%', objectFit: 'contain',
-          position: 'relative', zIndex: 5, pointerEvents: 'none',
-        }} />
 
         {/* Power LED */}
         {on && <div style={{
           position: 'absolute', bottom: '13%', right: '17%',
           width: 4, height: 4, borderRadius: '50%',
-          background: '#22c55e', boxShadow: '0 0 6px #22c55e', zIndex: 6,
+          background: '#22c55e', boxShadow: '0 0 6px #22c55e', zIndex: 13,
         }} />}
       </div>
 
