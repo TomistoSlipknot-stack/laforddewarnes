@@ -849,20 +849,21 @@ export default function FordWarnesApp({ user, onLogout }){
       ):vista==="about"?(
         <AboutUs theme={theme}/>
       ):vista==="admin"&&(esJefe||role==='employee')?(
-        <div style={{flex:1,display:"flex",flexDirection:"column"}}>
-          {/* Admin sub-tabs */}
-          <div style={{display:"flex",gap:6,padding:"10px 16px",borderBottom:"1px solid "+theme.cardBorder,background:theme.card,flexShrink:0}}>
+        <div style={{flex:1,display:"flex",overflow:"hidden"}}>
+          {/* Sidebar nav - Design 2 */}
+          <div className="fw-admin-sidebar" style={{width:200,background:theme.card,borderRight:"2px solid "+theme.cardBorder,padding:"12px 8px",flexShrink:0,display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
             {[
-              {id:"dashboard",label:"Dashboard",badge:0},
-              {id:"stock",label:"Stock",badge:0},
-              {id:"cuentas",label:"Cuentas",badge:0},
-              {id:"chats",label:"Chats",badge:adminTotalUnread},
-              {id:"online",label:"En Linea",badge:network.onlineUsers.length},
-              {id:"logs",label:"Busquedas",badge:network.searchLogs.length},
+              {id:"dashboard",label:"Dashboard",icon:"📊",badge:0},
+              {id:"stock",label:"Stock",icon:"📦",badge:0},
+              {id:"cuentas",label:"Cuentas",icon:"👥",badge:0},
+              {id:"chats",label:"Chats",icon:"💬",badge:adminTotalUnread},
+              {id:"online",label:"En Linea",icon:"🟢",badge:network.onlineUsers.length},
+              {id:"logs",label:"Busquedas",icon:"🔍",badge:network.searchLogs.length},
             ].map(t=>(
-              <button key={t.id} onClick={()=>setAdminTab(t.id)} style={{background:adminTab===t.id?"#003478":"transparent",border:`1px solid ${adminTab===t.id?"#1a5cc8":theme.cardBorder}`,borderRadius:8,padding:"5px 14px",fontSize:12,color:adminTab===t.id?"#fff":theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontWeight:adminTab===t.id?600:400,transition:"all .15s",position:"relative"}}>
+              <button key={t.id} onClick={()=>setAdminTab(t.id)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 14px",borderRadius:8,border:"none",background:adminTab===t.id?(isDark?"rgba(0,52,120,.3)":"#e8f0fe"):"transparent",color:adminTab===t.id?(isDark?"#58a6ff":"#003478"):theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:adminTab===t.id?600:500,transition:"all .15s",textAlign:"left",position:"relative"}}>
+                <span style={{fontSize:16,width:20,textAlign:"center"}}>{t.icon}</span>
                 {t.label}
-                {t.badge>0&&<span style={{marginLeft:6,background:t.id==="chats"&&adminTotalUnread>0?"#ef4444":"rgba(255,255,255,.15)",padding:"1px 7px",borderRadius:10,fontSize:10,fontWeight:700}}>{t.badge}</span>}
+                {t.badge>0&&<span style={{marginLeft:"auto",minWidth:18,height:18,borderRadius:9,background:t.id==="chats"?"#ef4444":"rgba(34,197,94,.8)",color:"#fff",fontSize:10,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>{t.badge}</span>}
               </button>
             ))}
           </div>

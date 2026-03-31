@@ -9,7 +9,7 @@ export default function AboutUs({ theme }) {
         </div>
         <h1 style={{ fontSize: 34, fontWeight: 800, color: t.text || '#1a1a1a', margin: '0 0 8px' }}>La Ford de Warnes</h1>
         <p style={{ fontSize: 18, color: t.textSecondary || '#666', lineHeight: 1.6 }}>
-          Casa de repuestos Ford con 50 años de antigüedad. Siempre con el óvalo.
+          Desde hace más de 48 años, especialistas Ford. Siempre con el óvalo.
         </p>
       </div>
 
@@ -17,13 +17,13 @@ export default function AboutUs({ theme }) {
       <div style={{ background: t.card || '#fff', border: '1px solid ' + (t.cardBorder || '#e0e0e0'), borderRadius: 12, padding: 24, marginBottom: 20 }}>
         <h2 style={{ fontSize: 22, fontWeight: 700, color: '#003478', marginBottom: 12 }}>Nuestra Historia</h2>
         <p style={{ fontSize: 15, color: t.textSecondary || '#555', lineHeight: 1.8 }}>
-          La Ford de Warnes nació en la calle Warnes, corazón del mundo automotor de Buenos Aires.
-          Con más de 50 años de experiencia, nos especializamos exclusivamente en repuestos Ford
-          originales y alternativos de la más alta calidad.
+          La Ford de Warnes nació en la zona de Warnes, corazón del mundo automotor de Buenos Aires.
+          Desde hace más de 48 años somos especialistas Ford — arrancamos con el Falcon, el Taunus y la F-100,
+          y hoy seguimos con la Ranger, EcoSport, Territory y todos los modelos actuales.
         </p>
         <p style={{ fontSize: 15, color: t.textSecondary || '#555', lineHeight: 1.8, marginTop: 10 }}>
-          Nuestro equipo conoce cada pieza, cada modelo y cada detalle de los vehículos Ford.
-          Desde la Ranger hasta el Ka, desde el Mustang hasta la Transit — si es Ford, lo tenemos.
+          Un local clásico del rubro en Av. Honorio Pueyrredón 2180, atendiendo a mecánicos y dueños de Ford
+          desde fines de los 70. Si es Ford, lo tenemos.
         </p>
       </div>
 
