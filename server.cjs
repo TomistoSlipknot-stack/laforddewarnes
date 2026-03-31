@@ -167,6 +167,19 @@ app.get('/{*splat}', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
+
+// Auto-reply outside business hours
+function isOutsideHours() {
+  const now = new Date();
+  const hour = now.getHours();
+  const day = now.getDay();
+  if (day === 0) return true;
+  if (day === 6 && (hour < 8 || hour >= 13)) return true;
+  if (hour < 8 || hour >= 18) return true;
+  return false;
+}
+const AUTO_REPLY = 'Gracias por escribirnos! En este momento estamos fuera de horario. Te respondemos el proximo dia habil a partir de las 8:00. Horario: Lun-Vie 8:00-18:00 / Sab 8:00-13:00.';
+
 // ─── HTTP + WEBSOCKET ────────────────────────────────────────────────────────
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });

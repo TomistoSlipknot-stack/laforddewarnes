@@ -1,3 +1,4 @@
+import QuickReplies, { formatProductFicha } from "./QuickReplies.jsx";
 import { useState, useRef, useEffect } from 'react';
 
 export default function AdminChats({ network }) {
@@ -153,6 +154,8 @@ export default function AdminChats({ network }) {
             })}
             <div ref={bottomRef} />
           </div>
+          {/* Quick Replies */}
+          <QuickReplies onSelect={(text) => { setInp(text); }} onSendFicha={(prod) => { const ficha = formatProductFicha(prod); network.sendChat(ficha, activeRoom); }} />
           {/* Input */}
           <div style={{ padding: '10px 14px', borderTop: '1px solid #e0e0e0', flexShrink: 0, background: 'var(--fw-bg, #fafafa)' }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#f5f5f5', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 12, padding: '4px 4px 4px 12px' }}>
