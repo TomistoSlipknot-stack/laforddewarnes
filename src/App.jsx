@@ -1338,7 +1338,9 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
   const pImg=r.foto||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
   return(
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
-      <div onClick={e=>e.stopPropagation()} style={{background:theme.card,borderRadius:8,maxWidth:820,width:"100%",maxHeight:"90vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:theme.card,borderRadius:8,maxWidth:820,width:"100%",maxHeight:"90vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,.2)",position:"relative"}}>
+        {/* Close X button - always visible */}
+        <button onClick={onClose} style={{position:"sticky",top:8,right:8,float:"right",zIndex:10,width:40,height:40,borderRadius:20,border:"none",background:"rgba(0,0,0,.5)",color:"#fff",fontSize:20,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",margin:"8px 8px 0 0"}}>X</button>
         {/* Layout like tiendaford.ar — image left, info right */}
         <div className="fw-modal-inner" style={{display:"flex",flexWrap:"wrap"}}>
           {/* Image */}
