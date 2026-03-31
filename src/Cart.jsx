@@ -1,3 +1,4 @@
+import { generatePresupuesto } from "./GeneratePDF.jsx";
 import { useState } from 'react';
 
 export default function Cart({ items, onRemove, onClear, onConsultar, theme }) {
@@ -99,6 +100,10 @@ export default function Cart({ items, onRemove, onClear, onConsultar, theme }) {
                   style={{ padding: '10px 14px', fontSize: 13, fontWeight: 700, border: 'none', borderRadius: 8, background: '#25d366', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                   WhatsApp
                 </a>
+                <button onClick={() => generatePresupuesto(items, "")}
+                  style={{ padding: "10px 12px", fontSize: 12, border: "1px solid #003478", borderRadius: 8, background: "transparent", color: "#003478", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
+                  PDF
+                </button>
                 <button onClick={onClear}
                   style={{ padding: '10px 12px', fontSize: 12, border: `1px solid ${t.cardBorder || '#ddd'}`, borderRadius: 8, background: 'transparent', color: '#999', cursor: 'pointer', fontFamily: 'inherit' }}>
                   Vaciar

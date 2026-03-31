@@ -699,6 +699,7 @@ export default function FordWarnesApp({ user, onLogout }){
   const [modeloSel, setModeloSel] = useState(null);
   const [parteSel,  setParteSel]  = useState(null);
   const [catFilter, setCatFilter] = useState(null);
+  const [showCount, setShowCount] = useState(40);
   const [homeSearch, setHomeSearch] = useState('');
   const [carrito, setCarrito] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-cart")||"[]");}catch{return[];}});
   const [showCarrito, setShowCarrito] = useState(false);
@@ -709,6 +710,9 @@ export default function FordWarnesApp({ user, onLogout }){
   const isFav=(nro)=>favoritos.includes(nro);
   
   // Search history (localStorage)
+  const [miVehiculo, setMiVehiculo] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-vehiculo")||"null");}catch{return null;}});
+  const guardarVehiculo=(modelo)=>{setMiVehiculo(modelo);try{localStorage.setItem("fw-vehiculo",JSON.stringify(modelo));}catch{}};
+  
   const [searchHistory, setSearchHistory] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-search-hist")||"[]");}catch{return[];}});
   const addSearchHistory=(q)=>{if(!q||q.length<2)return;const h=[q,...searchHistory.filter(x=>x!==q)].slice(0,8);setSearchHistory(h);try{localStorage.setItem("fw-search-hist",JSON.stringify(h));}catch{}};
   
@@ -810,7 +814,7 @@ export default function FordWarnesApp({ user, onLogout }){
       {/* MAIN CONTENT + CHAT SIDEBAR */}
       <div style={{flex:1,display:"flex",overflow:"hidden",height:"calc(100vh - 64px)"}}>
       {/* LEFT: main content */}
-      <div style={{flex:1,display:"flex",flexDirection:"column",overflowY:"auto",marginRight:chatOpen?(esJefe?"min(480px,45vw)":"min(380px,100vw)"):0,transition:"margin .2s"}}>
+      <div className="fw-main-scroll" style={{flex:1,display:"flex",flexDirection:"column",overflowY:"auto",marginRight:chatOpen?(esJefe?"min(480px,45vw)":"min(380px,100vw)"):0,transition:"margin .2s"}}>
       {vista==="chat"?(
         <>
           <div style={{flex:1,overflowY:"auto",padding:"16px 0"}}>
@@ -951,7 +955,7 @@ export default function FordWarnesApp({ user, onLogout }){
                   <div key={cat} style={{marginBottom:28}}>
                     <div style={{fontSize:17,fontWeight:800,color:"#003478",marginBottom:14,paddingBottom:8,borderBottom:"2px solid #003478",display:"inline-block"}}>{cat}</div>
                     <div className="fw-cat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:14}}>
-                      {filteredModels.map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>setModeloSel(m)}/>)}
+                      {filteredModels.map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>{setModeloSel(m);setShowCount(40);}}/>)}
                     </div>
                   </div>
                   );
@@ -975,6 +979,7 @@ export default function FordWarnesApp({ user, onLogout }){
                     <div>Sabados: <strong>8:00 - 13:00</strong></div>
                     <div>Domingos: <strong style={{color:"#dc2626"}}>Cerrado</strong></div>
                   </div>
+                  {filtered.length>showCount&&<div style={{textAlign:"center",padding:"20px 0"}}><button onClick={()=>setShowCount(c=>c+40)} style={{padding:"12px 32px",fontSize:14,fontWeight:700,border:"2px solid #003478",borderRadius:20,background:"transparent",color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>Cargar mas ({filtered.length-showCount} restantes)</button></div>}
                 </div>
 
                 {/* Google Maps */}
@@ -1039,7 +1044,7 @@ export default function FordWarnesApp({ user, onLogout }){
                   <div style={{flex:1}}>
                     <div style={{fontSize:13,color:_globalTheme.textSecondary||"#888",marginBottom:12}}>{filtered.length} resultado{filtered.length!==1?"s":""}{catFilter?` en ${catFilter}`:""}</div>
                     <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
-                      {filtered.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onAddCart={addToCart} onConsultar={(part)=>{
+                      {filtered.slice(0,showCount).map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onAddCart={addToCart} onConsultar={(part)=>{
                         const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
                         network.sendChat(msg);
                         setChatOpen(true);
@@ -1077,6 +1082,8 @@ export default function FordWarnesApp({ user, onLogout }){
       }}/>}
 
       {/* Chat bubble flotante — solo clientes */}
+      {/* Scroll to top */}
+      <ScrollToTop/>
       {!esJefe&&<Cart items={carrito} onRemove={removeFromCart} onClear={()=>setCarrito([])} onConsultar={(msg)=>{network.sendChat(msg);setChatOpen(true);}} theme={theme} />}
       {!esJefe&&role!=="employee"&&!chatOpen&&(
         <ChatBubble unread={chatUnread} onAction={(action)=>{
@@ -1091,6 +1098,8 @@ export default function FordWarnesApp({ user, onLogout }){
 }
 
 // ─── COMPONENTES ──────────────────────────────────────────────────────────────
+function ScrollToTop(){const[show,setShow]=useState(false);useEffect(()=>{const el=document.querySelector(".fw-main-scroll");if(!el)return;const h=()=>setShow(el.scrollTop>400);el.addEventListener("scroll",h);return()=>el.removeEventListener("scroll",h);},[]);if(!show)return null;return(<button onClick={()=>{const el=document.querySelector(".fw-main-scroll");if(el)el.scrollTo({top:0,behavior:"smooth"});}} style={{position:"fixed",bottom:160,right:24,width:44,height:44,borderRadius:"50%",background:"#003478",border:"none",color:"#fff",fontSize:18,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,0,0,.2)",zIndex:997,display:"flex",alignItems:"center",justifyContent:"center"}}>↑</button>);}
+
 // Global theme state
 let _globalTheme = { bg: "#d5d5d5", card: "#fff", cardBorder: "#e0e0e0", text: "#333", textSecondary: "#777", textMuted: "#999", headerBg: "#fff" };
 
@@ -1144,6 +1153,7 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
               {r.descuento&&<span style={{background:"#dc2626",color:"#fff",fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:4}}>{r.descuento}% OFF</span>}
             </div>
             <div style={{fontSize:11,color:"#003478"}}>Precio La Ford de Warnes</div>
+            {r.precio_oem&&(()=>{const o=parseInt(String(r.precio_oem).replace(/D/g,""));const j=parseInt(String(r.precio).replace(/D/g,""));const s=o-j;return s>0?<div style={{fontSize:11,color:"#16a34a",fontWeight:700}}>Ahorrás ${s.toLocaleString("es-AR")} vs Ford oficial</div>:null;})()}
           </div>
           {/* Stock */}
           {r.stock>0
