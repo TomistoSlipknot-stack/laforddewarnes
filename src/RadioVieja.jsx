@@ -75,10 +75,10 @@ export default function RadioVieja() {
   const tvW = expanded ? 320 : 160;
   const tvH = expanded ? 260 : 130;
   // Screen position relative to TV (approximate for this image)
-  const screenLeft = '8%';
-  const screenTop = '10%';
-  const screenW = '62%';
-  const screenH = '72%';
+  const screenLeft = '7%';
+  const screenTop = '11%';
+  const screenW = '64%';
+  const screenH = '70%';
 
   return (
     <div style={{ position: 'fixed', bottom: 12, left: 12, zIndex: 50 }}>
