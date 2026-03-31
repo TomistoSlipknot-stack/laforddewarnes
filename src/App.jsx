@@ -146,6 +146,7 @@ function convertirCatalogo(jsonData){
   for(const [modeloId,piezas] of Object.entries(jsonData)){
     result[modeloId]=(piezas||[]).map(p=>({
       numero_parte:p.nro,
+      sku:p.sku,
       nombre:p.nombre,
       descripcion:p.desc||'Repuesto original Ford. Consulte disponibilidad.',
       precio:'$'+p.precio_juan.toLocaleString('es-AR'),
