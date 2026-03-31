@@ -11,9 +11,9 @@ export default function AdminDashboard({ theme }) {
   const t = theme || {};
 
   useEffect(() => {
-    authFetch('/api/sales-history').then(r => r.json()).then(setSales).catch(() => {});
+    authFetch('/api/sales-history').then(r => r.json()).then(d => { if (d.today) setSales(d); }).catch(() => {});
     fetch('/api/popular-products').then(r => r.json()).then(d => setPopular(d.popular || [])).catch(() => {});
-    fetch('/api/frequent-clients').then(r => r.json()).then(d => setClients(d.clients || [])).catch(() => {});
+    authFetch('/api/frequent-clients').then(r => r.json()).then(d => { if (d.clients) setClients(d.clients); }).catch(() => {});
   }, []);
 
   const addSale = async () => {
@@ -23,8 +23,8 @@ export default function AdminDashboard({ theme }) {
       body: JSON.stringify({ clientName: saleForm.client || 'Cliente', total: parseInt(saleForm.total) || 0, notes: saleForm.notes }),
     });
     setSaleForm({ client: '', total: '', notes: '' });
-    authFetch('/api/sales-history').then(r => r.json()).then(setSales);
-    fetch('/api/frequent-clients').then(r => r.json()).then(d => setClients(d.clients || []));
+    authFetch('/api/sales-history').then(r => r.json()).then(d => { if (d.today) setSales(d); });
+    authFetch('/api/frequent-clients').then(r => r.json()).then(d => { if (d.clients) setClients(d.clients); });
   };
 
   const saveNote = async (name) => {
@@ -33,7 +33,7 @@ export default function AdminDashboard({ theme }) {
       body: JSON.stringify({ clientName: name, note: noteText }),
     });
     setEditNote(null);
-    fetch('/api/frequent-clients').then(r => r.json()).then(d => setClients(d.clients || []));
+    authFetch('/api/frequent-clients').then(r => r.json()).then(d => { if (d.clients) setClients(d.clients); });
   };
 
   const cardStyle = { background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, padding: 18 };
