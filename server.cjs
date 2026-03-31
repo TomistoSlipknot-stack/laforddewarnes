@@ -35,6 +35,16 @@ function saveChats() {
 }
 function saveSales() { saveJSON('sales.json', salesLog); }
 
+
+// ─── ANALYTICS & CRM ────────────────────────────────────────────────────────
+let salesHistory = loadJSON('salesHistory.json', []);
+let clientNotes = loadJSON('clientNotes.json', {});
+let searchAnalytics = loadJSON('searchAnalytics.json', {});
+
+function saveSalesHistory() { saveJSON('salesHistory.json', salesHistory); }
+function saveClientNotes() { saveJSON('clientNotes.json', clientNotes); }
+function saveSearchAnalytics() { saveJSON('searchAnalytics.json', searchAnalytics); }
+
 // ─── CONNECTED CLIENTS ──────────────────────────────────────────────────────
 const clients = new Map();
 const searchLogs = [];
@@ -160,6 +170,73 @@ app.post('/api/upload', (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+
+// ─── ANALYTICS API ──
+// Sales history
+app.get('/api/sales-history', (req, res) => {
+  const today = new Date().toDateString();
+  const todaySales = salesHistory.filter(s => new Date(s.date).toDateString() === today);
+  const todayTotal = todaySales.reduce((sum, s) => sum + (s.amount || 0), 0);
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const weekSales = salesHistory.filter(s => s.date > weekAgo);
+  res.json({
+    today: { count: todaySales.length, total: todayTotal },
+    week: { count: weekSales.length },
+    recent: salesHistory.slice(-20).reverse(),
+  });
+});
+
+app.post('/api/sales-history', (req, res) => {
+  const { clientName, products, total, notes } = req.body;
+  salesHistory.push({
+    id: 'sale_' + Date.now(),
+    date: Date.now(),
+    clientName: clientName || 'Cliente',
+    products: products || [],
+    total: total || 0,
+    notes: notes || '',
+  });
+  if (salesHistory.length > 1000) salesHistory = salesHistory.slice(-500);
+  saveSalesHistory();
+  res.json({ ok: true });
+});
+
+// Client notes
+app.get('/api/client-notes/:name', (req, res) => {
+  res.json({ notes: clientNotes[req.params.name] || '' });
+});
+
+app.post('/api/client-notes', (req, res) => {
+  const { clientName, note } = req.body;
+  if (clientName) {
+    clientNotes[clientName] = note || '';
+    saveClientNotes();
+  }
+  res.json({ ok: true });
+});
+
+// Popular products (tracked from searches)
+app.get('/api/popular-products', (req, res) => {
+  const sorted = Object.entries(searchAnalytics)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 20)
+    .map(([term, count]) => ({ term, count }));
+  res.json({ popular: sorted });
+});
+
+// Frequent clients
+app.get('/api/frequent-clients', (req, res) => {
+  const clientCounts = {};
+  salesHistory.forEach(s => {
+    clientCounts[s.clientName] = (clientCounts[s.clientName] || 0) + 1;
+  });
+  const sorted = Object.entries(clientCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 20)
+    .map(([name, count]) => ({ name, count, notes: clientNotes[name] || '' }));
+  res.json({ clients: sorted });
 });
 
 // Static
@@ -308,6 +385,9 @@ wss.on('connection', (ws) => {
         case 'search': {
           const log = { query: data.query, user: clientInfo.name, role: clientInfo.role, timestamp: Date.now() };
           searchLogs.push(log);
+            // Track popular searches
+            const term = data.query.toLowerCase().trim();
+            if (term.length > 2) { searchAnalytics[term] = (searchAnalytics[term] || 0) + 1; if (Object.keys(searchAnalytics).length % 50 === 0) saveSearchAnalytics(); }
           if (searchLogs.length > 200) searchLogs.shift();
           broadcastToRole('admin', { type: 'search_log', log });
           break;
