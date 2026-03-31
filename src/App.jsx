@@ -740,7 +740,7 @@ export default function FordWarnesApp({ user, onLogout }){
   const [modeloSel, setModeloSel] = useState(null);
   const [parteSel,  setParteSel]  = useState(null);
   const [catFilter, setCatFilter] = useState(null);
-  const [showCount, setShowCount] = useState(40);
+  const [showCount, setShowCount] = useState(999);
   const [homeSearch, setHomeSearch] = useState('');
   const [carrito, setCarrito] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-cart")||"[]");}catch{return[];}});
   const [showCarrito, setShowCarrito] = useState(false);
