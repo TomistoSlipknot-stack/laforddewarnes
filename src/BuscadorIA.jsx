@@ -72,7 +72,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ clientName: cliente, total: monto, notes: `${notas}. Via asistente. Atendido por ${userName}`.trim() }),
         });
-        addMsg('bot', `Venta registrada!\n\nCliente: ${cliente}\nMonto: $${monto.toLocaleString('es-AR')}\n${notas ? 'Notas: ' + notas + '\n' : ''}\nJuan la va a ver en su Dashboard.`);
+        addMsg('bot', `Venta registrada!\n\nCliente: ${cliente}\nMonto: $${monto.toLocaleString('es-AR')}\n${notas ? 'Notas: ' + notas + '\n' : ''}\nEl jefe la va a ver en su Dashboard.`);
       } catch { addMsg('bot', 'Error al registrar la venta. Intenta de nuevo.'); }
       setTyping(false);
       return;
@@ -149,7 +149,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
           if (num) { p.precio = '$' + Math.round(num * (1 + pct / 100)).toLocaleString('es-AR'); count++; }
         }
       }
-      addMsg('bot', `Precios subidos ${pct}%${modeloQ ? ' para ' + modeloQ : ''}\n${count} piezas actualizadas.`);
+      addMsg('bot', `Precios subidos ${pct}%${modeloQ ? ' para ' + modeloQ : ''}\n${count} piezas actualizadas.\n\nLos cambios se ven en el catalogo y en Stock.`);
       setTyping(false);
       return;
     }
@@ -169,7 +169,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
           if (num) { p.precio = '$' + Math.round(num * (1 - pct / 100)).toLocaleString('es-AR'); count++; }
         }
       }
-      addMsg('bot', `Precios bajados ${pct}%${modeloQ ? ' para ' + modeloQ : ''}\n${count} piezas actualizadas.`);
+      addMsg('bot', `Precios bajados ${pct}%${modeloQ ? ' para ' + modeloQ : ''}\n${count} piezas actualizadas.\n\nLos cambios se ven en el catalogo y en Stock.`);
       setTyping(false);
       return;
     }

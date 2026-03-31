@@ -202,7 +202,7 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
             {/* Prices side by side */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
               <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 11, color: '#22c55e', display: 'block', marginBottom: 4 }}>Precio Nuestro (lo que cobra Juan)</label>
+                <label style={{ fontSize: 11, color: '#22c55e', display: 'block', marginBottom: 4 }}>Precio Nuestro</label>
                 <input value={editPart.precio || ''} onChange={e => setEditPart({ ...editPart, precio: e.target.value })}
                   style={{ width: '100%', padding: '10px 12px', fontSize: 16, fontWeight: 700, border: '1px solid #22c55e33', borderRadius: 8, background: 'var(--fw-bg, #fafafa)', color: '#22c55e', outline: 'none', fontFamily: 'inherit' }} />
               </div>

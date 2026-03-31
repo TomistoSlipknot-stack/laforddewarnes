@@ -49,7 +49,7 @@ export default function AdminDashboard({ theme }) {
         <div style={cardStyle}>
           <div style={labelStyle}>Ventas hoy</div>
           <div style={valueStyle}>{sales.today.count}</div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#16a34a' }}>${sales.today.total.toLocaleString('es-AR')}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#16a34a' }}>${(sales.today?.total ?? 0).toLocaleString('es-AR')}</div>
         </div>
         <div style={cardStyle}>
           <div style={labelStyle}>Ventas esta semana</div>

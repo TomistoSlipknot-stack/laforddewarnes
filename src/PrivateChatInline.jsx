@@ -87,7 +87,7 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
   if (!botMode) {
     for (const rm of realMessages) {
       if (rm.fromRole !== 'admin') continue;
-      allMessages.push({ id: rm.ts, from: 'juan', text: rm.text, ts: rm.ts });
+      allMessages.push({ id: rm.ts, from: 'juan', fromRole: rm.fromRole, text: rm.text, ts: rm.ts });
     }
   }
 

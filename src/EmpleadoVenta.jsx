@@ -1,6 +1,8 @@
 import { useState, useMemo, useRef } from 'react';
 import { authFetch } from './App.jsx';
 
+const parsePrice = (p) => parseInt(String(p).replace(/\D/g, '')) || 0;
+
 export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRegisterSale }) {
   const t = theme || {};
   const [query, setQuery] = useState('');
@@ -61,7 +63,7 @@ export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRe
     setPedido(prev => prev.filter((_, i) => i !== index));
   }
 
-  const total = pedido.reduce((sum, i) => sum + (i.precio || 0) * i.cantidad, 0);
+  const total = pedido.reduce((sum, i) => sum + parsePrice(i.precio) * i.cantidad, 0);
 
   // Generate comprobante
   function generarComprobante() {
@@ -81,7 +83,7 @@ export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRe
       `Fecha: ${new Date().toLocaleString('es-AR')}`,
       '',
       ...pedido.map((item, i) =>
-        `${i + 1}. ${item.nombre} (${item.numero_parte}) x${item.cantidad} — $${((item.precio || 0) * item.cantidad).toLocaleString('es-AR')}`
+        `${i + 1}. ${item.nombre} (${item.numero_parte}) x${item.cantidad} — $${(parsePrice(item.precio) * item.cantidad).toLocaleString('es-AR')}`
       ),
       '',
       `*Total: $${total.toLocaleString('es-AR')}*`,
@@ -319,7 +321,7 @@ export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRe
                   <button onClick={() => updateQty(idx, 1)} style={qtyBtn}>+</button>
                 </div>
                 <div style={{ width: 90, textAlign: 'right', fontSize: 15, fontWeight: 700, color: t.text || '#333', flexShrink: 0 }}>
-                  ${((item.precio || 0) * item.cantidad).toLocaleString('es-AR')}
+                  ${(parsePrice(item.precio) * item.cantidad).toLocaleString('es-AR')}
                 </div>
                 <button onClick={() => removeItem(idx)} style={btnDanger} title="Quitar">
                   &times;
@@ -465,7 +467,7 @@ export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRe
               color: t.text || '#333', padding: '4px 0',
             }}>
               <span>{item.cantidad}x {item.nombre}</span>
-              <span style={{ fontWeight: 700 }}>${((item.precio || 0) * item.cantidad).toLocaleString('es-AR')}</span>
+              <span style={{ fontWeight: 700 }}>${(parsePrice(item.precio) * item.cantidad).toLocaleString('es-AR')}</span>
             </div>
           ))}
 
