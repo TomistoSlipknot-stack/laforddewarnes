@@ -70,7 +70,8 @@ export function useNetwork() {
     ws.onopen = () => {
       requestNotifPermission();
       setConnected(true);
-      ws.send(JSON.stringify({ type: 'register', name, role }));
+      const token = localStorage.getItem('fw_token') || '';
+      ws.send(JSON.stringify({ type: 'register', name, role, token }));
     };
 
     ws.onmessage = (e) => {
@@ -98,7 +99,7 @@ export function useNetwork() {
               const room = prev[data.roomId] || [];
               return { ...prev, [data.roomId]: [...room, data.msg] };
             });
-            if (data.msg.fromRole !== role) { playNotifSound(role === 'admin' ? 'alert' : 'msg'); if (document.hidden) showBrowserNotif('La Ford de Warnes', data.msg.from + ': ' + data.msg.text.slice(0, 80)); }
+            if (data.msg.fromRole !== role) { playNotifSound(role === 'admin' ? 'alert' : 'msg'); if (document.hidden) showBrowserNotif('La Ford de Warnes', data.msg.from + ': ' + (data.msg.text || '').slice(0, 80)); }
             break;
           case 'search_log':
             setSearchLogs(prev => [...prev.slice(-49), data.log]);

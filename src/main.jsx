@@ -25,7 +25,7 @@ function Root() {
 
   if (!user) return <Login onLogin={setUser} />;
 
-  return <App user={user} onLogout={() => setUser(null)} />;
+  return <App user={user} onLogout={() => { localStorage.removeItem('fw_token'); setUser(null); }} />;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(

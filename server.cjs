@@ -3,6 +3,8 @@ const fs = require('fs');
 const express = require('express');
 const http = require('http');
 const { WebSocketServer } = require('ws');
+const bcrypt = require('bcryptjs');
+const helmet = require('helmet');
 
 const PORT = process.env.PORT || 3000;
 
@@ -145,6 +147,10 @@ setInterval(() => {
 const app = express();
 const distPath = path.join(__dirname, 'dist');
 
+app.use(helmet({
+  contentSecurityPolicy: false, // React uses inline styles
+  crossOriginEmbedderPolicy: false, // Allow Google Maps embed
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
 
@@ -155,21 +161,40 @@ let accounts = loadJSON('accounts.json', {
 });
 function saveAccounts() { saveJSON('accounts.json', accounts); }
 
+// Auto-migrate plaintext passwords to bcrypt on first run
+function isHashed(p) { return p && p.startsWith('$2'); }
+(async () => {
+  let changed = false;
+  if (!isHashed(accounts.admin.pass)) {
+    accounts.admin.pass = await bcrypt.hash(accounts.admin.pass, 10);
+    changed = true;
+  }
+  for (const e of accounts.employees) {
+    if (!isHashed(e.pass)) {
+      e.pass = await bcrypt.hash(e.pass, 10);
+      changed = true;
+    }
+  }
+  if (changed) saveAccounts();
+})();
+
 // Auth
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const ip = req.ip || req.connection.remoteAddress;
   if (!rateLimit(ip, 10, 60000)) return res.status(429).json({ ok: false, error: 'Demasiados intentos. Espera 1 minuto.' });
   const { password, username } = req.body;
+  if (!password) return res.json({ ok: false });
   // Admin login
-  if (password === accounts.admin.pass) {
+  if (await bcrypt.compare(password, accounts.admin.pass)) {
     const token = createSession('admin', username || accounts.admin.name);
     return res.json({ ok: true, role: 'admin', name: username || accounts.admin.name, token });
   }
-  // Employee login — check all employee accounts
-  const emp = accounts.employees.find(e => e.pass === password && (!e.user || e.user === username));
-  if (emp) {
-    const token = createSession('employee', username || emp.name);
-    return res.json({ ok: true, role: 'employee', name: username || emp.name, token });
+  // Employee login
+  for (const emp of accounts.employees) {
+    if ((!emp.user || emp.user === username) && await bcrypt.compare(password, emp.pass)) {
+      const token = createSession('employee', username || emp.name);
+      return res.json({ ok: true, role: 'employee', name: username || emp.name, token });
+    }
   }
   return res.json({ ok: false });
 });
@@ -181,11 +206,13 @@ app.get('/api/accounts', requireAuth(['admin']), (req, res) => {
     employees: accounts.employees.map(e => ({ id: e.id, user: e.user, name: e.name, createdAt: e.createdAt }))
   });
 });
-app.post('/api/accounts/employee', requireAuth(['admin']), (req, res) => {
+app.post('/api/accounts/employee', requireAuth(['admin']), async (req, res) => {
   const { name, user, pass } = req.body;
   if (!name || !pass) return res.json({ ok: false, error: 'Nombre y contraseña requeridos' });
+  if (pass.length < 4) return res.json({ ok: false, error: 'Mínimo 4 caracteres' });
   const id = 'emp_' + Date.now();
-  accounts.employees.push({ id, name, user: user || name.toLowerCase().replace(/\s+/g,''), pass, createdAt: Date.now() });
+  const hashed = await bcrypt.hash(pass, 10);
+  accounts.employees.push({ id, name, user: user || name.toLowerCase().replace(/\s+/g,''), pass: hashed, createdAt: Date.now() });
   saveAccounts();
   res.json({ ok: true });
 });
@@ -194,10 +221,10 @@ app.delete('/api/accounts/employee/:id', requireAuth(['admin']), (req, res) => {
   saveAccounts();
   res.json({ ok: true });
 });
-app.post('/api/accounts/admin-pass', requireAuth(['admin']), (req, res) => {
+app.post('/api/accounts/admin-pass', requireAuth(['admin']), async (req, res) => {
   const { newPass } = req.body;
-  if (!newPass || newPass.length < 4) return res.json({ ok: false, error: 'Minimo 4 caracteres' });
-  accounts.admin.pass = newPass;
+  if (!newPass || newPass.length < 4) return res.json({ ok: false, error: 'Mínimo 4 caracteres' });
+  accounts.admin.pass = await bcrypt.hash(newPass, 10);
   saveAccounts();
   res.json({ ok: true });
 });
@@ -317,7 +344,10 @@ const AUTO_REPLY = 'Gracias por escribirnos! En este momento estamos fuera de ho
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
+// Limit max concurrent WebSocket connections
+const MAX_WS_CONNECTIONS = 200;
 wss.on('connection', (ws) => {
+  if (wss.clients.size > MAX_WS_CONNECTIONS) { ws.close(1013, 'Too many connections'); return; }
   const clientId = 'u' + (idCounter++);
   clients.set(ws, { id: clientId, name: null, role: null, roomId: null, connectedAt: Date.now(), registered: false });
 
@@ -328,10 +358,17 @@ wss.on('connection', (ws) => {
 
       switch (data.type) {
         case 'register': {
-          const roomId = data.role === 'admin' ? null : clientId;
+          // Validate role from auth token if provided, otherwise default to public
+          let verifiedRole = 'public';
+          if (data.token && sessions[data.token]) {
+            verifiedRole = sessions[data.token].role;
+          } else if (data.role === 'public') {
+            verifiedRole = 'public';
+          }
+          const roomId = verifiedRole === 'admin' ? null : clientId;
           clientInfo.name = data.name || 'Anon';
-          clientInfo.role = data.role || 'public';
-            clientInfo.registered = true;
+          clientInfo.role = verifiedRole;
+          clientInfo.registered = true;
           clientInfo.roomId = roomId;
 
           if (roomId && !chatRooms[roomId]) {
