@@ -1378,12 +1378,12 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
             {/* Modelo */}
             <div style={{fontSize:13,color:_globalTheme.textSecondary||"#666",marginBottom:20}}>Modelo: <strong>{r.modelo_nombre}</strong> · Categoria: <strong style={{textTransform:"capitalize"}}>{r.cat}</strong></div>
             {/* Buttons */}
-            <div style={{display:"flex",gap:10}}>
-              <button onClick={onClose} style={{flex:1,padding:"12px 0",fontSize:14,fontWeight:600,border:"1px solid #003478",borderRadius:20,background:theme.card,color:"#003478",cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
-              {onConsultar&&<button onClick={()=>{onConsultar(r);onClose();}} style={{flex:1,background:"#003478",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Consultar</button>}
-              <button onClick={(e)=>{e.stopPropagation();onAddCart&&onAddCart(r);}} style={{padding:"9px 10px",fontSize:12,fontWeight:700,border:"none",borderRadius:20,background:"#f0f0f0",color:_globalTheme.text||"#333",cursor:"pointer",fontFamily:"inherit"}} title="Agregar a mi lista">+</button>
-          <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola La Ford de Warnes! Consulto por: ${r.nombre} (Cod. Ref: ${r.numero_parte}) para ${r.modelo_nombre}. Precio en web: ${r.precio}. Esta disponible? Gracias!`)}`} target="_blank" rel="noopener noreferrer"
-                style={{flex:1,background:"#25d366",border:"none",borderRadius:20,padding:"12px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",textAlign:"center",display:"block"}}>WhatsApp</a>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              <button onClick={onClose} style={{padding:"14px 0",fontSize:14,fontWeight:600,border:"2px solid "+theme.cardBorder,borderRadius:10,background:"transparent",color:theme.text,cursor:"pointer",fontFamily:"inherit"}}>Cerrar</button>
+              {onConsultar&&<button onClick={()=>{onConsultar(r);onClose();}} style={{background:"#003478",border:"none",borderRadius:10,padding:"14px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Consultar</button>}
+              <button onClick={(e)=>{e.stopPropagation();onAddCart&&onAddCart(r);}} style={{padding:"14px 0",fontSize:14,fontWeight:700,border:"2px solid #f59e0b",borderRadius:10,background:"rgba(245,158,11,.1)",color:"#f59e0b",cursor:"pointer",fontFamily:"inherit"}}>+ Agregar a lista</button>
+              <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola La Ford de Warnes! Consulto por: ${r.nombre} (Cod. Ref: ${r.numero_parte}) para ${r.modelo_nombre}. Precio en web: ${r.precio}. Esta disponible? Gracias!`)}`} target="_blank" rel="noopener noreferrer"
+                style={{background:"#25d366",border:"none",borderRadius:10,padding:"14px 0",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",textAlign:"center",display:"block"}}>WhatsApp</a>
             </div>
           </div>
         </div>
