@@ -950,9 +950,9 @@ export default function FordWarnesApp({ user, onLogout }){
               <div style={{height:"100%",display:"flex",flexDirection:"column",background:theme.bg}}>
                 <div style={{padding:"14px 18px",borderBottom:"1px solid "+theme.cardBorder,background:theme.card}}>
                   <div style={{fontSize:16,fontWeight:800,color:theme.text}}>Chat con el Jefe</div>
-                  <div style={{fontSize:11,color:theme.textSecondary}}>Preguntale a Juan directamente</div>
+                  <div style={{fontSize:11,color:theme.textSecondary}}>Escribile a Juan directamente</div>
                 </div>
-                <div style={{flex:1,overflow:"hidden"}}><AdminChats network={network}/></div>
+                <div style={{flex:1,overflow:"hidden"}}><PrivateChatInline network={network} userName={user?.name} pendingConsulta={null} onConsultaSent={()=>{}}/></div>
               </div>
             )}
             {adminTab==="stock"&&<AdminStock modelos={MOCK_MODELOS} catalogo={CATALOGO_COMPLETO} imgModelos={IMGS_MODELO}
