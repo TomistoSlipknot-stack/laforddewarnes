@@ -8,13 +8,14 @@ const STEPS = [
   { id: 'contacto', bot: 'Tu nombre y telefono para que un asesor te contacte:' },
 ];
 
-export default function PrivateChatInline({ network, userName }) {
+export default function PrivateChatInline({ network, userName, pendingConsulta, onConsultaSent }) {
   const [msgs, setMsgs] = useState([]);
   const [inp, setInp] = useState('');
   const [step, setStep] = useState(0);
   const [orderData, setOrderData] = useState({});
   const [botMode, setBotMode] = useState(true);
   const bottomRef = useRef(null);
+  const consultaSentRef = useRef(false);
 
   const realMessages = network.roomId ? (network.chatMessages[network.roomId] || []) : [];
 
@@ -25,6 +26,20 @@ export default function PrivateChatInline({ network, userName }) {
       setTimeout(() => setMsgs([{ id: 1, from: 'bot', text: STEPS[0].bot, options: STEPS[0].options }]), 400);
     }
   }, []);
+
+  // Handle pending consulta from "Consultar" button
+  useEffect(() => {
+    if (pendingConsulta && !consultaSentRef.current) {
+      consultaSentRef.current = true;
+      setBotMode(false);
+      setMsgs(prev => [...prev, { id: Date.now(), from: 'bot', text: 'Consulta enviada al asesor. Te responderemos pronto.' }]);
+      setTimeout(() => {
+        network.sendChat(pendingConsulta);
+        if (onConsultaSent) onConsultaSent();
+        consultaSentRef.current = false;
+      }, 300);
+    }
+  }, [pendingConsulta]);
 
   const addMsg = (from, text, options) => setMsgs(prev => [...prev, { id: Date.now() + Math.random(), from, text, options }]);
 

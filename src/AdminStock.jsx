@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { authFetch } from './App.jsx';
 
-export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPrice }) {
+export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPrice, imgModelos }) {
   const [catFilter, setCatFilter] = useState('all');
   const [selModelo, setSelModelo] = useState(null);
   const [editPart, setEditPart] = useState(null);
@@ -95,22 +95,26 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
                 {ms.map(m => {
                   const parts = catalogo[m.id] || [];
                   const inStock = parts.filter(p => p.stock > 0).length;
-                  const outStock = parts.filter(p => p.stock === 0).length;
+                  const hasAnyStock = parts.some(p => p.stock > 0);
+                  const imgSrc = imgModelos && imgModelos[m.id];
                   return (
-                    <div key={m.id} onClick={() => { setSelModelo(m); setSearch(''); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, marginBottom: 4, cursor: 'pointer', transition: 'background .1s' }}
+                    <div key={m.id} onClick={() => { setSelModelo(m); setSearch(''); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, marginBottom: 4, cursor: 'pointer', transition: 'background .1s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--fw-bg, #f0f4f8)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--fw-card, #fff)'}>
-                      <div style={{ width: 50, height: 36, borderRadius: 6, overflow: 'hidden', background: m.color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 16, opacity: .5 }}>🚗</span>
+                      <div style={{ width: 60, height: 42, borderRadius: 8, overflow: 'hidden', background: m.color, flexShrink: 0 }}>
+                        {imgSrc && <img src={imgSrc} alt={m.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--fw-text, #333)' }}>{m.nombre}</div>
-                        <div style={{ fontSize: 10, color: 'var(--fw-textSecondary, #777)' }}>{m.año} · {parts.length} repuestos</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--fw-text, #333)' }}>{m.nombre}</div>
+                        <div style={{ fontSize: 11, color: 'var(--fw-textSecondary, #777)' }}>{m.año} · {parts.length} repuestos</div>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ fontSize: 11, color: '#22c55e' }}>{inStock} en stock</div>
-                        {outStock > 0 && <div style={{ fontSize: 10, color: '#ef4444' }}>{outStock} agotados</div>}
+                        {hasAnyStock
+                          ? <div style={{ fontSize: 12, color: '#22c55e', fontWeight: 600 }}>{inStock} en stock</div>
+                          : <div style={{ fontSize: 11, color: 'var(--fw-textSecondary, #999)' }}>Sin cargar</div>
+                        }
+                        <div style={{ fontSize: 10, color: 'var(--fw-textMuted, #888)' }}>{parts.length} piezas</div>
                       </div>
-                      <div style={{ color: 'var(--fw-text, #333)', fontSize: 14 }}>→</div>
+                      <div style={{ color: 'var(--fw-textSecondary, #999)', fontSize: 16 }}>›</div>
                     </div>
                   );
                 })}
@@ -152,18 +156,18 @@ export default function AdminStock({ modelos, catalogo, onUpdatePart, onBulkPric
       <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
         {searchedParts.map((p, i) => (
           <div key={p.numero_parte || i} onClick={() => setEditPart({ ...p })}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 8, marginBottom: 3, cursor: 'pointer', transition: 'background .1s' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'var(--fw-card, #fff)', border: '1px solid var(--fw-cardBorder, #e0e0e0)', borderRadius: 10, marginBottom: 6, cursor: 'pointer', transition: 'background .1s' }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--fw-bg, #f0f4f8)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--fw-card, #fff)'}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: sc(p.stock), flexShrink: 0 }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: sc(p.stock), flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--fw-text, #444)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.nombre}</div>
-              <div style={{ fontSize: 10, color: 'var(--fw-textSecondary, #777)' }}>{p.cat} · {p.numero_parte}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--fw-text, #333)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.nombre}</div>
+              <div style={{ fontSize: 12, color: 'var(--fw-textSecondary, #777)', marginTop: 2 }}>{p.cat} · {p.numero_parte}</div>
             </div>
             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--fw-text, #333)' }}>{p.precio}</div>
-              {p.precio_oem && <div style={{ fontSize: 9, color: 'var(--fw-textSecondary, #888)', textDecoration: 'line-through' }}>OEM {p.precio_oem}</div>}
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--fw-text, #333)' }}>{p.precio}</div>
+              {p.precio_oem && <div style={{ fontSize: 11, color: 'var(--fw-textSecondary, #888)', textDecoration: 'line-through' }}>OEM {p.precio_oem}</div>}
             </div>
-            <div style={{ fontSize: 11, color: sc(p.stock), minWidth: 30, textAlign: 'right' }}>{p.stock}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: sc(p.stock), minWidth: 30, textAlign: 'right' }}>{p.stock || 0}</div>
             <div style={{ color: 'var(--fw-text, #333)', fontSize: 12 }}>✏️</div>
           </div>
         ))}

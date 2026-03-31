@@ -212,9 +212,11 @@ const FRASES_GOLPE=["¡¡AUCH!! ¡¡NO ME PEGUES!!","¡YA NO VOY A SER TAN ESTRI
 // ─── CSS ──────────────────────────────────────────────────────────────────────
 const GCSS=`
   *{box-sizing:border-box}
+  html,body{overflow-x:hidden}
   ::-webkit-scrollbar{width:10px}
   ::-webkit-scrollbar-track{background:#e8e8e8}
   ::-webkit-scrollbar-thumb{background:#bbb;border-radius:5px}
+  @keyframes toast-in{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
   ::-webkit-scrollbar-thumb:hover{background:#999}
   @keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   @keyframes bounce-bob{0%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(-12px) scale(1.06)}75%{transform:translateY(-3px) scale(.98)}}
@@ -718,9 +720,16 @@ export default function FordWarnesApp({ user, onLogout }){
   const [searchHistory, setSearchHistory] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-search-hist")||"[]");}catch{return[];}});
   const addSearchHistory=(q)=>{if(!q||q.length<2)return;const h=[q,...searchHistory.filter(x=>x!==q)].slice(0,8);setSearchHistory(h);try{localStorage.setItem("fw-search-hist",JSON.stringify(h));}catch{}};
   
-  const addToCart=(item)=>{if(!carrito.find(c=>c.numero_parte===item.numero_parte))setCarrito(c=>[...c,item]);};
+  const [cartToast,setCartToast]=useState(null);
+  const addToCart=(item)=>{
+    if(carrito.find(c=>c.numero_parte===item.numero_parte)){setCartToast({text:'Ya esta en tu lista',type:'warn'});setTimeout(()=>setCartToast(null),2000);return;}
+    setCarrito(c=>[...c,item]);
+    setCartToast({text:'Agregado a tu lista',type:'ok'});
+    setTimeout(()=>setCartToast(null),2000);
+  };
   const removeFromCart=(nro)=>setCarrito(c=>c.filter(x=>x.numero_parte!==nro));
   const [chatOpen,  setChatOpen]  = useState(false);
+  const [pendingConsulta, setPendingConsulta] = useState(null);
   const [adminTab,  setAdminTab]  = useState("chats"); // stock | chats | online | logs
   const bottomRef=useRef(null);
   const network = useNetwork();
@@ -761,14 +770,17 @@ export default function FordWarnesApp({ user, onLogout }){
   const repsPorModelo=(id)=>CATALOGO_COMPLETO[id]||generalParts.slice(0,50);
 
   return(
-    <div style={{minHeight:"100vh",background:theme.bg,fontFamily:"'Inter',system-ui,sans-serif",color:_globalTheme.text||"#333",display:"flex",flexDirection:"column"}}>
+    <div style={{minHeight:"100vh",background:theme.bg,fontFamily:"'Inter',system-ui,sans-serif",color:_globalTheme.text||"#333",display:"flex",flexDirection:"column",overflowX:"hidden"}}>
       <style>{GCSS}</style>
+
+      {/* Toast notification */}
+      {cartToast&&<div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9999,background:cartToast.type==="ok"?"#22c55e":"#f59e0b",color:"#fff",padding:"12px 24px",borderRadius:12,fontSize:14,fontWeight:700,boxShadow:"0 8px 24px rgba(0,0,0,.2)",animation:"toast-in .3s ease",fontFamily:"inherit"}}>{cartToast.text}</div>}
 
       {/* Juan flotante — se oculta cuando el chat está abierto */}
       {role==='employee'&&<FloatingHead state={botState} hidden={chatOpen}/>}
 
       {/* HEADER */}
-      <header className="fw-header" style={{background:theme.card,borderBottom:"1px solid #e0e0e0",padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20,boxShadow:"0 1px 4px rgba(0,0,0,.06)"}}>
+      <header className="fw-header" style={{background:theme.card,borderBottom:"1px solid "+theme.cardBorder,padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20,boxShadow:"0 1px 4px rgba(0,0,0,.06)",overflowX:"auto",overflowY:"hidden"}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
           <div style={{width:56,height:30,background:"linear-gradient(135deg,#003478,#0050a0)",borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,52,120,.3)"}}>
             <span style={{color:"#fff",fontWeight:800,fontSize:15,fontStyle:"italic",fontFamily:"Georgia,serif"}}>Ford</span>
@@ -870,7 +882,7 @@ export default function FordWarnesApp({ user, onLogout }){
           </div>
           <div style={{flex:1,overflow:"hidden"}}>
             {adminTab==="dashboard"&&<AdminDashboard theme={theme}/>}
-            {adminTab==="stock"&&<AdminStock modelos={MOCK_MODELOS} catalogo={CATALOGO_COMPLETO}
+            {adminTab==="stock"&&<AdminStock modelos={MOCK_MODELOS} catalogo={CATALOGO_COMPLETO} imgModelos={IMGS_MODELO}
               onUpdatePart={(modeloId, part)=>{
                 const parts=CATALOGO_COMPLETO[modeloId];
                 if(!parts)return;
@@ -942,7 +954,7 @@ export default function FordWarnesApp({ user, onLogout }){
                       <div style={{fontSize:14,fontWeight:700,color:"#003478",marginBottom:12}}>{results.length} resultado{results.length!==1?"s":""} para "{homeSearch}"</div>
                       <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:16}}>
                         {results.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onConsultar={(part)=>{
-                          network.sendChat(`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`);
+                          setPendingConsulta(`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`);
                           setChatOpen(true);
                         }} onAddCart={addToCart}/>)}
                       </div>
@@ -1047,8 +1059,7 @@ export default function FordWarnesApp({ user, onLogout }){
                     <div style={{fontSize:13,color:_globalTheme.textSecondary||"#888",marginBottom:12}}>{filtered.length} resultado{filtered.length!==1?"s":""}{catFilter?` en ${catFilter}`:""}</div>
                     <div className="fw-rep-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
                       {filtered.slice(0,showCount).map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onAddCart={addToCart} onConsultar={(part)=>{
-                        const msg=`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`;
-                        network.sendChat(msg);
+                        setPendingConsulta(`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`);
                         setChatOpen(true);
                       }}/>)}
                     </div>
