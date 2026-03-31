@@ -1171,7 +1171,7 @@ export default function FordWarnesApp({ user, onLogout }){
       {/* Chat bubble flotante — solo clientes */}
       {/* Scroll to top */}
       <ScrollToTop/>
-      {!esJefe&&<Cart items={carrito} onRemove={removeFromCart} onClear={()=>setCarrito([])} onConsultar={(msg)=>{network.sendChat(msg);setChatOpen(true);}} theme={theme} />}
+      {!esJefe&&<Cart items={carrito} onRemove={removeFromCart} onClear={()=>setCarrito([])} onConsultar={(msg)=>{setPendingConsulta(msg);setChatOpen(true);}} theme={theme} />}
       {!esJefe&&role!=="employee"&&!chatOpen&&(
         <ChatBubble unread={chatUnread} onAction={(action)=>{
           if(action==='search')setVista('chat');

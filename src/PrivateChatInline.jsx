@@ -32,7 +32,11 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
     if (pendingConsulta && !consultaSentRef.current) {
       consultaSentRef.current = true;
       setBotMode(false);
-      setMsgs(prev => [...prev, { id: Date.now(), from: 'bot', text: 'Consulta enviada al asesor. Te responderemos pronto.' }]);
+      setMsgs(prev => [
+        ...prev,
+        { id: Date.now(), from: 'user', text: pendingConsulta },
+        { id: Date.now() + 1, from: 'bot', text: 'Consulta enviada al asesor. Te responderemos pronto.' },
+      ]);
       setTimeout(() => {
         network.sendChat(pendingConsulta);
         if (onConsultaSent) onConsultaSent();
