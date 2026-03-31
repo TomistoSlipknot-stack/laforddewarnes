@@ -32,6 +32,23 @@ function playNotifSound(type) {
   } catch (e) { /* silent */ }
 }
 
+
+function showBrowserNotif(title, body) {
+  try {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body, icon: '/favicon.svg', badge: '/favicon.svg' });
+    }
+  } catch(e) {}
+}
+
+function requestNotifPermission() {
+  try {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  } catch(e) {}
+}
+
 export function useNetwork() {
   const wsRef = useRef(null);
   const [connected, setConnected] = useState(false);
@@ -51,6 +68,7 @@ export function useNetwork() {
     wsRef.current = ws;
 
     ws.onopen = () => {
+      requestNotifPermission();
       setConnected(true);
       ws.send(JSON.stringify({ type: 'register', name, role }));
     };
@@ -80,7 +98,7 @@ export function useNetwork() {
               const room = prev[data.roomId] || [];
               return { ...prev, [data.roomId]: [...room, data.msg] };
             });
-            if (data.msg.fromRole !== role) playNotifSound(role === 'admin' ? 'alert' : 'msg');
+            if (data.msg.fromRole !== role) { playNotifSound(role === 'admin' ? 'alert' : 'msg'); if (document.hidden) showBrowserNotif('La Ford de Warnes', data.msg.from + ': ' + data.msg.text.slice(0, 80)); }
             break;
           case 'search_log':
             setSearchLogs(prev => [...prev.slice(-49), data.log]);
