@@ -89,8 +89,8 @@ export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRe
       `*Total: $${total.toLocaleString('es-AR')}*`,
       '',
       '*Datos de pago:*',
-      'Alias: laforddewarnes',
-      'CBU: (a confirmar)',
+      'Alias: laforddewarnes.mp',
+      'CVU: 0000003100002327991773',
       '',
       `Atendido por: ${userName || 'Empleado'}`,
     ];

@@ -330,11 +330,11 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontSize: 13, color: t.textMuted || '#888' }}>Alias MercadoPago:</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: t.text || '#333', fontFamily: 'monospace' }}>ALIAS_PLACEHOLDER</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: t.text || '#333', fontFamily: 'monospace' }}>laforddewarnes.mp</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 13, color: t.textMuted || '#888' }}>CBU:</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: t.text || '#333', fontFamily: 'monospace' }}>CBU_PLACEHOLDER</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: t.text || '#333', fontFamily: 'monospace' }}>0000003100002327991773</span>
             </div>
           </div>
 
