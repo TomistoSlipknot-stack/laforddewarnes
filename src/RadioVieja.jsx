@@ -1,12 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 
-const SONGS = [
+// Publicidad / Autos nuevos (Juan sube estos)
+const ADS = [
+  // '/videos/ad1.mp4',  // Juan mandará videos de publicidad
+  // '/videos/ad2.mp4',
+];
+
+// Música de fondo
+const MUSIC = [
   '/videos/song1.mp4',
   '/videos/song2.mp4',
   '/videos/song3.mp4',
   '/videos/song4.mp4',
   '/videos/song5.mp4',
 ];
+
+const SONGS = [...ADS, ...MUSIC];
 
 export default function RadioVieja() {
   const [on, setOn] = useState(false);

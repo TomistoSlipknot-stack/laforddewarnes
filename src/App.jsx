@@ -829,7 +829,7 @@ export default function FordWarnesApp({ user, onLogout }){
 
       {/* Juan flotante — se oculta cuando el chat está abierto */}
       {role==='employee'&&<FloatingHead state={botState} hidden={chatOpen} giftReaction={juanGift}/>}
-      {(esJefe||role==='employee')&&<RadioVieja/>}
+      <RadioVieja/>
 
       {/* HEADER */}
       <header className="fw-header" style={{background:theme.card,borderBottom:"1px solid "+theme.cardBorder,padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20,boxShadow:"0 1px 4px rgba(0,0,0,.06)",overflowX:"auto",overflowY:"hidden"}}>
