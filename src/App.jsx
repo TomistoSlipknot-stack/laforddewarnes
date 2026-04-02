@@ -1102,7 +1102,23 @@ export default function FordWarnesApp({ user, onLogout }){
                 <p style={{fontSize:12,color:_globalTheme.textSecondary||"#888",margin:"0 0 12px"}}>Selecciona tu modelo y año para ver los repuestos disponibles</p>
                 {/* Buscador rapido en home */}
                 <SearchAutocomplete theme={theme} allProducts={repTodos} onSearch={q=>setHomeSearch(q)} onSelect={p=>setParteSel(p)} />
-                <p style={{fontSize:12,color:_globalTheme.textMuted||"#aaa",margin:"0 0 20px"}}>{MOCK_MODELOS.length} modelos · {Object.values(CATALOGO_COMPLETO).flat().length} repuestos · Stock sujeto a disponibilidad</p>
+                <p style={{fontSize:12,color:_globalTheme.textMuted||"#aaa",margin:"0 0 16px"}}>{MOCK_MODELOS.length} modelos · {Object.values(CATALOGO_COMPLETO).flat().length} repuestos · Stock sujeto a disponibilidad</p>
+
+                {/* Productos destacados carrusel */}
+                {homeSearch.trim().length<=2&&(
+                  <div style={{marginBottom:20}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#4a9eff",marginBottom:10}}>Productos destacados</div>
+                    <div style={{display:"flex",gap:12,overflowX:"auto",paddingBottom:8}}>
+                      {repTodos.slice(0,8).map((r,i)=>(
+                        <div key={i} onClick={()=>setParteSel(r)} className="fw-lift" style={{minWidth:160,background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:10,padding:12,cursor:"pointer",flexShrink:0}}>
+                          <div style={{fontSize:12,fontWeight:700,color:theme.text,marginBottom:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.nombre}</div>
+                          <div style={{fontSize:10,color:theme.textSecondary}}>{r.modelo_nombre}</div>
+                          <div style={{fontSize:14,fontWeight:800,color:"#16a34a",marginTop:6}}>{r.precio}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Resultados de busqueda rapida */}
                 {homeSearch.trim().length>2&&(()=>{

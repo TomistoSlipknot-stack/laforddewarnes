@@ -233,7 +233,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
     try {
       const aiRes = await fetch('/api/ai-search', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: raw.trim(), context }),
+        body: JSON.stringify({ query: raw.trim(), context, role: esJefe ? 'jefe' : 'empleado', userName }),
       });
       const aiData = await aiRes.json();
       if (aiData.ok && aiData.response) {
@@ -335,7 +335,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
       {/* Quick examples */}
       {messages.length <= 1 && (
         <div style={{ padding: '0 16px 8px', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {(esJefe ? ['filtro aceite ranger', 'mb3z2200a', 'stock ecosport', 'ventas hoy', 'mb3z2200a, fl3z2c444b'] : ['filtro aceite ranger', 'mb3z2200a', 'mb3z2200a, fl3z2c444b', 'stock ecosport', 'pastillas freno']).map(ex => (
+          {(esJefe ? ['ventas hoy', 'stock ranger', 'crear empleado', 'subir precios 5%', 'empleados'] : ['stock ranger', 'filtro aceite ecosport', 'pastillas de freno', 'buscar EB3Z2C150A']).map(ex => (
             <button key={ex} onClick={() => { setInput(ex); setTimeout(() => { processCommand(ex); setInput(''); }, 100); }}
               style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, border: '1px solid ' + (t.cardBorder || '#e0e0e0'), borderRadius: 20, background: t.card || '#fff', color: '#4a9eff', cursor: 'pointer', fontFamily: 'inherit' }}>
               {ex}

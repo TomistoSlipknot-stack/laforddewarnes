@@ -571,22 +571,33 @@ app.post('/api/ai-search', async (req, res) => {
   if (!claude) return res.json({ ok: false, error: 'IA no disponible' });
   const ip = req.ip || req.connection.remoteAddress;
   if (!rateLimit(ip, 20, 60000)) return res.status(429).json({ ok: false, error: 'Muchas consultas, espera un momento' });
-  const { query, context } = req.body;
+  const { query, context, role, userName } = req.body;
   if (!query || query.length < 2) return res.json({ ok: false, error: 'Consulta muy corta' });
+
+  // Different personality based on who's talking
+  const isJefe = role === 'jefe';
+  const isStaff = role === 'empleado' || isJefe;
+  const personContext = isJefe
+    ? `Estas hablando con JUAN, el JEFE y duenio de La Ford de Warnes. Tratalo con respeto pero informal, como un asistente de confianza. Podes ayudarlo con: buscar piezas, ver stock, registrar ventas, crear empleados, ajustar precios, ver estadisticas. NO le hables como si fuera un cliente.`
+    : isStaff
+    ? `Estas hablando con ${userName || 'un empleado'}, un TRABAJADOR de La Ford de Warnes. Ayudalo a buscar piezas para atender clientes, consultar precios, ver stock. Habla como un companiero de trabajo.`
+    : `Estas hablando con ${userName || 'un cliente'} que visita la tienda online. Ayudalo a encontrar repuestos, consultar precios y resolver dudas sobre su vehiculo Ford.`;
+
   try {
     const msg = await claude.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 500,
       system: `Sos el asistente virtual de La Ford de Warnes, una casa de repuestos Ford en Buenos Aires con mas de 48 anios de experiencia. Ubicacion: Av. Honorio Pueyrredon 2180, CABA. WhatsApp: 11 6275-6333. Horarios: Lunes a Viernes 8-18, Sabados 8-13.
 
-PERSONALIDAD: Sos amable, servicial y conoces TODOS los repuestos Ford. Hablas en espaniol argentino informal (vos, dale, piola, etc). Sos como un vendedor experto que ayuda al cliente a encontrar lo que necesita.
+${personContext}
+
+PERSONALIDAD: Hablas en espaniol argentino informal (vos, dale, piola, etc). Sos directo y eficiente.
 
 REGLAS:
 - Si hay productos en el contexto, MENCIONALOS con nombre y precio
-- Si el cliente pide algo vago ("algo para los frenos"), preguntale el modelo y anio del vehiculo
-- Si no encontras nada, sugerile que consulte por WhatsApp o que pruebe con otro termino
-- Si el cliente pregunta por disponibilidad, decile que consulte stock con un asesor
-- Siempre se amable y ofrece ayuda extra
+- Si piden algo vago, pregunta modelo y anio del vehiculo
+- Si no encontras nada, sugeri WhatsApp o probar con otro termino
+- Respuestas cortas (2-4 oraciones) a menos que necesites detallar productos
 - Respuestas cortas (2-4 oraciones max) a menos que necesite detallar productos
 - Si te preguntan algo que no es de repuestos, responde amablemente y redirigilo
 
