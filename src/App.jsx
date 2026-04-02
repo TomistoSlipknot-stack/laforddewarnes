@@ -1050,7 +1050,8 @@ export default function FordWarnesApp({ user, onLogout }){
             {!modeloSel?(
               <>
                 <h2 style={{fontSize:28,fontWeight:800,color:theme.text,margin:"0 0 4px"}}>Repuestos Ford</h2>
-                <p style={{fontSize:14,color:_globalTheme.textSecondary||"#888",margin:"0 0 12px"}}>Selecciona tu modelo o busca directamente</p>
+                <p style={{fontSize:14,color:_globalTheme.textSecondary||"#888",margin:"0 0 4px"}}>Mas de 48 años como especialistas Ford</p>
+                <p style={{fontSize:12,color:_globalTheme.textSecondary||"#888",margin:"0 0 12px"}}>Selecciona tu modelo y año para ver los repuestos disponibles</p>
                 {/* Buscador rapido en home */}
                 <SearchAutocomplete theme={theme} allProducts={repTodos} onSearch={q=>setHomeSearch(q)} onSelect={p=>setParteSel(p)} />
                 <p style={{fontSize:12,color:_globalTheme.textMuted||"#aaa",margin:"0 0 20px"}}>{MOCK_MODELOS.length} modelos · {Object.values(CATALOGO_COMPLETO).flat().length} repuestos · Stock sujeto a disponibilidad</p>
@@ -1244,17 +1245,30 @@ export function authFetch(url, opts = {}) {
 
 function ModeloCard({modelo,onClick}){const theme = _globalTheme;
   const [hov,setHov]=useState(false);const [imgErr,setImgErr]=useState(false);
+  const years = modelo.año?.split('-') || [];
+  const yearStart = years[0] || '';
+  const yearEnd = years[1] || '';
   return(
-    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:theme.card,border:`1px solid ${hov?"#003478":"#e0e0e0"}`,borderRadius:8,cursor:"pointer",transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,52,120,.12)":"0 1px 3px rgba(0,0,0,.04)"}}>
-      <div style={{width:"100%",height:160,background:"#f0f4f8",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
+    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{background:theme.card,border:`2px solid ${hov?"#003478":theme.cardBorder}`,borderRadius:12,cursor:"pointer",transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 8px 24px rgba(0,52,120,.15)":"0 1px 4px rgba(0,0,0,.06)"}}>
+      <div style={{width:"100%",height:140,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",background:modelo.color||"#f0f4f8"}}>
         {!imgErr&&IMGS_MODELO[modelo.id]
           ?<img src={IMGS_MODELO[modelo.id]} alt={modelo.nombre} onError={()=>setImgErr(true)} style={{width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s",transform:hov?"scale(1.05)":"scale(1)"}}/>
-          :<span style={{fontSize:42,opacity:.15}}>🚗</span>}
+          :<span style={{fontSize:42,opacity:.3,color:"#fff"}}>🚗</span>}
+        {/* Year badge */}
+        <div style={{position:"absolute",top:8,right:8,background:"rgba(0,0,0,.7)",borderRadius:6,padding:"3px 8px",fontSize:11,fontWeight:700,color:"#fff",backdropFilter:"blur(4px)"}}>
+          {modelo.año}
+        </div>
+        {/* Category badge */}
+        <div style={{position:"absolute",bottom:8,left:8,background:"rgba(0,52,120,.8)",borderRadius:6,padding:"2px 8px",fontSize:9,fontWeight:700,color:"#fff",textTransform:"uppercase",letterSpacing:".5px"}}>
+          {modelo.cat}
+        </div>
       </div>
-      <div style={{padding:"14px 16px"}}>
-        <div style={{fontSize:18,fontWeight:800,color:theme.text}}>{modelo.nombre}</div>
-        <div style={{fontSize:12,color:_globalTheme.textSecondary||"#888",marginTop:3}}>{modelo.año}</div>
-        <div style={{marginTop:8,fontSize:12,color:"#003478",fontWeight:600}}>{modelo.total_repuestos} repuestos disponibles</div>
+      <div style={{padding:"12px 14px"}}>
+        <div style={{fontSize:17,fontWeight:800,color:theme.text,lineHeight:1.2}}>{modelo.nombre}</div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8}}>
+          <span style={{fontSize:12,color:"#4a9eff",fontWeight:700}}>{modelo.total_repuestos} repuestos</span>
+          <span style={{fontSize:11,color:theme.textSecondary,fontWeight:500}}>{yearStart} → {yearEnd}</span>
+        </div>
       </div>
     </div>
   );
