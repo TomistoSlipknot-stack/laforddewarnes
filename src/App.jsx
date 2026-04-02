@@ -178,31 +178,51 @@ MOCK_MODELOS.forEach(m=>{
 function mockBuscar(q){
   const ql=q.toLowerCase().trim();
   if(!ql)return null;
+  const normalize=s=>(s||'').toLowerCase().replace(/[-/.\\s]/g,'');
   const allParts=Object.values(CATALOGO_COMPLETO).flat();
-  // Eliminar duplicados por numero de pieza
   const unique=[...new Map(allParts.map(p=>[p.numero_parte,p])).values()];
-  // Buscar por numero de pieza exacto o parcial
-  const byPart=unique.filter(p=>p.numero_parte&&p.numero_parte.toLowerCase().includes(ql));
-  if(byPart.length)return byPart.slice(0,20);
-  // Buscar en nombre
-  const byName=unique.filter(p=>p.nombre&&p.nombre.toLowerCase().includes(ql));
-  if(byName.length)return byName.slice(0,20);
-  // Buscar en categoria
-  const byCat=unique.filter(p=>p.cat&&p.cat.toLowerCase().includes(ql));
-  if(byCat.length)return byCat.slice(0,20);
-  // Buscar en modelo
-  const byModel=unique.filter(p=>p.modelo_nombre&&p.modelo_nombre.toLowerCase().includes(ql));
-  if(byModel.length)return byModel.slice(0,20);
-  // Buscar palabras sueltas (ej: "filtro ranger" busca filtro + ranger)
-  const words=ql.split(/\s+/).filter(w=>w.length>2);
-  if(words.length>1){
-    const multi=unique.filter(p=>{
-      const txt=(p.nombre+' '+p.cat+' '+p.modelo_nombre+' '+p.numero_parte).toLowerCase();
-      return words.every(w=>txt.includes(w));
+
+  // Support multiple part numbers separated by comma
+  const queries=ql.includes(',')?ql.split(',').map(s=>s.trim()).filter(Boolean):[ql];
+  let allResults=[];
+
+  for(const sq of queries){
+    const sqNorm=normalize(sq);
+    const found=unique.filter(p=>{
+      const pNorm=normalize(p.numero_parte);
+      const pName=(p.nombre||'').toLowerCase();
+      const pModel=(p.modelo_nombre||'').toLowerCase();
+      const pCat=(p.cat||'').toLowerCase();
+      // Part number (normalized - ignores -/.)
+      if(sqNorm.length>3&&pNorm.includes(sqNorm))return true;
+      // Part number with separators
+      if(sq.length>3&&(p.numero_parte||'').toLowerCase().includes(sq))return true;
+      // Name
+      if(pName.includes(sq))return true;
+      // Category
+      if(pCat.includes(sq))return true;
+      // Model
+      if(pModel.includes(sq))return true;
+      // Compatible models
+      if(p.aplicativos?.some(a=>a.toLowerCase().includes(sq)))return true;
+      // Multi-word
+      if(sq.includes(' ')){
+        const words=sq.split(/\s+/).filter(w=>w.length>1);
+        const hay=pName+' '+pModel+' '+pCat+' '+(p.numero_parte||'').toLowerCase();
+        if(words.length>1&&words.every(w=>hay.includes(w)))return true;
+      }
+      return false;
     });
-    if(multi.length)return multi.slice(0,20);
+    allResults.push(...found);
   }
-  return null;
+
+  // Deduplicate
+  const seen=new Set();
+  const results=allResults.filter(r=>{
+    if(seen.has(r.numero_parte))return false;
+    seen.add(r.numero_parte);return true;
+  });
+  return results.length?results.slice(0,30):null;
 }
 const SUGERENCIAS=["Filtro aceite","Pastillas freno","Amortiguador","Bujia","Correa","Bateria","Radiador","Paragolpes","Espejo","Filtro aire","Limpiaparabrisas"];
 

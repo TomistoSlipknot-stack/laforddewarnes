@@ -380,7 +380,7 @@ app.post('/api/upload', requireAuth(['admin', 'employee']), (req, res) => {
 app.get('/api/sales-history', requireAuth(['admin', 'employee']), (req, res) => {
   const today = new Date().toDateString();
   const todaySales = salesHistory.filter(s => new Date(s.date).toDateString() === today);
-  const todayTotal = todaySales.reduce((sum, s) => sum + (s.amount || 0), 0);
+  const todayTotal = todaySales.reduce((sum, s) => sum + (Number(s.total) || 0), 0);
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const weekSales = salesHistory.filter(s => s.date > weekAgo);
   res.json({
@@ -484,6 +484,19 @@ app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) =
   order.estado = status;
   order.updatedAt = Date.now();
   savePedidos();
+  // When marked as paid, register the sale in salesHistory for the Dashboard
+  if (status === 'pagado') {
+    salesHistory.push({
+      id: 'sale_' + Date.now(),
+      date: Date.now(),
+      clientName: order.cliente?.nombre || 'Cliente',
+      products: (order.items || []).map(i => i.nombre || i.numero_parte || 'Producto'),
+      total: Number(order.total) || 0,
+      notes: 'Pedido ' + order.id,
+    });
+    if (salesHistory.length > 1000) salesHistory = salesHistory.slice(-500);
+    saveSalesHistory();
+  }
   broadcastToRole('admin', { type: 'order_updated', order });
   broadcastToRole('employee', { type: 'order_updated', order });
   res.json({ ok: true });

@@ -189,27 +189,81 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
       return;
     }
 
-    // ── BUSCAR PIEZA (default) ──
-    const results = allParts.filter(p =>
-      p.nombre.toLowerCase().includes(q) ||
-      p.numero_parte.toLowerCase().includes(q) ||
-      (q.split(' ').length > 1 && q.split(' ').every(w => (p.nombre + ' ' + p.modelo_nombre + ' ' + p.numero_parte).toLowerCase().includes(w)))
-    ).slice(0, 10);
+    // ── BUSCAR PIEZA (default - SMART SEARCH) ──
+    // Normalize: remove all separators (-/.) for comparison
+    const normalize = (s) => (s || '').toLowerCase().replace(/[-/.\\s]/g, '');
+
+    // Check if query contains multiple part numbers (comma separated)
+    const queries = q.includes(',') ? q.split(',').map(s => s.trim()).filter(Boolean) : [q];
+    let allResults = [];
+
+    for (const singleQ of queries) {
+      const sq = singleQ.toLowerCase().trim();
+      const sqNorm = normalize(sq);
+
+      const found = allParts.filter(p => {
+        const pNorm = normalize(p.numero_parte);
+        const pName = p.nombre.toLowerCase();
+        const pModel = (p.modelo_nombre || '').toLowerCase();
+        const pCat = (p.cat || '').toLowerCase();
+
+        // 1. Exact part number match (normalized - ignores -/.)
+        if (sqNorm.length > 3 && pNorm.includes(sqNorm)) return true;
+        // 2. Part number with separators
+        if (sq.length > 3 && (p.numero_parte || '').toLowerCase().includes(sq)) return true;
+        // 3. Name match
+        if (pName.includes(sq)) return true;
+        // 4. Category match
+        if (pCat.includes(sq)) return true;
+        // 5. Multi-word: all words must match across name+model+part
+        if (sq.includes(' ')) {
+          const words = sq.split(/\s+/);
+          const haystack = pName + ' ' + pModel + ' ' + (p.numero_parte || '').toLowerCase() + ' ' + pCat;
+          if (words.every(w => haystack.includes(w))) return true;
+        }
+        // 6. Model + anything: "ranger filtro", "ecosport freno"
+        if (sq.includes(' ')) {
+          const words = sq.split(/\s+/);
+          const modelMatch = words.some(w => pModel.includes(w));
+          const otherWords = words.filter(w => !pModel.includes(w));
+          if (modelMatch && otherWords.length > 0) {
+            const haystack = pName + ' ' + pCat + ' ' + (p.numero_parte || '').toLowerCase();
+            if (otherWords.every(w => haystack.includes(w))) return true;
+          }
+        }
+        // 7. Compatible models search: "ranger 2023"
+        if (p.aplicativos?.some(a => a.toLowerCase().includes(sq))) return true;
+        return false;
+      });
+
+      allResults.push(...found);
+    }
+
+    // Deduplicate by numero_parte
+    const seen = new Set();
+    const results = allResults.filter(r => {
+      const key = r.numero_parte + '_' + r.modelo_nombre;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).slice(0, 20);
 
     if (results.length > 0) {
-      addResult(
-        `Encontre ${results.length} resultado${results.length > 1 ? 's' : ''} para "${raw.trim()}":`,
-        results.map(r => ({
+      const label = queries.length > 1
+        ? `Encontre ${results.length} resultado${results.length > 1 ? 's' : ''} para ${queries.length} busquedas:`
+        : `Encontre ${results.length} resultado${results.length > 1 ? 's' : ''} para "${raw.trim()}":`;
+      addResult(label, results.map(r => ({
           nombre: r.nombre,
           numero_parte: r.numero_parte,
           modelo: r.modelo_nombre,
           precio: r.precio,
           precio_oem: r.precio_oem,
           stock: r.stock,
+          aplicativos: r.aplicativos,
         }))
       );
     } else {
-      addMsg('bot', `No encontre nada para "${raw.trim()}".\n\nProba con:\n  Nombre de pieza (ej: "filtro aceite")\n  Numero de parte (ej: "EB3G-6714")\n  Modelo + pieza (ej: "ranger freno")\n\nO usa comandos:\n  "venta [cliente] [monto]" → registrar venta\n  "stock [modelo]" → ver stock`);
+      addMsg('bot', `No encontre nada para "${raw.trim()}".\n\nPodés buscar:\n  • Nombre: "filtro aceite"\n  • Codigo: "mb3z2200a" (con o sin guiones)\n  • Varios codigos: "mb3z2200a, fl3z2c444b"\n  • Modelo + pieza: "ranger freno"\n  • Categoria: "frenos", "motor"\n\nO comandos:\n  "venta Carlos 45000" → registrar venta\n  "stock ranger" → ver stock`);
     }
 
     setTyping(false);
@@ -257,7 +311,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: item.stock > 0 ? '#22c55e' : '#ef4444', flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: t.text || '#333' }}>{item.nombre}</div>
-                      <div style={{ fontSize: 11, color: t.textSecondary || '#888' }}>{item.numero_parte} · {item.modelo}</div>
+                      <div style={{ fontSize: 11, color: t.textSecondary || '#888' }}>{item.numero_parte} · {item.aplicativos?.length > 1 ? item.aplicativos.slice(0,4).join(' / ') : item.modelo}</div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: '#16a34a' }}>{item.precio}</div>
@@ -289,7 +343,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
       {/* Quick examples */}
       {messages.length <= 1 && (
         <div style={{ padding: '0 16px 8px', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {(esJefe ? ['filtro aceite ranger', 'stock ecosport', 'ventas hoy', 'empleados'] : ['filtro aceite ranger', 'stock ecosport', 'EB3G-6714-BA', 'venta Carlos 45000 filtro']).map(ex => (
+          {(esJefe ? ['filtro aceite ranger', 'mb3z2200a', 'stock ecosport', 'ventas hoy', 'mb3z2200a, fl3z2c444b'] : ['filtro aceite ranger', 'mb3z2200a', 'mb3z2200a, fl3z2c444b', 'stock ecosport', 'pastillas freno']).map(ex => (
             <button key={ex} onClick={() => { setInput(ex); setTimeout(() => { processCommand(ex); setInput(''); }, 100); }}
               style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, border: '1px solid ' + (t.cardBorder || '#e0e0e0'), borderRadius: 20, background: t.card || '#fff', color: '#003478', cursor: 'pointer', fontFamily: 'inherit' }}>
               {ex}
