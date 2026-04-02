@@ -31,7 +31,9 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
   useEffect(() => {
     setMessages([{
       id: 0, from: 'bot',
-      text: `Hola ${userName || 'crack'}! Soy el asistente de La Ford de Warnes.\n\nEscribi lo que necesites y te ayudo. Puedo buscar piezas, ver precios, registrar ventas y mas.\n\nEjemplos:\n${(esJefe ? EJEMPLOS_JEFE : EJEMPLOS_EMPLEADO).map(e => '  "' + e.cmd + '" → ' + e.desc).join('\n')}`
+      text: esJefe
+        ? `Hola Juan! Soy tu asistente personal de La Ford de Warnes.\n\nPuedo ayudarte con todo:\n• Buscar repuestos por nombre, código o modelo\n• Ver stock y precios\n• Registrar ventas\n• Crear empleados\n• Ajustar precios\n\nPreguntame lo que necesites, como si estuvieras hablando con alguien.`
+        : `Hola${userName ? ' ' + userName : ''}! Bienvenido a La Ford de Warnes.\n\nSoy el asistente virtual de la tienda. Puedo ayudarte a:\n• Encontrar el repuesto que necesitás\n• Consultar precios y disponibilidad\n• Comparar opciones para tu vehículo\n• Responder tus dudas sobre repuestos Ford\n\nDecime qué necesitás y te ayudo al toque.`
     }]);
   }, []);
 
@@ -189,126 +191,70 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
       return;
     }
 
-    // ── CHECK IF NATURAL LANGUAGE QUESTION → go to AI directly ──
-    const isQuestion = /^(que|cual|como|necesito|tengo|me |mi |hay |tiene|sirve|puedo|quiero|busco|recomend)/i.test(q) || q.includes('?');
-    if (isQuestion) {
-      // Do a quick text search for context
-      const quickResults = allParts.filter(p => {
-        const words = q.replace(/[?¿!¡]/g, '').split(/\s+/).filter(w => w.length > 2);
-        const hay = ((p.nombre || '') + ' ' + (p.cat || '') + ' ' + (p.modelo_nombre || '')).toLowerCase();
-        return words.some(w => hay.includes(w));
-      }).slice(0, 5);
-      const context = quickResults.length > 0
-        ? 'Productos relacionados en catalogo:\n' + quickResults.map(p => `- ${p.nombre} (${p.numero_parte}) ${p.precio} - ${p.modelo_nombre}`).join('\n')
-        : 'No se encontraron productos directamente';
-      try {
-        const aiRes = await fetch('/api/ai-search', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: raw.trim(), context }),
-        });
-        const aiData = await aiRes.json();
-        if (aiData.ok && aiData.response) {
-          if (quickResults.length > 0) {
-            addResult(aiData.response, quickResults.map(r => ({ nombre: r.nombre, numero_parte: r.numero_parte, modelo: r.modelo_nombre, precio: r.precio, precio_oem: r.precio_oem, stock: r.stock, aplicativos: r.aplicativos })));
-          } else {
-            addMsg('bot', aiData.response);
-          }
-        } else {
-          addMsg('bot', 'No pude entender tu consulta. Probá con el nombre de la pieza o el código.');
-        }
-      } catch { addMsg('bot', 'Error de conexión. Probá de nuevo.'); }
-      setTyping(false);
-      return;
-    }
-
-    // ── BUSCAR PIEZA (default - SMART SEARCH) ──
-    // Normalize: remove all separators (-/.) for comparison
+    // ── ALWAYS USE AI + TEXT SEARCH TOGETHER ──
     const normalize = (s) => (s || '').toLowerCase().replace(/[-/.\\s]/g, '');
 
-    // Check if query contains multiple part numbers (comma separated)
+    // Quick text search for context
     const queries = q.includes(',') ? q.split(',').map(s => s.trim()).filter(Boolean) : [q];
     let allResults = [];
-
     for (const singleQ of queries) {
       const sq = singleQ.toLowerCase().trim();
       const sqNorm = normalize(sq);
-
       const found = allParts.filter(p => {
         const pNorm = normalize(p.numero_parte);
-        const pName = p.nombre.toLowerCase();
+        const pName = (p.nombre || '').toLowerCase();
         const pModel = (p.modelo_nombre || '').toLowerCase();
         const pCat = (p.cat || '').toLowerCase();
-
-        // 1. Exact part number match (normalized - ignores -/.)
         if (sqNorm.length > 3 && pNorm.includes(sqNorm)) return true;
-        // 2. Part number with separators
         if (sq.length > 3 && (p.numero_parte || '').toLowerCase().includes(sq)) return true;
-        // 3. Name match
         if (pName.includes(sq)) return true;
-        // 4. Category match
         if (pCat.includes(sq)) return true;
-        // 5. Multi-word: all words must match across name+model+part
-        if (sq.includes(' ')) {
-          const words = sq.split(/\s+/);
-          const haystack = pName + ' ' + pModel + ' ' + (p.numero_parte || '').toLowerCase() + ' ' + pCat;
-          if (words.every(w => haystack.includes(w))) return true;
-        }
-        // 6. Model + anything: "ranger filtro", "ecosport freno"
-        if (sq.includes(' ')) {
-          const words = sq.split(/\s+/);
-          const modelMatch = words.some(w => pModel.includes(w));
-          const otherWords = words.filter(w => !pModel.includes(w));
-          if (modelMatch && otherWords.length > 0) {
-            const haystack = pName + ' ' + pCat + ' ' + (p.numero_parte || '').toLowerCase();
-            if (otherWords.every(w => haystack.includes(w))) return true;
-          }
-        }
-        // 7. Compatible models search: "ranger 2023"
         if (p.aplicativos?.some(a => a.toLowerCase().includes(sq))) return true;
+        if (sq.includes(' ')) {
+          const words = sq.split(/\s+/).filter(w => w.length > 1);
+          const hay = pName + ' ' + pModel + ' ' + pCat + ' ' + (p.numero_parte || '').toLowerCase();
+          if (words.every(w => hay.includes(w))) return true;
+          const modelMatch = words.some(w => pModel.includes(w));
+          if (modelMatch) { const other = words.filter(w => !pModel.includes(w)); if (other.every(w => (pName + ' ' + pCat).includes(w))) return true; }
+        }
         return false;
       });
-
       allResults.push(...found);
     }
-
-    // Deduplicate by numero_parte
     const seen = new Set();
-    const results = allResults.filter(r => {
-      const key = r.numero_parte + '_' + r.modelo_nombre;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).slice(0, 20);
+    const textResults = allResults.filter(r => { const k = r.numero_parte; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 10);
 
-    if (results.length > 0) {
-      const label = queries.length > 1
-        ? `Encontre ${results.length} resultado${results.length > 1 ? 's' : ''} para ${queries.length} busquedas:`
-        : `Encontre ${results.length} resultado${results.length > 1 ? 's' : ''} para "${raw.trim()}":`;
-      addResult(label, results.map(r => ({
-          nombre: r.nombre,
-          numero_parte: r.numero_parte,
-          modelo: r.modelo_nombre,
-          precio: r.precio,
-          precio_oem: r.precio_oem,
-          stock: r.stock,
-          aplicativos: r.aplicativos,
-        }))
-      );
-    } else {
-      // No text results - ask AI for help
-      try {
-        const aiRes = await fetch('/api/ai-search', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: raw.trim(), context: 'Busqueda sin resultados para: ' + raw.trim() }),
-        });
-        const aiData = await aiRes.json();
-        if (aiData.ok && aiData.response) {
-          addMsg('bot', aiData.response);
+    // Build context for AI
+    const context = textResults.length > 0
+      ? 'Productos encontrados en el catalogo de La Ford de Warnes:\n' + textResults.map(p => `- ${p.nombre} | Codigo: ${p.numero_parte} | Precio: ${p.precio} | Modelo: ${p.aplicativos?.join(', ') || p.modelo_nombre}`).join('\n')
+      : 'No se encontraron productos exactos en el catalogo para esta busqueda.';
+
+    // ALWAYS ask AI for a helpful response
+    try {
+      const aiRes = await fetch('/api/ai-search', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: raw.trim(), context }),
+      });
+      const aiData = await aiRes.json();
+      if (aiData.ok && aiData.response) {
+        if (textResults.length > 0) {
+          addResult(aiData.response, textResults.map(r => ({ nombre: r.nombre, numero_parte: r.numero_parte, modelo: r.modelo_nombre, precio: r.precio, precio_oem: r.precio_oem, stock: r.stock, aplicativos: r.aplicativos })));
         } else {
-          addMsg('bot', `No encontre "${raw.trim()}" en el catálogo.\n\nProbá con:\n  • Nombre: "filtro aceite"\n  • Código: "mb3z2200a"\n  • Modelo + pieza: "ranger freno"\n\nO consultá por WhatsApp: 11 6275-6333`);
+          addMsg('bot', aiData.response);
         }
-      } catch {
-        addMsg('bot', `No encontre "${raw.trim()}". Probá con otro término o consultá por WhatsApp: 11 6275-6333`);
+      } else {
+        // AI failed, show text results or error
+        if (textResults.length > 0) {
+          addResult(`Encontre ${textResults.length} resultado${textResults.length > 1 ? 's' : ''}:`, textResults.map(r => ({ nombre: r.nombre, numero_parte: r.numero_parte, modelo: r.modelo_nombre, precio: r.precio, precio_oem: r.precio_oem, stock: r.stock, aplicativos: r.aplicativos })));
+        } else {
+          addMsg('bot', `No encontre resultados para "${raw.trim()}". Probá con otro término o consultá por WhatsApp: 11 6275-6333`);
+        }
+      }
+    } catch {
+      if (textResults.length > 0) {
+        addResult(`Encontre ${textResults.length} resultado${textResults.length > 1 ? 's' : ''}:`, textResults.map(r => ({ nombre: r.nombre, numero_parte: r.numero_parte, modelo: r.modelo_nombre, precio: r.precio, precio_oem: r.precio_oem, stock: r.stock, aplicativos: r.aplicativos })));
+      } else {
+        addMsg('bot', `Error de conexión. Consultá por WhatsApp: 11 6275-6333`);
       }
     }
 
