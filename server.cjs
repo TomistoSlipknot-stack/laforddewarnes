@@ -38,6 +38,8 @@ async function connectDB() {
     if (analyticsDoc) searchAnalytics = analyticsDoc.data;
     const pedidosDoc = await db.collection('config').findOne({ _id: 'pedidos' });
     if (pedidosDoc) pedidos = pedidosDoc.data;
+    const chatsDoc = await db.collection('config').findOne({ _id: 'chats' });
+    if (chatsDoc?.data) chatRooms = chatsDoc.data;
     const clientAccDoc = await db.collection('config').findOne({ _id: 'clientAccounts' });
     if (clientAccDoc) clientAccounts = clientAccDoc.data;
     console.log('Data loaded from MongoDB');
@@ -81,7 +83,8 @@ function saveStock() { saveToDB('stock', stockData); }
 function saveChats() {
   const toSave = {};
   for (const [id, room] of Object.entries(chatRooms)) {
-    if (room.status === 'scheduled' || room.status === 'sold') toSave[id] = room;
+    // Save ALL rooms that have messages (not just scheduled/sold)
+    if (room.messages?.length > 0 || room.status === 'scheduled' || room.status === 'sold') toSave[id] = room;
   }
   saveToDB('chats', toSave);
 }
