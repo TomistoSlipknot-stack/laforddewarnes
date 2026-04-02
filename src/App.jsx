@@ -1057,6 +1057,7 @@ export default function FordWarnesApp({ user, onLogout }){
               {id:"online",label:"En Linea",icon:"🟢",badge:network.onlineUsers.length},
               {id:"pedidos",label:"Pedidos",icon:"🛒",badge:pedidoCount},
               {id:"proveedores",label:"Proveedores",icon:"🏭",badge:0},
+              {id:"imagenes",label:"Imagenes",icon:"🖼️",badge:0},
               {id:"logs",label:"Busquedas",icon:"🔍",badge:network.searchLogs.length},
             ]:[
               {id:"asistente",label:"Asistente",icon:"🤖",badge:0},
@@ -1085,6 +1086,7 @@ export default function FordWarnesApp({ user, onLogout }){
             }}/>}
             {adminTab==="pedidos"&&<PedidosPanel theme={theme} esJefe={esJefe}/>}
             {adminTab==="proveedores"&&<StockProveedores catalogo={CATALOGO_COMPLETO} modelos={MOCK_MODELOS} theme={theme}/>}
+            {adminTab==="imagenes"&&esJefe&&<ImageManager modelos={MOCK_MODELOS} theme={theme}/>}
             {adminTab==="tienda"&&!esJefe&&<TiendaEmpleado theme={theme} saldo={empSaldo} onBuy={handleGiftBuy}/>}
             {adminTab==="chatjefe"&&!esJefe&&(
               <div style={{height:"100%",display:"flex",flexDirection:"column",background:theme.bg}}>
@@ -1477,6 +1479,58 @@ export function authFetch(url, opts = {}) {
     opts.headers = { ...opts.headers, Authorization: 'Bearer ' + token };
   }
   return fetch(url, opts);
+}
+
+function ImageManager({modelos,theme}){
+  const [uploading,setUploading]=useState(null);
+  const [msg,setMsg]=useState('');
+  const handleUpload=async(modelId,file)=>{
+    if(!file)return;
+    setUploading(modelId);setMsg('');
+    const reader=new FileReader();
+    reader.onload=async(e)=>{
+      try{
+        const res=await authFetch('/api/upload-model-image',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({modelId,image:e.target.result}),
+        });
+        const data=await res.json();
+        if(data.ok){setMsg(modelId+' actualizada!');IMGS_MODELO[modelId]=data.url+'?t='+Date.now();}
+        else setMsg('Error: '+(data.error||''));
+      }catch{setMsg('Error de conexion');}
+      setUploading(null);
+    };
+    reader.readAsDataURL(file);
+  };
+  const t=theme||{};
+  return(
+    <div style={{height:'100%',overflowY:'auto',padding:20}}>
+      <h3 style={{fontSize:18,fontWeight:800,color:t.text,marginBottom:16}}>Imagenes de Modelos</h3>
+      <p style={{fontSize:12,color:t.textSecondary,marginBottom:16}}>Subi fotos para cada modelo. Se guardan permanentemente.</p>
+      {msg&&<div style={{background:'rgba(34,197,94,.1)',color:'#22c55e',padding:'8px 14px',borderRadius:8,marginBottom:14,fontSize:13,fontWeight:600}}>{msg}</div>}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12}}>
+        {modelos.map(m=>{
+          const hasImg=IMGS_MODELO[m.id];
+          return(
+            <div key={m.id} style={{background:t.card,border:'1px solid '+t.cardBorder,borderRadius:10,overflow:'hidden'}}>
+              <div style={{height:100,background:m.color,display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+                {hasImg?<img src={IMGS_MODELO[m.id]} alt={m.nombre} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={e=>{e.target.style.display='none'}}/>
+                :<div style={{color:'rgba(255,255,255,.3)',fontSize:12,fontWeight:700}}>Sin foto</div>}
+              </div>
+              <div style={{padding:10}}>
+                <div style={{fontSize:13,fontWeight:700,color:t.text}}>{m.nombre}</div>
+                <div style={{fontSize:10,color:t.textSecondary,marginBottom:8}}>{m.año}</div>
+                <label style={{display:'block',padding:'8px 0',fontSize:11,fontWeight:600,color:'#4a9eff',cursor:'pointer',textAlign:'center',border:'1px dashed '+(t.cardBorder||'#ddd'),borderRadius:6}}>
+                  {uploading===m.id?'Subiendo...':'Cambiar foto'}
+                  <input type="file" accept="image/*" style={{display:'none'}} onChange={e=>handleUpload(m.id,e.target.files?.[0])} disabled={uploading===m.id}/>
+                </label>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 function MisPedidosView({theme}){

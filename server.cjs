@@ -383,6 +383,31 @@ app.post('/api/stock', requireAuth(['admin', 'employee']), (req, res) => {
   res.json({ ok: true });
 });
 
+// Model image upload (saves to public/img/modelos/)
+app.post('/api/upload-model-image', requireAuth(['admin']), (req, res) => {
+  try {
+    const { modelId, image } = req.body;
+    if (!modelId || !image) return res.status(400).json({ ok: false, error: 'Faltan datos' });
+    const match = image.match(/^data:image\/(png|jpe?g|webp);base64,(.+)$/);
+    if (!match) return res.status(400).json({ ok: false, error: 'Formato de imagen invalido' });
+    const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+    const buf = Buffer.from(match[2], 'base64');
+    const fname = modelId.replace(/[^a-zA-Z0-9_-]/g, '') + '.' + ext;
+    const modelImgDir = path.join(__dirname, 'dist', 'img', 'modelos');
+    if (!fs.existsSync(modelImgDir)) fs.mkdirSync(modelImgDir, { recursive: true });
+    fs.writeFileSync(path.join(modelImgDir, fname), buf);
+    // Also save to public for next build
+    const publicDir = path.join(__dirname, 'public', 'img', 'modelos');
+    if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
+    fs.writeFileSync(path.join(publicDir, fname), buf);
+    console.log('[ModelImage] Saved', fname, buf.length, 'bytes');
+    res.json({ ok: true, url: '/img/modelos/' + fname });
+  } catch (e) {
+    console.error('[ModelImage] Error:', e.message);
+    res.status(500).json({ ok: false, error: 'Error al subir imagen' });
+  }
+});
+
 // Image upload
 app.post('/api/upload', requireAuth(['admin', 'employee']), (req, res) => {
   try {
