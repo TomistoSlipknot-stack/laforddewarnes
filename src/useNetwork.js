@@ -143,11 +143,27 @@ export function useNetwork() {
 
     ws.onclose = () => {
       ws._cleanActivity?.();
+      clearInterval(ws._heartbeat);
       setConnected(false);
       wsRef.current = null;
+      console.log('[WS] Disconnected, reconnecting in 2s...');
       reconnectTimer.current = setTimeout(() => connect(name, role), 2000);
     };
-    ws.onerror = () => ws.close();
+    ws.onerror = () => {
+      console.log('[WS] Error, closing...');
+      ws.close();
+    };
+
+    // Heartbeat to detect dead connections
+    const heartbeat = setInterval(() => {
+      if (ws.readyState === 1) {
+        ws.send(JSON.stringify({ type: 'ping' }));
+      } else if (ws.readyState === 3) {
+        clearInterval(heartbeat);
+        ws.onclose?.();
+      }
+    }, 25000);
+    ws._heartbeat = heartbeat;
   }, []);
 
   const disconnect = useCallback(() => {
