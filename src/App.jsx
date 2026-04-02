@@ -1083,7 +1083,7 @@ export default function FordWarnesApp({ user, onLogout }){
                   <div key={cat} style={{marginBottom:28}}>
                     <div style={{fontSize:17,fontWeight:800,color:"#003478",marginBottom:14,paddingBottom:8,borderBottom:"2px solid #003478",display:"inline-block"}}>{cat}</div>
                     <div className="fw-cat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:14}}>
-                      {filteredModels.map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>{setModeloSel(m);}}/>)}
+                      {filteredModels.map(m=><ModeloCard key={m.id} modelo={m} onClick={()=>{setModeloSel(m);window.scrollTo({top:0,behavior:'smooth'});}}/>)}
                     </div>
                   </div>
                   );
