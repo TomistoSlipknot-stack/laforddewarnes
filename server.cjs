@@ -503,6 +503,40 @@ app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) =
   res.json({ ok: true });
 });
 
+// ─── CLAUDE AI SEARCH ────────────────────────────────────────────────────
+const Anthropic = require('@anthropic-ai/sdk');
+const CLAUDE_KEY = process.env.CLAUDE_API_KEY || '';
+let claude = null;
+try { claude = new Anthropic({ apiKey: CLAUDE_KEY }); } catch {}
+
+app.post('/api/ai-search', async (req, res) => {
+  if (!claude) return res.json({ ok: false, error: 'IA no disponible' });
+  const ip = req.ip || req.connection.remoteAddress;
+  if (!rateLimit(ip, 20, 60000)) return res.status(429).json({ ok: false, error: 'Muchas consultas, espera un momento' });
+  const { query, context } = req.body;
+  if (!query || query.length < 2) return res.json({ ok: false, error: 'Consulta muy corta' });
+  try {
+    const msg = await claude.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 500,
+      system: `Sos el asistente de busqueda de La Ford de Warnes, una casa de repuestos Ford en Buenos Aires con 48 años de experiencia. Av. Honorio Pueyrredon 2180, CABA. WhatsApp: 11 6275-6333.
+
+Tu trabajo es ayudar a encontrar repuestos Ford. Responde en español argentino, corto y directo.
+
+Si el usuario busca una pieza, ayudalo a identificar que necesita. Si no encontras en el catalogo, sugerile que consulte por WhatsApp.
+
+Contexto de productos encontrados:
+${context || 'Sin resultados del catalogo'}`,
+      messages: [{ role: 'user', content: query }],
+    });
+    const text = msg.content?.[0]?.text || 'No pude procesar tu consulta';
+    res.json({ ok: true, response: text });
+  } catch (e) {
+    console.error('[AI]', e.message);
+    res.json({ ok: false, error: 'Error de IA' });
+  }
+});
+
 // Static
 app.use(express.static(distPath));
 app.get('/{*splat}', (req, res) => {

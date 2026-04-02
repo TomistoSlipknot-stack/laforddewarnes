@@ -189,6 +189,38 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
       return;
     }
 
+    // ── CHECK IF NATURAL LANGUAGE QUESTION → go to AI directly ──
+    const isQuestion = /^(que|cual|como|necesito|tengo|me |mi |hay |tiene|sirve|puedo|quiero|busco|recomend)/i.test(q) || q.includes('?');
+    if (isQuestion) {
+      // Do a quick text search for context
+      const quickResults = allParts.filter(p => {
+        const words = q.replace(/[?¿!¡]/g, '').split(/\s+/).filter(w => w.length > 2);
+        const hay = ((p.nombre || '') + ' ' + (p.cat || '') + ' ' + (p.modelo_nombre || '')).toLowerCase();
+        return words.some(w => hay.includes(w));
+      }).slice(0, 5);
+      const context = quickResults.length > 0
+        ? 'Productos relacionados en catalogo:\n' + quickResults.map(p => `- ${p.nombre} (${p.numero_parte}) ${p.precio} - ${p.modelo_nombre}`).join('\n')
+        : 'No se encontraron productos directamente';
+      try {
+        const aiRes = await fetch('/api/ai-search', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: raw.trim(), context }),
+        });
+        const aiData = await aiRes.json();
+        if (aiData.ok && aiData.response) {
+          if (quickResults.length > 0) {
+            addResult(aiData.response, quickResults.map(r => ({ nombre: r.nombre, numero_parte: r.numero_parte, modelo: r.modelo_nombre, precio: r.precio, precio_oem: r.precio_oem, stock: r.stock, aplicativos: r.aplicativos })));
+          } else {
+            addMsg('bot', aiData.response);
+          }
+        } else {
+          addMsg('bot', 'No pude entender tu consulta. Probá con el nombre de la pieza o el código.');
+        }
+      } catch { addMsg('bot', 'Error de conexión. Probá de nuevo.'); }
+      setTyping(false);
+      return;
+    }
+
     // ── BUSCAR PIEZA (default - SMART SEARCH) ──
     // Normalize: remove all separators (-/.) for comparison
     const normalize = (s) => (s || '').toLowerCase().replace(/[-/.\\s]/g, '');
@@ -263,7 +295,21 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
         }))
       );
     } else {
-      addMsg('bot', `No encontre nada para "${raw.trim()}".\n\nPodés buscar:\n  • Nombre: "filtro aceite"\n  • Codigo: "mb3z2200a" (con o sin guiones)\n  • Varios codigos: "mb3z2200a, fl3z2c444b"\n  • Modelo + pieza: "ranger freno"\n  • Categoria: "frenos", "motor"\n\nO comandos:\n  "venta Carlos 45000" → registrar venta\n  "stock ranger" → ver stock`);
+      // No text results - ask AI for help
+      try {
+        const aiRes = await fetch('/api/ai-search', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: raw.trim(), context: 'Busqueda sin resultados para: ' + raw.trim() }),
+        });
+        const aiData = await aiRes.json();
+        if (aiData.ok && aiData.response) {
+          addMsg('bot', aiData.response);
+        } else {
+          addMsg('bot', `No encontre "${raw.trim()}" en el catálogo.\n\nProbá con:\n  • Nombre: "filtro aceite"\n  • Código: "mb3z2200a"\n  • Modelo + pieza: "ranger freno"\n\nO consultá por WhatsApp: 11 6275-6333`);
+        }
+      } catch {
+        addMsg('bot', `No encontre "${raw.trim()}". Probá con otro término o consultá por WhatsApp: 11 6275-6333`);
+      }
     }
 
     setTyping(false);

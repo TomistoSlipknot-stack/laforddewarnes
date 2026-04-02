@@ -10,6 +10,7 @@
     "render-build": "npm install && npm run build"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
