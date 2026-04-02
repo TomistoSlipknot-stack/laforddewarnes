@@ -1768,8 +1768,7 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
                 <div style={{flex:"1 1 180px",background:theme.bg,border:"1px solid "+(theme.cardBorder||"#ddd"),borderRadius:8,padding:"12px 14px",textAlign:"center"}}>
                   <div style={{fontSize:11,fontWeight:700,color:theme.textSecondary||"#666",marginBottom:4,textTransform:"uppercase",letterSpacing:".04em"}}>Alternativo</div>
                   <div style={{fontSize:14,fontWeight:700,color:theme.textSecondary||"#666",marginBottom:6}}>Consultar precio</div>
-                  <a href={`https://wa.me/5491162756333?text=${encodeURIComponent(`Hola! Consulto por alternativo de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Tienen disponible?`)}`} target="_blank" rel="noopener noreferrer"
-                    style={{display:"inline-block",background:"#25d366",color:"#fff",fontSize:11,fontWeight:700,padding:"6px 14px",borderRadius:6,textDecoration:"none",fontFamily:"inherit"}}>Consultar alternativo</a>
+                  <button onClick={()=>{if(onConsultar){onConsultar({...r,consultaTexto:`Consulto por alternativo de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Tienen marca alternativa disponible?`});onClose();}}} style={{background:"#003478",color:"#fff",fontSize:11,fontWeight:700,padding:"6px 14px",borderRadius:6,border:"none",cursor:"pointer",fontFamily:"inherit"}}>Consultar alternativo</button>
                 </div>
               </div>
             </div>
