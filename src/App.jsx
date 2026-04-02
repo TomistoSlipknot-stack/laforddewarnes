@@ -862,8 +862,10 @@ export default function FordWarnesApp({ user, onLogout }){
             <span style={{color:"#fff",fontWeight:800,fontSize:15,fontStyle:"italic",fontFamily:"Georgia,serif"}}>Ford</span>
           </div>
           <div className="fw-logo-text">
-            <div style={{fontWeight:800,fontSize:17,color:theme.text,letterSpacing:"-.02em"}}>La Ford de Warnes</div>
-            <div style={{fontSize:11,color:_globalTheme.textMuted||"#999",fontWeight:500}}>Repuestos y Stock</div>
+            <div style={{fontWeight:900,fontSize:18,color:theme.text,letterSpacing:"-.03em",lineHeight:1.1}}>
+              <span style={{fontWeight:400,fontSize:13}}>LA</span> <span style={{fontSize:20}}>FORD</span> <span style={{fontWeight:400,fontSize:13}}>DE</span> <span style={{fontSize:20}}>WARNES</span>
+            </div>
+            <div style={{fontSize:10,color:_globalTheme.textMuted||"#999",fontWeight:500,letterSpacing:".1em",textTransform:"uppercase"}}>Repuestos y Stock · Desde 1978</div>
           </div>
           <div className="fw-role-badge" style={{display:"flex",alignItems:"center",gap:8}}>
             <span style={{background:esJefe?"rgba(234,179,8,.12)":role==="employee"?"rgba(34,197,94,.1)":"rgba(0,52,120,.06)",border:`1px solid ${esJefe?"rgba(234,179,8,.3)":role==="employee"?"rgba(34,197,94,.25)":"rgba(0,52,120,.15)"}`,borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:700,color:esJefe?"#b8860b":role==="employee"?"#16a34a":"#003478",textTransform:"uppercase",letterSpacing:".04em"}}>
