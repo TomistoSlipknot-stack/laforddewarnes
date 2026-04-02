@@ -537,6 +537,7 @@ app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) =
   order.updatedAt = Date.now();
   if (encargado) order.encargado = encargado;
   if (nota !== undefined) {
+    if (typeof order.notas === 'string') order.notas = order.notas ? [{ texto: order.notas, autor: 'system', fecha: order.createdAt }] : [];
     if (!order.notas) order.notas = [];
     order.notas.push({ texto: nota, autor: req.user?.name || 'Staff', fecha: Date.now() });
   }
@@ -852,7 +853,7 @@ wss.on('connection', (ws) => {
           break;
         }
         case 'mark_read': {
-          if (clientInfo.role !== 'admin') break;
+          if (clientInfo.role !== 'admin' && clientInfo.role !== 'employee') break;
           if (data.roomId && chatRooms[data.roomId]) {
             chatRooms[data.roomId].unreadByJuan = 0;
             saveChats();
@@ -863,7 +864,7 @@ wss.on('connection', (ws) => {
         }
 
         case 'chat_action': {
-          if (clientInfo.role !== 'admin') break;
+          if (clientInfo.role !== 'admin' && clientInfo.role !== 'employee') break;
           const room = chatRooms[data.roomId];
           if (!room) break;
           if (data.action === 'schedule') { room.status = 'scheduled'; saveChats(); }

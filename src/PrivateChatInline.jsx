@@ -17,10 +17,12 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
 
   // Welcome message
   useEffect(() => {
-    setMsgs([{
-      id: 1, from: 'bot',
-      text: `Hola${userName ? ' ' + userName : ''}! Soy el asistente de La Ford de Warnes.\n\nContame qué necesitás y te ayudo a encontrarlo. Podés preguntarme cualquier cosa sobre repuestos Ford.\n\nSi preferís hablar con una persona, escribí "asesor".`,
-    }]);
+    if (msgs.length === 0) {
+      setMsgs([{
+        id: 1, from: 'bot',
+        text: `Hola${userName ? ' ' + userName : ''}! Soy el asistente de La Ford de Warnes.\n\nContame qué necesitás y te ayudo a encontrarlo. Podés preguntarme cualquier cosa sobre repuestos Ford.\n\nSi preferís hablar con una persona, escribí "asesor".`,
+      }]);
+    }
   }, []);
 
   // Handle pending consulta

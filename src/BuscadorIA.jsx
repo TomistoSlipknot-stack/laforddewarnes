@@ -192,7 +192,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
     }
 
     // ── ALWAYS USE AI + TEXT SEARCH TOGETHER ──
-    const normalize = (s) => (s || '').toLowerCase().replace(/[-/.\\s]/g, '');
+    const normalize = (s) => (s || '').toLowerCase().replace(/[-/.\s]/g, '');
 
     // Quick text search for context
     const queries = q.includes(',') ? q.split(',').map(s => s.trim()).filter(Boolean) : [q];

@@ -97,7 +97,7 @@ export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRe
     if (cliente.nombre) lines.splice(2, 0, `Cliente: ${cliente.nombre}`);
     const text = encodeURIComponent(lines.join('\n'));
     const phone = cliente.telefono ? cliente.telefono.replace(/\D/g, '') : '';
-    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+    window.open(`https://wa.me/${phone.startsWith('54') ? phone : '54' + phone}?text=${text}`, '_blank');
   }
 
   function registrarVenta() {
@@ -484,8 +484,8 @@ export default function EmpleadoVenta({ catalogo, modelos, theme, userName, onRe
           <div style={{ width: '100%', height: 1, background: t.cardBorder || '#e0e0e0', margin: '12px 0' }} />
 
           <div style={{ fontSize: 12, color: t.textSecondary || '#777', lineHeight: 1.7 }}>
-            <div><strong>Alias MercadoPago:</strong> laforddewarnes</div>
-            <div><strong>CBU:</strong> (a confirmar)</div>
+            <div><strong>Alias MercadoPago:</strong> laforddewarnes.mp</div>
+            <div><strong>CVU:</strong> 0000003100002327991773</div>
           </div>
 
           <div style={{ width: '100%', height: 1, background: t.cardBorder || '#e0e0e0', margin: '12px 0' }} />

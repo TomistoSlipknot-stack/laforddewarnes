@@ -79,7 +79,7 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
     return list;
   }, [catalogo, modelos]);
 
-  const normalize = (s) => (s || '').toLowerCase().replace(/[-/.\\s]/g, '');
+  const normalize = (s) => (s || '').toLowerCase().replace(/[-/.\s]/g, '');
   const sq = search.toLowerCase().trim();
   const sqNorm = normalize(sq);
 
