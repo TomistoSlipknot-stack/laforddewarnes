@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { authFetch } from './App.jsx';
 
 const SUPPLIERS = [
@@ -22,6 +22,39 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
   const [search, setSearch] = useState('');
   const [stockData, setStockData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [extensionReady, setExtensionReady] = useState(false);
+  const [autoResults, setAutoResults] = useState({});
+
+  // Listen for extension
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === 'FORD_EXTENSION_READY') setExtensionReady(true);
+      if (e.data?.type === 'FORD_STOCK_RESULT') {
+        const { partNumber, results } = e.data;
+        setAutoResults(prev => ({ ...prev, [partNumber]: results }));
+        // Also save to server
+        if (results) {
+          for (const [supId, data] of Object.entries(results)) {
+            if (!data.needsLogin) {
+              authFetch('/api/supplier-stock-mark', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ partNumber, supplier: supId, hasStock: data.available, precio: '' }),
+              }).catch(() => {});
+            }
+          }
+        }
+        setLoading(false);
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const autoCheckStock = (partNumber) => {
+    if (!extensionReady) return;
+    setLoading(true);
+    window.postMessage({ type: 'FORD_CHECK_STOCK', partNumber }, '*');
+  };
 
   // Flatten catalog
   const allParts = useMemo(() => {
@@ -130,8 +163,15 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
             }} />
         </div>
 
-        {/* Supplier legend */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+        {/* Extension status + supplier legend */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <span style={{
+            fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 6,
+            background: extensionReady ? 'rgba(34,197,94,.15)' : 'rgba(245,158,11,.15)',
+            color: extensionReady ? '#22c55e' : '#f59e0b',
+          }}>
+            {extensionReady ? '⚡ Auto-búsqueda activa' : '📋 Modo manual'}
+          </span>
           {SUPPLIERS.map(s => (
             <span key={s.id} style={{
               fontSize: 11, fontWeight: 700, color: s.color,
@@ -182,10 +222,40 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
               <button onClick={() => { navigator.clipboard.writeText(part.numero_parte); }} style={{ fontSize: 11, fontWeight: 700, padding: '4px 12px', border: '1px solid #4a9eff', borderRadius: 6, background: 'rgba(74,158,255,.1)', color: '#4a9eff', cursor: 'pointer', fontFamily: 'inherit' }}>Copiar</button>
             </div>
 
+            {/* Auto check with extension */}
+            {extensionReady && (
+              <button onClick={() => autoCheckStock(part.numero_parte)} disabled={loading} style={{
+                width: '100%', padding: 12, fontSize: 14, fontWeight: 700,
+                border: 'none', borderRadius: 10,
+                background: loading ? '#555' : 'linear-gradient(135deg, #16a34a, #22c55e)', color: '#fff',
+                cursor: loading ? 'wait' : 'pointer', fontFamily: 'inherit', marginBottom: 8,
+              }}>
+                {loading ? 'Buscando en proveedores...' : 'Buscar stock automaticamente'}
+              </button>
+            )}
+
+            {/* Auto results */}
+            {autoResults[part.numero_parte] && (
+              <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+                {Object.entries(autoResults[part.numero_parte]).map(([supId, data]) => (
+                  <div key={supId} style={{
+                    padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                    background: data.needsLogin ? 'rgba(245,158,11,.15)' : data.available ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.15)',
+                    color: data.needsLogin ? '#f59e0b' : data.available ? '#22c55e' : '#ef4444',
+                    border: '1px solid ' + (data.needsLogin ? '#f59e0b30' : data.available ? '#22c55e30' : '#ef444430'),
+                  }}>
+                    {data.name}: {data.needsLogin ? 'Iniciar sesión' : data.available ? '✓ Hay stock' : '✗ Sin stock'}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Instructions */}
-            <div style={{ fontSize: 11, color: t.textMuted || '#999', marginBottom: 8, lineHeight: 1.5 }}>
-              1. Copiá el código → 2. Abrí un proveedor → 3. Pegá y buscá → 4. Marcá si hay stock
-            </div>
+            {!extensionReady && (
+              <div style={{ fontSize: 11, color: t.textMuted || '#999', marginBottom: 8, lineHeight: 1.5 }}>
+                1. Copiá el código → 2. Abrí un proveedor → 3. Pegá y buscá → 4. Marcá si hay stock
+              </div>
+            )}
 
             {/* Open all button */}
             <button onClick={() => openAllSuppliers(part.numero_parte)} style={{

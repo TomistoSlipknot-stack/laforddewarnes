@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "La Ford de Warnes - Stock Checker",
+  "version": "1.0.0",
+  "description": "Busca stock automáticamente en Forcor, Fordmata, FNX y Taraborelli",
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "host_permissions": [
+    "https://wayre.forcor.com.ar/*",
+    "https://fordmata.no-ip.org/*",
+    "http://fnx.com.ar/*",
+    "http://repuestos.fordtaraborelli.com/*",
+    "https://laforddewarnes.com/*",
+    "https://laforddewarnes.onrender.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon48.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://laforddewarnes.com/*", "https://laforddewarnes.onrender.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
