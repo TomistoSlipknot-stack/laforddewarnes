@@ -491,6 +491,8 @@ app.post('/api/pedidos', (req, res) => {
   // Notify admin/employees via WebSocket
   broadcastToRole('admin', { type: 'new_order', order });
   broadcastToRole('employee', { type: 'new_order', order });
+  // Send confirmation email to client
+  sendOrderEmail(order, 'pendiente');
   res.json({ ok: true, orderId: order.id });
 });
 
@@ -529,6 +531,8 @@ app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) =
   }
   broadcastToRole('admin', { type: 'order_updated', order });
   broadcastToRole('employee', { type: 'order_updated', order });
+  // Send status update email to client
+  sendOrderEmail(order, status);
   res.json({ ok: true });
 });
 
@@ -564,6 +568,81 @@ app.get('/api/supplier-stock/:partNumber', async (req, res) => {
     res.json(partData || { suppliers: {} });
   } catch { res.json({ suppliers: {} }); }
 });
+
+// ─── EMAIL SYSTEM (Resend) ───────────────────────────────────────────────
+const { Resend } = require('resend');
+const RESEND_KEY = process.env.RESEND_API_KEY || '';
+let resend = null;
+try { if (RESEND_KEY) resend = new Resend(RESEND_KEY); } catch {}
+
+async function sendOrderEmail(order, status) {
+  if (!resend) return;
+  const email = order.cliente?.email;
+  if (!email) return;
+
+  const statusLabels = {
+    pendiente: 'Recibido - Esperando pago',
+    pagado: 'Pago confirmado',
+    preparando: 'En preparacion',
+    listo: 'Listo para entrega',
+    enviado: 'Enviado',
+    entregado: 'Entregado',
+    cancelado: 'Cancelado',
+  };
+
+  const itemsHtml = (order.items || []).map(i =>
+    '<tr><td style="padding:8px;border-bottom:1px solid #eee">' + (i.nombre || '') + '</td><td style="padding:8px;border-bottom:1px solid #eee">' + (i.numero_parte || '') + '</td><td style="padding:8px;border-bottom:1px solid #eee">' + (i.precio || '') + '</td></tr>'
+  ).join('');
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden">
+      <div style="background:#003478;padding:20px;text-align:center">
+        <h1 style="color:#fff;margin:0;font-size:22px">La Ford de Warnes</h1>
+        <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:13px">Repuestos Ford - Desde 1978</p>
+      </div>
+      <div style="padding:24px">
+        <h2 style="color:#003478;margin:0 0 8px">Pedido ${order.id}</h2>
+        <p style="font-size:14px;color:#333">Hola ${order.cliente?.nombre || 'Cliente'},</p>
+        <div style="background:#f0f4ff;border-left:4px solid #003478;padding:12px 16px;margin:16px 0;border-radius:0 8px 8px 0">
+          <strong style="color:#003478">Estado: ${statusLabels[status] || status}</strong>
+        </div>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          <thead><tr style="background:#f8f8f8"><th style="padding:8px;text-align:left">Producto</th><th style="padding:8px;text-align:left">Codigo</th><th style="padding:8px;text-align:left">Precio</th></tr></thead>
+          <tbody>${itemsHtml}</tbody>
+        </table>
+        <div style="text-align:right;font-size:20px;font-weight:bold;color:#16a34a;margin:16px 0">Total: $${(order.total || 0).toLocaleString('es-AR')}</div>
+        <div style="background:#fafafa;border-radius:8px;padding:14px;margin:16px 0">
+          <p style="margin:0 0 4px;font-size:13px;color:#555"><strong>Entrega:</strong> ${order.entrega === 'envio' ? 'Envio a domicilio' : 'Recoger en local'}</p>
+          ${order.entrega === 'local' ? '<p style="margin:0;font-size:12px;color:#888">Av. Honorio Pueyrredon 2180, Local 1, CABA</p>' : ''}
+          ${order.direccionEnvio ? '<p style="margin:0;font-size:12px;color:#888">' + order.direccionEnvio + '</p>' : ''}
+        </div>
+        <div style="background:#f0fff4;border-radius:8px;padding:14px;margin:16px 0">
+          <p style="margin:0 0 4px;font-size:13px;color:#16a34a;font-weight:bold">Datos de pago:</p>
+          <p style="margin:0;font-size:13px;color:#333">Alias MercadoPago: <strong>laforddewarnes.mp</strong></p>
+          <p style="margin:0;font-size:13px;color:#333">CVU: <strong>0000003100002327991773</strong></p>
+          <p style="margin:0;font-size:12px;color:#888">Titular: Juan Jesus Amaya</p>
+        </div>
+      </div>
+      <div style="background:#f8f8f8;padding:16px;text-align:center;font-size:11px;color:#999">
+        La Ford de Warnes - Av. Honorio Pueyrredon 2180, CABA<br>
+        WhatsApp: 11 6275-6333 | Tel: 4582-1565<br>
+        laforddewarnes.com
+      </div>
+    </div>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: 'La Ford de Warnes <onboarding@resend.dev>',
+      to: email,
+      subject: 'Pedido ' + order.id + ' - ' + (statusLabels[status] || status),
+      html,
+    });
+    console.log('[Email] Sent to', email, 'for order', order.id, 'status:', status);
+  } catch (e) {
+    console.error('[Email] Error:', e.message);
+  }
+}
 
 // ─── CLAUDE AI SEARCH ────────────────────────────────────────────────────
 const Anthropic = require('@anthropic-ai/sdk');
