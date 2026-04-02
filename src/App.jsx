@@ -1212,21 +1212,72 @@ export default function FordWarnesApp({ user, onLogout }){
                 </div>
 
                 {/* Footer */}
-                <footer style={{marginTop:30,padding:"24px 0",borderTop:"1px solid "+(theme.cardBorder||"#ccc"),textAlign:"center"}}>
-                  <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:10,marginBottom:12}}>
-                    <div style={{width:40,height:22,background:"#003478",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                      <span style={{color:"#fff",fontWeight:800,fontSize:10,fontStyle:"italic",fontFamily:"Georgia,serif"}}>Ford</span>
+                <footer style={{marginTop:30,padding:0,borderTop:"none",textAlign:"left"}}>
+                  <div style={{background:"#0a1628",borderRadius:"12px 12px 0 0",padding:"40px 32px 24px"}}>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:32,maxWidth:1200,margin:"0 auto"}}>
+                      {/* Col 1: Logo + info */}
+                      <div>
+                        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+                          <div style={{width:44,height:26,background:"#003478",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                            <span style={{color:"#fff",fontWeight:800,fontSize:11,fontStyle:"italic",fontFamily:"Georgia,serif"}}>Ford</span>
+                          </div>
+                          <span style={{fontSize:16,fontWeight:800,color:"#fff"}}>La Ford de Warnes</span>
+                        </div>
+                        <p style={{fontSize:12,color:"#8899b0",lineHeight:1.7,margin:"0 0 12px"}}>Mas de 48 anos como especialistas en repuestos Ford originales y alternativos. Envios a todo el pais.</p>
+                        <div style={{fontSize:12,color:"#8899b0",lineHeight:1.8}}>
+                          <div>Av. Honorio Pueyrredon 2180, Local 1, CABA</div>
+                          <div>Tel: 4582-1565</div>
+                        </div>
+                      </div>
+                      {/* Col 2: Links rapidos */}
+                      <div>
+                        <div style={{fontSize:13,fontWeight:700,color:"#fff",marginBottom:14,textTransform:"uppercase",letterSpacing:".05em"}}>Links rapidos</div>
+                        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                          <a onClick={()=>{setModeloSel(null);window.scrollTo({top:0});}} style={{fontSize:13,color:"#8899b0",textDecoration:"none",cursor:"pointer"}}>Catalogo</a>
+                          <a onClick={()=>setVista('about')} style={{fontSize:13,color:"#8899b0",textDecoration:"none",cursor:"pointer"}}>Nosotros</a>
+                          <a href="https://wa.me/5491162756333" target="_blank" rel="noopener noreferrer" style={{fontSize:13,color:"#8899b0",textDecoration:"none"}}>Contacto</a>
+                          <a href="/privacidad.html" style={{fontSize:13,color:"#8899b0",textDecoration:"none"}}>Privacidad</a>
+                        </div>
+                      </div>
+                      {/* Col 3: Contacto */}
+                      <div>
+                        <div style={{fontSize:13,fontWeight:700,color:"#fff",marginBottom:14,textTransform:"uppercase",letterSpacing:".05em"}}>Contacto</div>
+                        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                          <a href="https://wa.me/5491162756333" target="_blank" rel="noopener noreferrer" style={{fontSize:13,color:"#25d366",textDecoration:"none",fontWeight:600,display:"flex",alignItems:"center",gap:6}}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.111.547 4.099 1.504 5.832L0 24l6.335-1.652A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818c-1.886 0-3.678-.506-5.235-1.459l-.375-.222-3.891 1.018 1.04-3.795-.244-.389A9.776 9.776 0 012.182 12c0-5.418 4.4-9.818 9.818-9.818S21.818 6.582 21.818 12s-4.4 9.818-9.818 9.818z"/></svg>
+                            11 6275-6333
+                          </a>
+                          <a href="https://www.instagram.com/laforddewarnes/" target="_blank" rel="noopener noreferrer" style={{fontSize:13,color:"#E1306C",textDecoration:"none",fontWeight:600,display:"flex",alignItems:"center",gap:6}}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                            @laforddewarnes
+                          </a>
+                          <span style={{fontSize:13,color:"#8899b0"}}>Tel: 4582-1565</span>
+                        </div>
+                      </div>
+                      {/* Col 4: Medios de pago */}
+                      <div>
+                        <div style={{fontSize:13,fontWeight:700,color:"#fff",marginBottom:14,textTransform:"uppercase",letterSpacing:".05em"}}>Medios de pago</div>
+                        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            <div style={{width:36,height:22,background:"#00b1ea",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontSize:8,fontWeight:800}}>MP</span></div>
+                            <span style={{fontSize:12,color:"#8899b0"}}>MercadoPago</span>
+                          </div>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            <div style={{width:36,height:22,background:"#2d6a4f",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontSize:8,fontWeight:800}}>TRF</span></div>
+                            <span style={{fontSize:12,color:"#8899b0"}}>Transferencia bancaria</span>
+                          </div>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            <div style={{width:36,height:22,background:"#555",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontSize:8,fontWeight:800}}>EF</span></div>
+                            <span style={{fontSize:12,color:"#8899b0"}}>Efectivo</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <span style={{fontSize:14,fontWeight:700,color:theme.text||"#333"}}>La Ford de Warnes</span>
                   </div>
-                  <div style={{fontSize:12,color:theme.textSecondary||"#888",marginBottom:4}}>Repuestos Ford Originales y Alternativos</div>
-                  <div style={{fontSize:12,color:theme.textMuted||"#aaa",marginBottom:12}}>Av. Honorio Pueyrredon 2180, Local 1, CABA · Tel: 4582-1565</div>
-                  <div style={{display:"flex",justifyContent:"center",gap:16,flexWrap:"wrap",marginBottom:16}}>
-                    <a href="https://wa.me/5491162756333" target="_blank" rel="noopener noreferrer" style={{fontSize:13,color:"#25d366",textDecoration:"none",fontWeight:600}}>WhatsApp</a>
-                    <a href="https://www.instagram.com/laforddewarnes/" target="_blank" rel="noopener noreferrer" style={{fontSize:13,color:"#E1306C",textDecoration:"none",fontWeight:600}}>Instagram</a>
-                    <a href="/privacidad.html" style={{fontSize:13,color:"#003478",textDecoration:"none"}}>Privacidad</a>
+                  {/* Bottom bar */}
+                  <div style={{background:"#060e1a",padding:"14px 32px",textAlign:"center",borderRadius:"0 0 0 0"}}>
+                    <div style={{fontSize:11,color:"#556880"}}>© 2026 La Ford de Warnes. Todos los derechos reservados. Precios orientativos sujetos a modificacion sin previo aviso.</div>
                   </div>
-                  <div style={{fontSize:10,color:theme.textMuted||"#bbb"}}>© 2026 La Ford de Warnes. Todos los precios son orientativos y pueden variar.</div>
                 </footer>
               </>
             ):(()=>{
