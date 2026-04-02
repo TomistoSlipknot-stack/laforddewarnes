@@ -729,6 +729,7 @@ function AccountsPanel(){
             <div style={{flex:1}}>
               <div style={{fontSize:14,fontWeight:600,color:t.text||'#333'}}>{e.name}</div>
               <div style={{fontSize:11,color:t.textSecondary||'#888'}}>Usuario: {e.user}</div>
+              <div style={{fontSize:11,color:t.textMuted||'#aaa'}}>Contraseña: {e.passVisible||'****'}</div>
             </div>
             <button onClick={()=>delEmp(e.id)} style={{padding:'6px 12px',fontSize:11,border:'1px solid #dc2626',borderRadius:6,background:'transparent',color:'#dc2626',cursor:'pointer',fontFamily:'inherit',fontWeight:600}}>
               Eliminar
@@ -758,8 +759,8 @@ export default function FordWarnesApp({ user, onLogout }){
   const esJefe = role === 'admin';
   const [vista,     setVista]     = useState("catalogo");
   const [messages,  setMessages]  = useState([
-    {id:1,type:"system",text:"Bienvenido al buscador de La Ford de Warnes"},
-    {id:2,type:"result_text",text:"Hola! Soy el asistente de busqueda. Escribi abajo lo que necesitas y te lo encuentro al toque.\n\nPodes buscar por:\n• Nombre de pieza (ej: filtro aceite)\n• Numero de pieza (ej: 655023)\n• Categoria (ej: frenos, amortiguador)\n• Modelo (ej: ranger, ecosport)"},
+    {id:1,type:"system",text:"Asistente de La Ford de Warnes"},
+    {id:2,type:"result_text",text:"Hola! Soy el asistente de La Ford de Warnes, tu tienda de repuestos Ford con mas de 48 años de experiencia.\n\nPodes preguntarme lo que necesites:\n• \"Necesito un filtro de aceite para Ranger 2020\"\n• \"Cuanto sale las pastillas de freno?\"\n• \"Que repuestos hay para EcoSport?\"\n• O cualquier codigo de pieza\n\nEscribi abajo y te ayudo!"},
   ]);
   const [input,     setInput]     = useState("");
   const [botState,  setBotState]  = useState("idle");
@@ -1353,7 +1354,7 @@ function Msg({msg,last,onParte}){const theme=_globalTheme;
   if(msg.type==="system")return <div style={{textAlign:"center",...fade}}><span style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:20,padding:"6px 18px",fontSize:12,color:_globalTheme.textMuted||"#999",display:"inline-block"}}>{msg.text}</span></div>;
   if(msg.type==="result_text")return <div style={{display:"flex",gap:12,...fade}}><div style={{width:36,height:36,background:"#003478",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:"4px 14px 14px 14px",padding:"14px 18px",fontSize:14,color:theme.text,lineHeight:1.6,whiteSpace:"pre-line",maxWidth:"85%"}}>{msg.text}</div></div>;
   if(msg.type==="user")return <div style={{display:"flex",justifyContent:"flex-end",...fade}}><div style={{background:"#003478",borderRadius:"12px 4px 12px 12px",padding:"11px 16px",maxWidth:"72%",fontSize:14,color:"#fff",fontWeight:500,lineHeight:1.45}}>{msg.text}</div></div>;
-  if(msg.type==="notfound")return <div style={{display:"flex",gap:12,...fade}}><BotAv/><div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:"4px 12px 12px 12px",padding:"13px 18px",fontSize:13,color:_globalTheme.textSecondary||"#888",lineHeight:1.55}}>No encontré nada para "<strong style={{color:_globalTheme.textSecondary||"#555"}}>{msg.query}</strong>". Probá con el número de parte o el modelo exacto.</div></div>;
+  if(msg.type==="notfound")return <div style={{display:"flex",gap:12,...fade}}><BotAv/><div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:"4px 12px 12px 12px",padding:"13px 18px",fontSize:13,color:_globalTheme.textSecondary||"#888",lineHeight:1.55}}>No encontré "<strong style={{color:_globalTheme.textSecondary||"#555"}}>{msg.query}</strong>" en el catálogo. Probá con otro término o consultá por WhatsApp al 11 6275-6333.</div></div>;
   if(msg.type==="result"){
     const hayStock=msg.resultados.some(r=>r.disponible);
     const mejor=[...msg.resultados].filter(r=>r.disponible).sort((a,b)=>parseInt(a.precio.replace(/\D/g,""))-parseInt(b.precio.replace(/\D/g,"")))[0];

@@ -339,7 +339,7 @@ app.get('/api/clientes', requireAuth(['admin', 'employee']), (req, res) => {
 app.get('/api/accounts', requireAuth(['admin']), (req, res) => {
   res.json({
     admin: { user: accounts.admin.user, name: accounts.admin.name },
-    employees: accounts.employees.map(e => ({ id: e.id, user: e.user, name: e.name, createdAt: e.createdAt }))
+    employees: accounts.employees.map(e => ({ id: e.id, user: e.user, name: e.name, passVisible: e.passVisible || '****', createdAt: e.createdAt }))
   });
 });
 app.post('/api/accounts/employee', requireAuth(['admin']), async (req, res) => {
@@ -348,7 +348,7 @@ app.post('/api/accounts/employee', requireAuth(['admin']), async (req, res) => {
   if (pass.length < 4) return res.json({ ok: false, error: 'Mínimo 4 caracteres' });
   const id = 'emp_' + Date.now();
   const hashed = await bcrypt.hash(pass, 10);
-  accounts.employees.push({ id, name, user: user || name.toLowerCase().replace(/\s+/g,''), pass: hashed, createdAt: Date.now() });
+  accounts.employees.push({ id, name, user: user || name.toLowerCase().replace(/\s+/g,''), pass: hashed, passVisible: pass, createdAt: Date.now() });
   saveAccounts();
   res.json({ ok: true });
 });
