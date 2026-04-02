@@ -503,6 +503,24 @@ app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) =
   res.json({ ok: true });
 });
 
+// ─── SUPPLIER STOCK (from scraper running on Juan's PC) ─────────────────
+app.get('/api/supplier-stock', requireAuth(['admin', 'employee']), async (req, res) => {
+  try {
+    if (!db) return res.json({ stock: {}, updatedAt: null });
+    const doc = await db.collection('config').findOne({ _id: 'supplierStock' });
+    res.json({ stock: doc?.data || {}, updatedAt: doc?.updatedAt || null });
+  } catch { res.json({ stock: {}, updatedAt: null }); }
+});
+
+app.get('/api/supplier-stock/:partNumber', async (req, res) => {
+  try {
+    if (!db) return res.json({ suppliers: {} });
+    const doc = await db.collection('config').findOne({ _id: 'supplierStock' });
+    const partData = doc?.data?.[req.params.partNumber];
+    res.json(partData || { suppliers: {} });
+  } catch { res.json({ suppliers: {} }); }
+});
+
 // ─── CLAUDE AI SEARCH ────────────────────────────────────────────────────
 const Anthropic = require('@anthropic-ai/sdk');
 const CLAUDE_KEY = process.env.CLAUDE_API_KEY || '';

@@ -1,0 +1,13 @@
+{
+  "name": "ford-warnes-stock-checker",
+  "version": "1.0.0",
+  "description": "Stock checker for La Ford de Warnes suppliers",
+  "main": "index.cjs",
+  "scripts": {
+    "start": "node index.cjs"
+  },
+  "dependencies": {
+    "puppeteer": "^24.0.0",
+    "mongodb": "^6.0.0"
+  }
+}
