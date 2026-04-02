@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, Fragment } from "react";
 import { useNetwork } from "./useNetwork.js";
 import AdminChats from "./AdminChats.jsx";
 import AdminStock from "./AdminStock.jsx";
@@ -311,6 +311,7 @@ const GCSS=`
   @keyframes head-fade-in{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
   @keyframes head-shake{0%{transform:translateX(0)}25%{transform:translateX(-3px) rotate(-2deg)}50%{transform:translateX(3px) rotate(2deg)}75%{transform:translateX(-2px) rotate(-1deg)}100%{transform:translateX(0)}}
   @keyframes head-punch{0%{transform:scale(1)}10%{transform:scale(.75) rotate(-15deg)}30%{transform:scale(1.2) rotate(10deg)}50%{transform:scale(.9) rotate(-5deg)}70%{transform:scale(1.05)}100%{transform:scale(1)}}
+  @keyframes logoFadeIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
   input,button{-webkit-tap-highlight-color:transparent}
   @media(max-width:640px){
     .fw-header{padding:0 8px !important;height:48px !important}
@@ -812,10 +813,16 @@ export default function FordWarnesApp({ user, onLogout }){
   const [carrito, setCarrito] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-cart")||"[]");}catch{return[];}});
   const [showCarrito, setShowCarrito] = useState(false);
   useEffect(()=>{try{localStorage.setItem("fw-cart",JSON.stringify(carrito));}catch{}},[carrito]);
-  const [favoritos, setFavoritos] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-favs")||"[]");}catch{return[];}});
-  useEffect(()=>{try{localStorage.setItem("fw-favs",JSON.stringify(favoritos));}catch{}},[favoritos]);
-  const toggleFav=(nro)=>setFavoritos(f=>f.includes(nro)?f.filter(x=>x!==nro):[...f,nro]);
-  const isFav=(nro)=>favoritos.includes(nro);
+  const [favoritos, setFavoritos] = useState(()=>{try{return JSON.parse(localStorage.getItem('fw_favs')||'[]');}catch{return[];}});
+  useEffect(()=>{try{localStorage.setItem('fw_favs',JSON.stringify(favoritos));}catch{}},[favoritos]);
+  const toggleFav=(part)=>{setFavoritos(prev=>prev.find(f=>f.numero_parte===part.numero_parte)?prev.filter(f=>f.numero_parte!==part.numero_parte):[...prev,part]);};
+  const isFav=(nro)=>favoritos.some(f=>f.numero_parte===nro);
+
+  // Comparador
+  const [compareList, setCompareList] = useState([]);
+  const [showCompare, setShowCompare] = useState(false);
+  const addToCompare=(part)=>{if(compareList.length>=3||compareList.find(c=>c.numero_parte===part.numero_parte))return;setCompareList(prev=>[...prev,part]);};
+  const removeFromCompare=(nro)=>setCompareList(prev=>prev.filter(c=>c.numero_parte!==nro));
   
   // Search history (localStorage)
   const [miVehiculo, setMiVehiculo] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-vehiculo")||"null");}catch{return null;}});
@@ -896,6 +903,50 @@ export default function FordWarnesApp({ user, onLogout }){
       {/* Toast notification */}
       {cartToast&&<div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",zIndex:9999,background:cartToast.type==="ok"?"#22c55e":"#f59e0b",color:"#fff",padding:"12px 24px",borderRadius:12,fontSize:14,fontWeight:700,boxShadow:"0 8px 24px rgba(0,0,0,.2)",animation:"toast-in .3s ease",fontFamily:"inherit"}}>{cartToast.text}</div>}
 
+      {/* Floating compare bar */}
+      {compareList.length>=2&&!showCompare&&(
+        <div style={{position:"fixed",bottom:20,left:"50%",transform:"translateX(-50%)",zIndex:9998,background:"#6366f1",color:"#fff",padding:"12px 24px",borderRadius:14,fontSize:14,fontWeight:700,boxShadow:"0 8px 24px rgba(99,102,241,.4)",display:"flex",alignItems:"center",gap:12,animation:"toast-in .3s ease",fontFamily:"inherit"}}>
+          <span>Comparar {compareList.length} piezas</span>
+          <button onClick={()=>setShowCompare(true)} style={{background:"#fff",color:"#6366f1",border:"none",borderRadius:8,padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>Ver comparacion</button>
+          <button onClick={()=>setCompareList([])} style={{background:"transparent",color:"#fff",border:"1px solid rgba(255,255,255,.4)",borderRadius:8,padding:"8px 12px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>Limpiar</button>
+        </div>
+      )}
+
+      {/* Compare modal */}
+      {showCompare&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.7)",zIndex:10000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={()=>setShowCompare(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:theme.card,borderRadius:16,padding:24,maxWidth:900,width:"100%",maxHeight:"80vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,.3)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+              <h3 style={{margin:0,fontSize:20,fontWeight:800,color:theme.text}}>Comparador de repuestos</h3>
+              <button onClick={()=>setShowCompare(false)} style={{background:"transparent",border:"none",fontSize:24,cursor:"pointer",color:theme.textMuted,fontFamily:"inherit"}}>X</button>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:`120px repeat(${compareList.length},1fr)`,gap:0,fontSize:13}}>
+              {["Nombre","Codigo","Precio","Precio OEM","Modelo","Categoria","Stock"].map((label,i)=>(
+                <React.Fragment key={label}>
+                  <div style={{padding:"10px 12px",fontWeight:700,color:theme.textMuted,borderBottom:"1px solid "+theme.cardBorder,background:i%2===0?"transparent":(theme.bg||"#f9f9f9")}}>{label}</div>
+                  {compareList.map((p,j)=>(
+                    <div key={j} style={{padding:"10px 12px",color:theme.text,borderBottom:"1px solid "+theme.cardBorder,background:i%2===0?"transparent":(theme.bg||"#f9f9f9"),fontWeight:label==="Precio"?800:400}}>
+                      {label==="Nombre"&&p.nombre}
+                      {label==="Codigo"&&<span style={{fontFamily:"monospace"}}>{p.numero_parte}</span>}
+                      {label==="Precio"&&<span style={{color:"#16a34a"}}>{p.precio}</span>}
+                      {label==="Precio OEM"&&(p.precio_oem||"-")}
+                      {label==="Modelo"&&(p.modelo_nombre||"-")}
+                      {label==="Categoria"&&(p.cat||"-")}
+                      {label==="Stock"&&(p.stock>0?<span style={{color:"#16a34a"}}>{p.stock} disponibles</span>:<span style={{color:"#dc2626"}}>Sin stock</span>)}
+                    </div>
+                  ))}
+                </React.Fragment>
+              ))}
+            </div>
+            <div style={{display:"flex",gap:8,marginTop:16,justifyContent:"center"}}>
+              {compareList.map((p,i)=>(
+                <button key={i} onClick={()=>removeFromCompare(p.numero_parte)} style={{padding:"6px 14px",fontSize:12,fontWeight:600,border:"1px solid #dc2626",borderRadius:8,background:"transparent",color:"#dc2626",cursor:"pointer",fontFamily:"inherit"}}>Quitar {p.numero_parte}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Juan flotante — se oculta cuando el chat está abierto */}
       {role==='employee'&&<FloatingHead state={botState} hidden={chatOpen} giftReaction={juanGift}/>}
       {vista==='catalogo'&&!chatOpen&&<RadioVieja/>}
@@ -903,7 +954,7 @@ export default function FordWarnesApp({ user, onLogout }){
       {/* HEADER */}
       <header className="fw-header" style={{background:theme.card,borderBottom:"1px solid "+theme.cardBorder,padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20,boxShadow:"0 1px 4px rgba(0,0,0,.06)",overflowX:"auto",overflowY:"hidden"}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <div style={{width:56,height:30,background:"linear-gradient(135deg,#003478,#0050a0)",borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,52,120,.3)"}}>
+          <div style={{width:56,height:30,background:"linear-gradient(135deg,#003478,#0050a0)",borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,52,120,.3)",animation:'logoFadeIn 0.6s ease'}}>
             <span style={{color:"#fff",fontWeight:800,fontSize:15,fontStyle:"italic",fontFamily:"Georgia,serif"}}>Ford</span>
           </div>
           <div className="fw-logo-text">
@@ -1115,6 +1166,20 @@ export default function FordWarnesApp({ user, onLogout }){
                 <SearchAutocomplete theme={theme} allProducts={repTodos} onSearch={q=>setHomeSearch(q)} onSelect={p=>setParteSel(p)} />
                 <p style={{fontSize:12,color:_globalTheme.textMuted||"#aaa",margin:"0 0 16px"}}>{MOCK_MODELOS.length} modelos · {Object.values(CATALOGO_COMPLETO).flat().length} repuestos · Stock sujeto a disponibilidad</p>
 
+                {/* Busquedas recientes */}
+                {searchHistory.length>0&&homeSearch.trim().length<=2&&(
+                  <div style={{marginBottom:16}}>
+                    <div style={{fontSize:12,fontWeight:700,color:_globalTheme.textMuted||"#999",marginBottom:8}}>Busquedas recientes</div>
+                    <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+                      {searchHistory.slice(0,5).map((q,i)=>(
+                        <button key={i} onClick={()=>setHomeSearch(q)} style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:20,padding:"6px 14px",fontSize:12,fontWeight:600,color:theme.text,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Productos destacados carrusel */}
                 {homeSearch.trim().length<=2&&(
                   <div style={{marginBottom:20}}>
@@ -1161,7 +1226,7 @@ export default function FordWarnesApp({ user, onLogout }){
                         {results.map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onConsultar={(part)=>{
                           setPendingConsulta(`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`);
                           setChatOpen(true);
-                        }} onAddCart={addToCart}/>)}
+                        }} onAddCart={addToCart} toggleFav={toggleFav} isFav={isFav} onCompare={addToCompare}/>)}
                       </div>
                       )}
                     </div>
@@ -1342,7 +1407,7 @@ export default function FordWarnesApp({ user, onLogout }){
                       {filtered.slice(0,showCount).map((r,i)=><RepCard key={i} r={r} onClick={()=>setParteSel(r)} onAddCart={addToCart} onConsultar={(part)=>{
                         setPendingConsulta(`Hola, quiero consultar por: ${part.nombre} (N° ${part.numero_parte}) para ${part.modelo_nombre}. Precio: ${part.precio}. Esta disponible?`);
                         setChatOpen(true);
-                      }}/>)}
+                      }} toggleFav={toggleFav} isFav={isFav} onCompare={addToCompare}/>)}
                     </div>
                     )}
                   </div>
@@ -1471,17 +1536,19 @@ function ModeloCard({modelo,onClick}){const theme = _globalTheme;
   );
 }
 
-function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
+function RepCard({r,onClick,onConsultar,onAddCart,toggleFav,isFav,onCompare}){const theme = _globalTheme;
   const [hov,setHov]=useState(false);
   const [imgErr,setImgErr]=useState(false);
   const Ic=getIcon(r.cat);
   const partImg=r.foto||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
+  const faved=isFav&&isFav(r.numero_parte);
   return(
     <div style={{background:theme.card,border:"1px solid "+theme.cardBorder,borderRadius:4,transition:"all .2s",overflow:"hidden",boxShadow:hov?"0 4px 16px rgba(0,0,0,.08)":"none"}}
       onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
       {/* Image */}
-      <div className="fw-rep-card-img" onClick={onClick} style={{width:"100%",height:180,background:theme.card,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid "+theme.cardBorder,cursor:"pointer"}}>
+      <div className="fw-rep-card-img" onClick={onClick} style={{position:"relative",width:"100%",height:180,background:theme.card,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",borderBottom:"1px solid "+theme.cardBorder,cursor:"pointer"}}>
         {partImg&&!imgErr?<img src={partImg} alt={r.cat} onError={()=>setImgErr(true)} style={{maxWidth:"85%",maxHeight:"85%",objectFit:"contain",transition:"transform .2s",transform:hov?"scale(1.05)":"scale(1)"}}/>:<Ic size={64}/>}
+        {toggleFav&&<button onClick={(e)=>{e.stopPropagation();toggleFav(r);}} style={{position:"absolute",top:8,right:8,width:32,height:32,borderRadius:"50%",border:"none",background:"rgba(255,255,255,.85)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,transition:"all .15s",boxShadow:"0 1px 4px rgba(0,0,0,.15)"}} title={faved?"Quitar de favoritos":"Agregar a favoritos"}>{faved?"\u2764\uFE0F":"\uD83E\uDE76"}</button>}
       </div>
       <div style={{padding:"16px 18px"}}>
         <div onClick={onClick} style={{cursor:"pointer"}}>
@@ -1535,6 +1602,7 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
             style={{padding:"10px 0",fontSize:12,fontWeight:700,border:"none",borderRadius:8,background:"#25d366",color:"#fff",cursor:"pointer",fontFamily:"inherit",textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
             WhatsApp
           </a>
+          {onCompare&&<button onClick={(e)=>{e.stopPropagation();onCompare(r);}} style={{padding:"10px 0",fontSize:12,fontWeight:700,border:"2px solid #6366f1",borderRadius:8,background:"transparent",color:"#6366f1",cursor:"pointer",fontFamily:"inherit",gridColumn:"1 / -1"}}>Comparar</button>}
         </div>
       </div>
     </div>
