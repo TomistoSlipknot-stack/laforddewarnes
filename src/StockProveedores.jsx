@@ -39,7 +39,7 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
   const sq = search.toLowerCase().trim();
   const sqNorm = normalize(sq);
 
-  const results = sq.length > 2 ? allParts.filter(p => {
+  const resultsRaw = sq.length > 2 ? allParts.filter(p => {
     const pNorm = normalize(p.numero_parte);
     const pName = (p.nombre || '').toLowerCase();
     if (sqNorm.length > 3 && pNorm.includes(sqNorm)) return true;
@@ -51,7 +51,17 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
       return words.every(w => hay.includes(w));
     }
     return false;
-  }).slice(0, 20) : [];
+  }) : [];
+  // Deduplicate by numero_parte - merge aplicativos
+  const seen = {};
+  for (const p of resultsRaw) {
+    if (!seen[p.numero_parte]) { seen[p.numero_parte] = { ...p }; }
+    else {
+      const existing = seen[p.numero_parte];
+      if (p.aplicativos) existing.aplicativos = [...new Set([...(existing.aplicativos||[]), ...p.aplicativos])];
+    }
+  }
+  const results = Object.values(seen).slice(0, 15);
 
   const openSupplier = (supplier, partNumber) => {
     window.open(supplier.buildUrl(partNumber), '_blank');
@@ -152,17 +162,29 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
             borderRadius: 14, padding: 16, marginBottom: 12,
           }}>
             {/* Part info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: t.text || '#333' }}>{part.nombre}</div>
                 <div style={{ fontSize: 12, color: t.textSecondary || '#888', marginTop: 2 }}>
-                  {part.numero_parte} · {part.aplicativos?.slice(0, 3).join(' / ') || part.modelo_nombre}
+                  Compatible: {part.aplicativos?.slice(0, 5).join(' / ') || part.modelo_nombre}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#16a34a' }}>{part.precio}</div>
                 <div style={{ fontSize: 10, color: t.textMuted || '#999' }}>Nuestro precio</div>
               </div>
+            </div>
+
+            {/* Part number with copy */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, background: t.bg || '#fafafa', padding: '8px 12px', borderRadius: 8, border: '1px solid ' + (t.cardBorder || '#e0e0e0') }}>
+              <span style={{ fontSize: 11, color: t.textSecondary || '#888' }}>Código:</span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: t.text || '#333', flex: 1, fontFamily: 'monospace' }}>{part.numero_parte}</span>
+              <button onClick={() => { navigator.clipboard.writeText(part.numero_parte); }} style={{ fontSize: 11, fontWeight: 700, padding: '4px 12px', border: '1px solid #4a9eff', borderRadius: 6, background: 'rgba(74,158,255,.1)', color: '#4a9eff', cursor: 'pointer', fontFamily: 'inherit' }}>Copiar</button>
+            </div>
+
+            {/* Instructions */}
+            <div style={{ fontSize: 11, color: t.textMuted || '#999', marginBottom: 8, lineHeight: 1.5 }}>
+              1. Copiá el código → 2. Abrí un proveedor → 3. Pegá y buscá → 4. Marcá si hay stock
             </div>
 
             {/* Open all button */}
@@ -172,7 +194,7 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
               background: 'linear-gradient(135deg, #003478, #0060c0)', color: '#fff',
               cursor: 'pointer', fontFamily: 'inherit', marginBottom: 10,
             }}>
-              Buscar en todos los proveedores
+              Abrir los 4 proveedores
             </button>
 
             {/* Individual suppliers */}
