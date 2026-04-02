@@ -1196,7 +1196,7 @@ export default function FordWarnesApp({ user, onLogout }){
             <AdminChats network={network}/>
           ):(
             /* Clients/Employees see PrivateChat inline */
-            <PrivateChatInline network={network} userName={user?.name} pendingConsulta={pendingConsulta} onConsultaSent={()=>setPendingConsulta(null)}/>
+            <PrivateChatInline network={network} userName={user?.name} pendingConsulta={pendingConsulta} onConsultaSent={()=>setPendingConsulta(null)} onClose={()=>setChatOpen(false)}/>
           )}
         </div>
       )}

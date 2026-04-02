@@ -111,13 +111,13 @@ function saveChats() {
   saveToDB('chats', toSave);
 }
 function saveSales() { saveToDB('sales', salesLog); }
-function saveSalesHistory() { saveToDB('salesHistory', salesHistory); }
+async function saveSalesHistory() { await saveToDB('salesHistory', salesHistory); }
 function saveClientNotes() { saveToDB('clientNotes', clientNotes); }
 function saveSearchAnalytics() { saveToDB('searchAnalytics', searchAnalytics); }
 let pedidos = [];
-function savePedidos() { saveToDB('pedidos', pedidos); }
+async function savePedidos() { await saveToDB('pedidos', pedidos); }
 let clientAccounts = [];
-function saveClientAccounts() { saveToDB('clientAccounts', clientAccounts); }
+async function saveClientAccounts() { await saveToDB('clientAccounts', clientAccounts); }
 
 // ─── CONNECTED CLIENTS ──────────────────────────────────────────────────────
 const clients = new Map();
@@ -237,7 +237,7 @@ let accounts = loadJSON('accounts.json', {
   admin: { user: 'juan', pass: '1234', name: 'Juan', role: 'admin' },
   employees: []
 });
-function saveAccounts() { saveToDB('accounts', accounts); }
+async function saveAccounts() { await saveToDB('accounts', accounts); }
 
 // Auto-migrate plaintext passwords to bcrypt on first run
 function isHashed(p) { return p && p.startsWith('$2'); }

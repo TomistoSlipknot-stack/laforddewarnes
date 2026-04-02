@@ -8,7 +8,7 @@ const STEPS = [
   { id: 'contacto', bot: 'Tu nombre y telefono para que un asesor te contacte:' },
 ];
 
-export default function PrivateChatInline({ network, userName, pendingConsulta, onConsultaSent }) {
+export default function PrivateChatInline({ network, userName, pendingConsulta, onConsultaSent, onClose }) {
   const [msgs, setMsgs] = useState([]);
   const [inp, setInp] = useState('');
   const [step, setStep] = useState(0);
@@ -87,7 +87,7 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
 
   const handleSend = () => {
     const t = inp.trim(); if (!t) return; setInp('');
-    if (!botMode) { network.sendChat(t); return; }
+    if (!botMode) { addMsg('user', t); network.sendChat(t); return; }
     addMsg('user', t);
     if (step === 2) {
       setOrderData(d => ({ ...d, pieza: t }));
@@ -133,6 +133,7 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
           <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--fw-text, #333)' }}>Ford de Warnes</div>
           <div style={{ fontSize: 10, color: botMode ? '#003478' : '#22c55e' }}>{botMode ? 'Asistente' : 'Chat con asesor'}</div>
         </div>
+        {onClose && <button onClick={onClose} style={{ padding: '6px 14px', fontSize: 12, fontWeight: 700, border: '1px solid var(--fw-cardBorder, #ddd)', borderRadius: 8, background: 'transparent', color: 'var(--fw-text, #888)', cursor: 'pointer', fontFamily: 'inherit' }}>Cerrar</button>}
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
