@@ -1276,9 +1276,10 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
         <div onClick={onClick} style={{cursor:"pointer"}}>
           <div style={{fontSize:14,fontWeight:800,color:theme.text,lineHeight:1.35,marginBottom:8,textTransform:"uppercase",minHeight:40}}>{r.nombre}</div>
           {/* Part number */}
-          <div style={{background:theme.bg,padding:"6px 10px",borderRadius:4,marginBottom:10}}>
+          <div style={{background:theme.bg,padding:"6px 10px",borderRadius:4,marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
             <span style={{fontSize:11,color:theme.textSecondary||"#666"}}>Cod. Ref: </span>
-            <span style={{fontSize:12,fontWeight:700,color:theme.text}}>{r.numero_parte}</span>
+            <span style={{fontSize:12,fontWeight:700,color:theme.text,flex:1}}>{r.numero_parte}</span>
+            <button onClick={(e)=>{e.stopPropagation();navigator.clipboard.writeText(r.numero_parte);e.currentTarget.textContent='Copiado!';setTimeout(()=>{e.currentTarget.textContent='Copiar'},1500)}} style={{fontSize:10,fontWeight:600,padding:"3px 8px",border:"1px solid "+theme.cardBorder,borderRadius:4,background:"transparent",color:"#4a9eff",cursor:"pointer",fontFamily:"inherit"}}>Copiar</button>
           </div>
           {/* Prices */}
           <div style={{marginBottom:6}}>
@@ -1409,9 +1410,10 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
             {/* Name */}
             <h2 style={{fontSize:20,fontWeight:800,color:theme.text,margin:"0 0 12px",textTransform:"uppercase",lineHeight:1.3}}>{r.nombre}</h2>
             {/* Part number box */}
-            <div style={{background:theme.bg,padding:"10px 14px",borderRadius:4,marginBottom:16}}>
+            <div style={{background:theme.bg,padding:"10px 14px",borderRadius:4,marginBottom:16,display:"flex",alignItems:"center",gap:8}}>
               <span style={{fontSize:13,color:_globalTheme.textSecondary||"#666"}}>Cod. Referencia: </span>
-              <span style={{fontSize:14,fontWeight:800,color:theme.text}}>{r.numero_parte}</span>
+              <span style={{fontSize:14,fontWeight:800,color:theme.text,flex:1}}>{r.numero_parte}</span>
+              <button onClick={(e)=>{e.stopPropagation();navigator.clipboard.writeText(r.numero_parte);e.currentTarget.textContent='Copiado!';setTimeout(()=>{e.currentTarget.textContent='Copiar'},1500)}} style={{fontSize:11,fontWeight:700,padding:"5px 14px",border:"1px solid #4a9eff",borderRadius:6,background:"rgba(74,158,255,.1)",color:"#4a9eff",cursor:"pointer",fontFamily:"inherit"}}>Copiar</button>
             </div>
             {/* Prices */}
             {r.precio_oem&&<div style={{fontSize:15,color:_globalTheme.textMuted||"#999",textDecoration:"line-through"}}>{r.precio_oem}</div>}
