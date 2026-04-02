@@ -512,6 +512,21 @@ app.get('/api/supplier-stock', requireAuth(['admin', 'employee']), async (req, r
   } catch { res.json({ stock: {}, updatedAt: null }); }
 });
 
+app.post('/api/supplier-stock-mark', requireAuth(['admin', 'employee']), async (req, res) => {
+  const { partNumber, supplier, hasStock, precio } = req.body;
+  if (!partNumber || !supplier) return res.status(400).json({ ok: false });
+  try {
+    if (!db) return res.json({ ok: false });
+    const key = 'supplierStock';
+    const doc = await db.collection('config').findOne({ _id: key });
+    const data = doc?.data || {};
+    if (!data[partNumber]) data[partNumber] = { suppliers: {} };
+    data[partNumber].suppliers[supplier] = { available: hasStock, precio: precio || '', checkedAt: Date.now() };
+    await db.collection('config').updateOne({ _id: key }, { $set: { data, updatedAt: Date.now() } }, { upsert: true });
+    res.json({ ok: true });
+  } catch { res.json({ ok: false }); }
+});
+
 app.get('/api/supplier-stock/:partNumber', async (req, res) => {
   try {
     if (!db) return res.json({ suppliers: {} });

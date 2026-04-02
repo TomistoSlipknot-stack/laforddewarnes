@@ -12,6 +12,7 @@ import AdminDashboard from "./AdminDashboard.jsx";
 import EmpleadoVenta from "./EmpleadoVenta.jsx";
 import TiendaEmpleado from "./TiendaEmpleado.jsx";
 import BuscadorIA from "./BuscadorIA.jsx";
+import StockProveedores from "./StockProveedores.jsx";
 import RadioVieja from "./RadioVieja.jsx";
 import Checkout from "./Checkout.jsx";
 import PedidosPanel from "./PedidosPanel.jsx";
@@ -951,6 +952,7 @@ export default function FordWarnesApp({ user, onLogout }){
               {id:"chats",label:"Chats",icon:"💬",badge:adminTotalUnread},
               {id:"online",label:"En Linea",icon:"🟢",badge:network.onlineUsers.length},
               {id:"pedidos",label:"Pedidos",icon:"🛒",badge:pedidoCount},
+              {id:"proveedores",label:"Proveedores",icon:"🏭",badge:0},
               {id:"logs",label:"Busquedas",icon:"🔍",badge:network.searchLogs.length},
             ]:[
               {id:"asistente",label:"Asistente",icon:"🤖",badge:0},
@@ -960,6 +962,7 @@ export default function FordWarnesApp({ user, onLogout }){
               {id:"chatjefe",label:"Chat Jefe",icon:"📢",badge:0},
               {id:"online",label:"En Linea",icon:"🟢",badge:network.onlineUsers.length},
               {id:"pedidos",label:"Pedidos",icon:"🛒",badge:pedidoCount},
+              {id:"proveedores",label:"Proveedores",icon:"🏭",badge:0},
               {id:"tienda",label:"Tienda",icon:"🎁",badge:0},
             ]).map(t=>(
               <button key={t.id} onClick={()=>setAdminTab(t.id)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 14px",borderRadius:8,border:"none",background:adminTab===t.id?(isDark?"rgba(0,52,120,.3)":"#e8f0fe"):"transparent",color:adminTab===t.id?(isDark?"#58a6ff":"#003478"):theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:adminTab===t.id?600:500,transition:"all .15s",textAlign:"left",position:"relative"}}>
@@ -977,6 +980,7 @@ export default function FordWarnesApp({ user, onLogout }){
               try{await authFetch('/api/sales-history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sale)});handleSaleBonus();}catch{}
             }}/>}
             {adminTab==="pedidos"&&<PedidosPanel theme={theme} esJefe={esJefe}/>}
+            {adminTab==="proveedores"&&<StockProveedores catalogo={CATALOGO_COMPLETO} modelos={MOCK_MODELOS} theme={theme}/>}
             {adminTab==="tienda"&&!esJefe&&<TiendaEmpleado theme={theme} saldo={empSaldo} onBuy={handleGiftBuy}/>}
             {adminTab==="chatjefe"&&!esJefe&&(
               <div style={{height:"100%",display:"flex",flexDirection:"column",background:theme.bg}}>
