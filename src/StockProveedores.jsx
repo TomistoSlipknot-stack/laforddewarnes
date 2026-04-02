@@ -3,7 +3,10 @@ import { authFetch } from './App.jsx';
 
 const SUPPLIERS = [
   { id: 'forcor', name: 'Forcor', color: '#3b82f6', buildUrl: (nro) => {
-    const p = nro.replace(/\//g, '-').split('-');
+    const clean = nro.replace(/\//g, '-');
+    const p = clean.split('-');
+    // If no separators, put everything in basico field
+    if (p.length <= 1) return `https://wayre.forcor.com.ar/extranet/productos?producto_filter[prefijo]=&producto_filter[basico]=${encodeURIComponent(clean)}&producto_filter[sufijo1]=&producto_filter[sufijo2]=`;
     return `https://wayre.forcor.com.ar/extranet/productos?producto_filter[prefijo]=${p[0]||''}&producto_filter[basico]=${p[1]||''}&producto_filter[sufijo1]=${p[2]||''}&producto_filter[sufijo2]=${p[3]||''}`;
   }},
   { id: 'fordmata', name: 'Fordmata', color: '#f97316', buildUrl: (nro) => {

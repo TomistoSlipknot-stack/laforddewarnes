@@ -72,7 +72,7 @@ export default function RadioVieja() {
   if (minimized) {
     return (
       <div onClick={() => setMinimized(false)} style={{
-        position: 'fixed', bottom: 12, left: 12, zIndex: 50, cursor: 'pointer',
+        position: 'fixed', bottom: 12, right: 12, zIndex: 50, cursor: 'pointer',
         background: 'rgba(0,0,0,.85)', borderRadius: 10, padding: '6px 14px',
         display: 'flex', alignItems: 'center', gap: 8, backdropFilter: 'blur(8px)',
       }} title="Abrir Ford TV">
@@ -83,7 +83,7 @@ export default function RadioVieja() {
   }
 
   return (
-    <div style={{ position: 'fixed', bottom: 14, left: 14, zIndex: 50, animation: 'tvPopIn .4s ease' }}>
+    <div style={{ position: 'fixed', bottom: 14, right: 14, zIndex: 50, animation: 'tvPopIn .4s ease' }}>
       <div style={{
         width: W, background: 'linear-gradient(145deg, #8B6914, #5C4413, #3E2E0D)',
         borderRadius: 14, padding: big ? 14 : 8,
