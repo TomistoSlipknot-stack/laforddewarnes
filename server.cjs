@@ -54,13 +54,35 @@ async function connectDB() {
   }
 }
 
-// Save to MongoDB (with JSON fallback)
+// Save to MongoDB (with JSON fallback) - ALWAYS saves with timestamp
 async function saveToDB(key, data) {
+  const now = Date.now();
   try {
-    if (db) await db.collection('config').updateOne({ _id: key }, { $set: { data } }, { upsert: true });
-  } catch (e) { console.error('MongoDB save error:', e.message); }
+    if (db) {
+      await db.collection('config').updateOne(
+        { _id: key },
+        { $set: { data, updatedAt: now } },
+        { upsert: true }
+      );
+    }
+  } catch (e) {
+    console.error('[MongoDB SAVE ERROR]', key, e.message);
+  }
   // Also save locally as backup
   try { saveJSON(key + '.json', data); } catch {}
+}
+
+// Force save ALL data to MongoDB (called periodically + on shutdown)
+async function saveAllData() {
+  console.log('[AutoSave] Saving all data to MongoDB...');
+  await saveToDB('accounts', accounts);
+  await saveToDB('pedidos', pedidos);
+  await saveToDB('clientAccounts', clientAccounts);
+  await saveToDB('salesHistory', salesHistory);
+  await saveToDB('clientNotes', clientNotes);
+  await saveToDB('searchAnalytics', searchAnalytics);
+  await saveToDB('chats', chatRooms);
+  console.log('[AutoSave] Complete');
 }
 
 function loadJSON(name, fallback) {
@@ -802,9 +824,24 @@ wss.on('connection', (ws2) => {
 connectDB().then(() => {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`Ford Warnes server running on port ${PORT}`);
+    // Auto-save every 2 minutes
+    setInterval(saveAllData, 120000);
+    console.log('[AutoSave] Scheduled every 2 minutes');
   });
 }).catch(() => {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`Ford Warnes server running on port ${PORT} (without MongoDB)`);
   });
+});
+
+// Save ALL data on shutdown (Render sends SIGTERM before stopping)
+process.on('SIGTERM', async () => {
+  console.log('[Shutdown] SIGTERM received, saving all data...');
+  await saveAllData();
+  process.exit(0);
+});
+process.on('SIGINT', async () => {
+  console.log('[Shutdown] SIGINT received, saving all data...');
+  await saveAllData();
+  process.exit(0);
 });
