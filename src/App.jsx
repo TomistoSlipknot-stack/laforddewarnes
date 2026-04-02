@@ -1515,7 +1515,7 @@ function ModeloCard({modelo,onClick}){const theme = _globalTheme;
       <div style={{width:"100%",height:140,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",background:modelo.color||"#f0f4f8"}}>
         {!imgErr&&IMGS_MODELO[modelo.id]
           ?<img src={IMGS_MODELO[modelo.id]} alt={modelo.nombre} onError={()=>setImgErr(true)} style={{width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s",transform:hov?"scale(1.05)":"scale(1)"}}/>
-          :<span style={{fontSize:42,opacity:.3,color:"#fff"}}>🚗</span>}
+          :<div style={{textAlign:"center"}}><div style={{fontSize:28,fontWeight:900,color:"rgba(255,255,255,.4)",fontFamily:"Georgia,serif",fontStyle:"italic"}}>Ford</div><div style={{fontSize:14,fontWeight:700,color:"rgba(255,255,255,.25)",marginTop:4}}>{modelo.nombre}</div></div>}
         {/* Year badge */}
         <div style={{position:"absolute",top:8,right:8,background:"rgba(0,0,0,.7)",borderRadius:6,padding:"3px 8px",fontSize:11,fontWeight:700,color:"#fff",backdropFilter:"blur(4px)"}}>
           {modelo.año}
