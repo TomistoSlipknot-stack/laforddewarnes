@@ -10,13 +10,13 @@ export default function AdminChats({ network }) {
   const rooms = network.chatRooms || [];
   const filtered = rooms.filter(r => {
     if (filter === 'employee') return r.role === 'employee';
-    if (filter === 'public') return r.role === 'public';
+    if (filter === 'public') return r.role !== 'employee';
     return true;
   });
 
   const totalUnread = rooms.reduce((s, r) => s + (r.unread || 0), 0);
   const employeeUnread = rooms.filter(r => r.role === 'employee').reduce((s, r) => s + (r.unread || 0), 0);
-  const publicUnread = rooms.filter(r => r.role === 'public').reduce((s, r) => s + (r.unread || 0), 0);
+  const publicUnread = rooms.filter(r => r.role !== 'employee').reduce((s, r) => s + (r.unread || 0), 0);
 
   const activeMessages = activeRoom ? (network.chatMessages[activeRoom] || []) : [];
 
