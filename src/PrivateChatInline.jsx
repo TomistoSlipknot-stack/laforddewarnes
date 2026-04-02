@@ -4,7 +4,7 @@ const STEPS = [
   { id: 'inicio', bot: 'Hola! Soy el asistente de Ford de Warnes. En que te puedo ayudar?', options: ['Comprar un repuesto', 'Consultar precio', 'Hablar con un asesor'] },
   { id: 'modelo', bot: 'Para que modelo de Ford?', options: ['F-150', 'Ranger', 'Explorer', 'Mustang', 'EcoSport', 'Focus', 'Ka', 'Bronco', 'Escape', 'Fiesta', 'Transit', 'Falcon', 'Otro'] },
   { id: 'pieza', bot: 'Que pieza necesitas? Escribila abajo.' },
-  { id: 'cuando', bot: 'Para cuando?', options: ['Hoy', 'Maniana', 'Esta semana', 'No tengo apuro'] },
+  { id: 'cuando', bot: 'Para cuando?', options: ['Hoy', 'Mañana', 'Esta semana', 'No tengo apuro'] },
   { id: 'contacto', bot: 'Tu nombre y telefono para que un asesor te contacte:' },
 ];
 
@@ -73,13 +73,33 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
     }
   };
 
+  const askAI = async (userText) => {
+    try {
+      const res = await fetch('/api/ai-search', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: userText, context: 'El cliente esta en el chat del asesor buscando ayuda. Modelo seleccionado: ' + (orderData.modelo || 'no seleccionado') }),
+      });
+      const data = await res.json();
+      if (data.ok && data.response) return data.response;
+    } catch {}
+    return null;
+  };
+
   const handleSend = () => {
     const t = inp.trim(); if (!t) return; setInp('');
     if (!botMode) { network.sendChat(t); return; }
     addMsg('user', t);
     if (step === 2) {
       setOrderData(d => ({ ...d, pieza: t }));
-      setTimeout(() => addMsg('bot', STEPS[3].bot, STEPS[3].options), 600);
+      // Use AI to help the client
+      askAI(t).then(aiResponse => {
+        if (aiResponse) {
+          addMsg('bot', aiResponse);
+          setTimeout(() => addMsg('bot', STEPS[3].bot, STEPS[3].options), 1500);
+        } else {
+          setTimeout(() => addMsg('bot', STEPS[3].bot, STEPS[3].options), 600);
+        }
+      });
       setStep(3);
     } else if (step === 4) {
       const order = { ...orderData, contacto: t };
