@@ -658,7 +658,7 @@ async function sendOrderEmail(order, status) {
 
   try {
     await resend.emails.send({
-      from: 'La Ford de Warnes <onboarding@resend.dev>',
+      from: 'La Ford de Warnes <pedidos@laforddewarnes.com>',
       to: email,
       subject: 'Pedido ' + order.id + ' - ' + (statusLabels[status] || status),
       html,
