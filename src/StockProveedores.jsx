@@ -296,18 +296,32 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
                       )}
                     </div>
 
-                    {/* Hint */}
-                    {sup.hint && <div style={{ fontSize: 9, color: t.textMuted || '#999', marginBottom: 4, textAlign: 'center' }}>{sup.hint}</div>}
-
-                    {/* Open supplier */}
-                    <button onClick={() => openSupplier(sup, part.numero_parte)} style={{
-                      width: '100%', padding: 8, fontSize: 11, fontWeight: 600,
-                      border: '1px solid ' + sup.color + '40', borderRadius: 6,
-                      background: sup.color + '10', color: sup.color,
-                      cursor: 'pointer', fontFamily: 'inherit', marginBottom: 6,
-                    }}>
-                      Abrir {sup.name}
-                    </button>
+                    {/* Copy + Open for manual suppliers, just Open for auto */}
+                    {(sup.id === 'fordmata' || sup.id === 'taraborelli') ? (
+                      <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+                        <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(part.numero_parte); e.currentTarget.textContent='Copiado!'; setTimeout(()=>{e.currentTarget.textContent='Copiar'},1200); }} style={{
+                          flex: 1, padding: 8, fontSize: 11, fontWeight: 700,
+                          border: '1px solid #4a9eff', borderRadius: 6,
+                          background: 'rgba(74,158,255,.1)', color: '#4a9eff',
+                          cursor: 'pointer', fontFamily: 'inherit',
+                        }}>Copiar</button>
+                        <button onClick={() => openSupplier(sup, part.numero_parte)} style={{
+                          flex: 1, padding: 8, fontSize: 11, fontWeight: 600,
+                          border: '1px solid ' + sup.color + '40', borderRadius: 6,
+                          background: sup.color + '10', color: sup.color,
+                          cursor: 'pointer', fontFamily: 'inherit',
+                        }}>Abrir</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => openSupplier(sup, part.numero_parte)} style={{
+                        width: '100%', padding: 8, fontSize: 11, fontWeight: 600,
+                        border: '1px solid ' + sup.color + '40', borderRadius: 6,
+                        background: sup.color + '10', color: sup.color,
+                        cursor: 'pointer', fontFamily: 'inherit', marginBottom: 6,
+                      }}>
+                        Buscar en {sup.name}
+                      </button>
+                    )}
 
                     {/* Mark buttons */}
                     <div style={{ display: 'flex', gap: 4 }}>
