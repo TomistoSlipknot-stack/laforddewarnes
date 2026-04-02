@@ -162,7 +162,7 @@ function convertirCatalogo(jsonData){
       cat:p.cat,
       foto:p.foto_cdn,
       modelo_nombre:modeloId,
-      aplicativos:[modeloId],
+      aplicativos:p.modelos_comp||[modeloId],
     }));
   }
   return result;
@@ -1269,9 +1269,19 @@ function RepCard({r,onClick,onConsultar,onAddCart}){const theme = _globalTheme;
           </div>
           {/* Stock */}
           {r.stock>0
-            ?<div style={{fontSize:12,color:"#16a34a",fontWeight:600,marginBottom:12}}>{r.stock} disponibles</div>
-            :<div style={{fontSize:12,color:"#dc2626",fontWeight:600,marginBottom:12}}>Consultar disponibilidad</div>
+            ?<div style={{fontSize:12,color:"#16a34a",fontWeight:600,marginBottom:8}}>{r.stock} disponibles</div>
+            :<div style={{fontSize:12,color:"#dc2626",fontWeight:600,marginBottom:8}}>Consultar disponibilidad</div>
           }
+          {/* Compatible models */}
+          {r.aplicativos?.length>0&&(
+            <div style={{marginBottom:10}}>
+              <div style={{fontSize:10,color:theme.textSecondary,marginBottom:4}}>Compatible con:</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+                {r.aplicativos.slice(0,5).map((m,i)=><span key={i} style={{fontSize:10,fontWeight:600,background:theme.bg,border:"1px solid "+theme.cardBorder,borderRadius:4,padding:"2px 6px",color:theme.text}}>{m}</span>)}
+                {r.aplicativos.length>5&&<span style={{fontSize:10,color:theme.textMuted}}>+{r.aplicativos.length-5}</span>}
+              </div>
+            </div>
+          )}
         </div>
         {/* Buttons */}
         <div className="fw-rep-card-btns" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:4}}>
