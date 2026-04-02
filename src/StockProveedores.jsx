@@ -2,20 +2,28 @@ import { useState, useMemo, useEffect } from 'react';
 import { authFetch } from './App.jsx';
 
 const SUPPLIERS = [
-  { id: 'forcor', name: 'Forcor', color: '#3b82f6', buildUrl: (nro) => {
-    const clean = nro.replace(/\//g, '-');
+  { id: 'forcor', name: 'Forcor (Wayre)', color: '#3b82f6', hint: 'Busca por Prefijo/Basico/Sufijo', buildUrl: (nro) => {
+    // Forcor uses: Prefijo / Basico / Sufijo1 / Sufijo2
+    // Example: EB3Z/2C150/A → prefijo=EB3Z basico=2C150 sufijo1=A
+    const clean = nro.replace(/\//g, '-').replace(/\s/g, '');
     const p = clean.split('-');
-    // If no separators, put everything in basico field
-    if (p.length <= 1) return `https://wayre.forcor.com.ar/extranet/productos?producto_filter[prefijo]=&producto_filter[basico]=${encodeURIComponent(clean)}&producto_filter[sufijo1]=&producto_filter[sufijo2]=`;
-    return `https://wayre.forcor.com.ar/extranet/productos?producto_filter[prefijo]=${p[0]||''}&producto_filter[basico]=${p[1]||''}&producto_filter[sufijo1]=${p[2]||''}&producto_filter[sufijo2]=${p[3]||''}`;
+    if (p.length === 1) {
+      // No separators: try putting in basico (most common search)
+      return `https://wayre.forcor.com.ar/extranet/productos?producto_filter[prefijo]=&producto_filter[basico]=${encodeURIComponent(clean)}&producto_filter[sufijo1]=&producto_filter[sufijo2]=`;
+    }
+    return `https://wayre.forcor.com.ar/extranet/productos?producto_filter[prefijo]=${encodeURIComponent(p[0]||'')}&producto_filter[basico]=${encodeURIComponent(p[1]||'')}&producto_filter[sufijo1]=${encodeURIComponent(p[2]||'')}&producto_filter[sufijo2]=${encodeURIComponent(p[3]||'')}`;
   }},
-  { id: 'fordmata', name: 'Fordmata', color: '#f97316', buildUrl: (nro) => {
+  { id: 'fordmata', name: 'Fordmata', color: '#f97316', hint: 'Pega el codigo en la busqueda', buildUrl: (nro) => {
+    // Fordmata: ASP page, can't pre-fill search via URL. Opens the search page.
     return `https://fordmata.no-ip.org/ford/extranet/abmPiezasCliente.asp?g=8`;
   }},
-  { id: 'fnx', name: 'FNX', color: '#22c55e', buildUrl: (nro) => {
-    return `http://fnx.com.ar/index.php?pagina=lista-productos&busqueda=${encodeURIComponent(nro)}`;
+  { id: 'fnx', name: 'FNX (Fenix)', color: '#22c55e', hint: 'Busca por codigo o nombre', buildUrl: (nro) => {
+    // FNX: search by code or description. Remove / and - for cleaner search
+    const clean = nro.replace(/[/-]/g, '').trim();
+    return `http://fnx.com.ar/index.php?pagina=lista-productos&busqueda=${encodeURIComponent(clean)}`;
   }},
-  { id: 'taraborelli', name: 'Taraborelli', color: '#a855f7', buildUrl: (nro) => {
+  { id: 'taraborelli', name: 'Taraborelli', color: '#a855f7', hint: 'Pega el codigo en la busqueda', buildUrl: (nro) => {
+    // Taraborelli: SPA Angular, can't pre-fill via URL. Opens the parts list page.
     return `http://repuestos.fordtaraborelli.com/v2/#/listado-repuestos`;
   }},
 ];
@@ -287,6 +295,9 @@ export default function StockProveedores({ catalogo, modelos, theme }) {
                         </span>
                       )}
                     </div>
+
+                    {/* Hint */}
+                    {sup.hint && <div style={{ fontSize: 9, color: t.textMuted || '#999', marginBottom: 4, textAlign: 'center' }}>{sup.hint}</div>}
 
                     {/* Open supplier */}
                     <button onClick={() => openSupplier(sup, part.numero_parte)} style={{
