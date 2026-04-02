@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 
 export default function PrivateChatInline({ network, userName, pendingConsulta, onConsultaSent, onClose }) {
-  const [msgs, setMsgs] = useState([]);
+  const [msgs, setMsgs] = useState(() => {
+    try { const saved = localStorage.getItem('fw_chat_msgs'); return saved ? JSON.parse(saved) : []; } catch { return []; }
+  });
+  useEffect(() => { try { localStorage.setItem('fw_chat_msgs', JSON.stringify(msgs.slice(-50))); } catch {} }, [msgs]);
   const [inp, setInp] = useState('');
   const [typing, setTyping] = useState(false);
   const [connected, setConnected] = useState(false); // connected to human asesor

@@ -98,7 +98,7 @@ export default function BuscadorIA({ catalogo, modelos, theme, userName, esJefe,
     }
 
     // ── CREAR EMPLEADO (jefe only) ──
-    if (esJefe && q.startsWith('crear empleado')) {
+    if (esJefe && (q.startsWith('crear empleado') || q.startsWith('crea empleado') || q.startsWith('nuevo empleado') || q.startsWith('agregar empleado'))) {
       const parts = raw.trim().split(/\s+/).slice(2);
       if (parts.length < 2) {
         addMsg('bot', 'Formato: "crear empleado [nombre] [contrasena]"\nEj: "crear empleado Pedro pedro1234"');
