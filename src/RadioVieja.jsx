@@ -21,6 +21,7 @@ export default function RadioVieja() {
   const [on, setOn] = useState(false);
   const [idx, setIdx] = useState(0);
   const [big, setBig] = useState(false);
+  const [minimized, setMinimized] = useState(false);
   const [vol, setVol] = useState(0.7);
   const videoRef = useRef(null);
 
@@ -66,6 +67,20 @@ export default function RadioVieja() {
     fontSize: big ? 11 : 8, color: '#ddd',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   });
+
+  // Minimized: tiny bar
+  if (minimized) {
+    return (
+      <div onClick={() => setMinimized(false)} style={{
+        position: 'fixed', bottom: 12, left: 12, zIndex: 50, cursor: 'pointer',
+        background: 'rgba(0,0,0,.85)', borderRadius: 10, padding: '6px 14px',
+        display: 'flex', alignItems: 'center', gap: 8, backdropFilter: 'blur(8px)',
+      }} title="Abrir Ford TV">
+        <span style={{ fontSize: 16 }}>📺</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: on ? '#fbbf24' : '#888' }}>{on ? '♪ FORD TV' : 'FORD TV'}</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ position: 'fixed', bottom: 14, left: 14, zIndex: 50, animation: 'tvPopIn .4s ease' }}>
@@ -129,6 +144,9 @@ export default function RadioVieja() {
 
           {/* Size */}
           <button onClick={() => setBig(!big)} style={btnStyle()}>{big ? '▾' : '▴'}</button>
+
+          {/* Minimize */}
+          <button onClick={() => setMinimized(true)} style={btnStyle()}>─</button>
         </div>
       </div>
 

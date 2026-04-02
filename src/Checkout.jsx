@@ -293,13 +293,23 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
               <div>
                 <label style={labelStyle}>Direccion</label>
                 <input type="text" value={direccion} onChange={e => setDireccion(e.target.value)}
-                  placeholder="Calle y numero" style={inputStyle} />
+                  placeholder="Calle y numero" style={inputStyle} autoComplete="street-address" />
+              </div>
+              <div>
+                <label style={labelStyle}>Localidad</label>
+                <input type="text" value={localidad} onChange={e => {
+                  setLocalidad(e.target.value);
+                  const loc = e.target.value.toLowerCase().trim();
+                  // Auto-detect CABA
+                  const esCABA = ['caba','capital federal','buenos aires capital','palermo','belgrano','caballito','villa crespo','villa urquiza','flores','almagro','recoleta','barracas','la boca','san telmo','nuñez','colegiales','chacarita','liniers','mataderos','devoto','lugano','pompeya','boedo','parque patricios','villa del parque','saavedra','versalles','agronomia','paternal','villa luro','monte castro','villa real','velez sarsfield','villa ortuzar','coghlan','villa pueyrredon','villa devoto','villa santa rita','parque chacabuco','parque avellaneda','villa soldati','villa riachuelo','puerto madero','retiro','san nicolas','monserrat','san cristobal','constitucion','balvanera','once','abasto','tribunales','congreso','microcentro','catalinas'].some(b => loc.includes(b));
+                  if (esCABA) { setProvincia('CABA'); setCodigoPostal(loc === 'caba' || loc === 'capital federal' ? '1414' : ''); }
+                }} placeholder="Ej: Villa Crespo, Quilmes..." style={inputStyle} />
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
                 <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>Localidad</label>
-                  <input type="text" value={localidad} onChange={e => setLocalidad(e.target.value)}
-                    placeholder="Localidad" style={inputStyle} />
+                  <label style={labelStyle}>Provincia</label>
+                  <input type="text" value={provincia} onChange={e => setProvincia(e.target.value)}
+                    placeholder="Se completa automatico" style={{ ...inputStyle, background: provincia ? (t.bg || '#f0f4ff') : (t.bg || '#fafafa') }} readOnly={!!provincia} />
                 </div>
                 <div style={{ width: 120 }}>
                   <label style={labelStyle}>Codigo Postal</label>
@@ -307,10 +317,22 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
                     placeholder="CP" style={inputStyle} />
                 </div>
               </div>
-              <div>
-                <label style={labelStyle}>Provincia</label>
-                <input type="text" value={provincia} onChange={e => setProvincia(e.target.value)}
-                  placeholder="Provincia" style={inputStyle} />
+              {/* Shipping cost */}
+              <div style={{ padding: '12px 16px', borderRadius: 10, border: '1px solid ' + (t.cardBorder || '#ddd'), background: t.bg || '#fafafa' }}>
+                {provincia.toLowerCase() === 'caba' ? (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 13, color: t.text || '#333' }}>Costo de envio (CABA):</span>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: '#003478' }}>$10.000</span>
+                  </div>
+                ) : provincia ? (
+                  <div style={{ fontSize: 13, color: '#f59e0b', fontWeight: 600 }}>
+                    Envio fuera de CABA — Un asesor te contactara para coordinar el costo del envio
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: t.textMuted || '#999' }}>
+                    Ingresa tu localidad para ver el costo de envio
+                  </div>
+                )}
               </div>
             </div>
           )}

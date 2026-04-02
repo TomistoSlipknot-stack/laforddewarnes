@@ -476,13 +476,14 @@ app.get('/api/pedidos', requireAuth(['admin', 'employee']), (req, res) => {
 
 // Update order status (staff only)
 app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) => {
-  const { orderId, status } = req.body;
+  const { orderId, status, encargado } = req.body;
   const valid = ['pendiente', 'pagado', 'preparando', 'listo', 'enviado', 'entregado', 'cancelado'];
   if (!valid.includes(status)) return res.status(400).json({ ok: false, error: 'Estado invalido' });
   const order = pedidos.find(p => p.id === orderId);
   if (!order) return res.status(404).json({ ok: false, error: 'Pedido no encontrado' });
   order.estado = status;
   order.updatedAt = Date.now();
+  if (encargado) order.encargado = encargado;
   savePedidos();
   // When marked as paid, register the sale in salesHistory for the Dashboard
   if (status === 'pagado') {
