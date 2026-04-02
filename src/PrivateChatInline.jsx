@@ -38,7 +38,8 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
         { id: Date.now() + 1, from: 'bot', text: 'Consulta enviada al asesor. Te responderemos pronto.' },
       ]);
       setTimeout(() => {
-        network.sendChat(pendingConsulta);
+        // Send with context so worker knows it's a product consultation
+        network.sendChat('[Consulta de producto]\n' + pendingConsulta);
         if (onConsultaSent) onConsultaSent();
         consultaSentRef.current = false;
       }, 300);
@@ -50,7 +51,14 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
   const handleOption = (option) => {
     addMsg('user', option);
     if (step === 0) {
-      if (option === 'Hablar con un asesor') { setBotMode(false); setTimeout(() => addMsg('bot', 'Conectado con un asesor. Escribile abajo.'), 500); return; }
+      if (option === 'Hablar con un asesor') {
+        setBotMode(false);
+        // Send bot conversation summary to server so worker can see it
+        const botSummary = msgs.map(m => (m.from === 'user' ? 'Cliente: ' : 'Bot: ') + m.text).join('\n');
+        if (botSummary) network.sendChat('[Resumen del asistente automatico]\n' + botSummary + '\n\n--- El cliente quiere hablar con un asesor ---');
+        setTimeout(() => addMsg('bot', 'Conectado con un asesor. Escribile abajo.'), 500);
+        return;
+      }
       setOrderData(d => ({ ...d, tipo: option }));
       setTimeout(() => addMsg('bot', STEPS[1].bot, STEPS[1].options), 600);
       setStep(1);
