@@ -251,6 +251,45 @@ const FRASES_REGALO={
 const GCSS=`
   *{box-sizing:border-box}
   html,body{overflow-x:hidden}
+
+  /* ═══ ANIMATIONS & EFFECTS ═══ */
+  /* Floating animation for buttons */
+  .fw-float{animation:fw-float-anim 3s ease-in-out infinite}
+  @keyframes fw-float-anim{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+  /* Click ripple effect */
+  button,a,.fw-nav-btn,.fw-clickable{position:relative;overflow:hidden}
+  button:active:not(:disabled){transform:scale(0.97);transition:transform 0.1s}
+
+  /* Hover lift for cards */
+  .fw-lift{transition:transform 0.2s ease, box-shadow 0.2s ease}
+  .fw-lift:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.12)}
+
+  /* Fade in animation */
+  .fw-fadeIn{animation:fw-fadeIn 0.4s ease}
+  @keyframes fw-fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Slide in from right */
+  .fw-slideIn{animation:fw-slideIn 0.3s ease}
+  @keyframes fw-slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+  /* Pulse for notifications */
+  .fw-pulse{animation:fw-pulse 2s ease-in-out infinite}
+  @keyframes fw-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+  /* Smooth hover for nav buttons */
+  .fw-nav-btn{transition:all 0.2s ease !important}
+  .fw-nav-btn:hover{transform:translateY(-1px) !important;box-shadow:0 4px 12px rgba(0,52,120,0.15) !important}
+
+  /* Badge pop animation */
+  @keyframes badge-pop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+
+  /* Smooth page transitions */
+  .fw-main-scroll{transition:opacity 0.2s ease}
+
+  /* Interactive cursor */
+  button:not(:disabled){cursor:pointer}
+  button:disabled{cursor:not-allowed;opacity:0.6}
   ::-webkit-scrollbar{width:10px}
   ::-webkit-scrollbar-track{background:#e8e8e8}
   ::-webkit-scrollbar-thumb{background:#bbb;border-radius:5px}
@@ -880,6 +919,7 @@ export default function FordWarnesApp({ user, onLogout }){
             {id:"catalogo",label:"Catalogo",icon:"M4 6h16M4 10h16M4 14h16M4 18h16"},
             {id:"about",label:"Nosotros",icon:"M12 12a5 5 0 100-10 5 5 0 000 10zM20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87"},{id:"chat",label:"Buscar",icon:"M21 21l-4.35-4.35M11 3a8 8 0 100 16 8 8 0 000-16z"},
             ...((esJefe||role==='employee')?[{id:"admin",label:esJefe?"Panel":"Consultas",icon:"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"}]:[]),
+            ...(role==='client'?[{id:"mispedidos",label:"Mis Pedidos",icon:"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"}]:[]),
           ].map(t=>(
             <button className="fw-nav-btn" key={t.id} onClick={()=>{setVista(t.id);setChatOpen(false);}} style={{background:vista===t.id?"#003478":theme.card,border:`2px solid ${vista===t.id?"#003478":theme.cardBorder}`,borderRadius:10,padding:"8px 20px",fontSize:14,color:vista===t.id?"#fff":theme.textSecondary,cursor:"pointer",fontFamily:"inherit",fontWeight:vista===t.id?700:500,transition:"all .15s",display:"flex",alignItems:"center",gap:6}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon}/></svg>
@@ -941,6 +981,11 @@ export default function FordWarnesApp({ user, onLogout }){
             </div>
           </div>
         </>
+      ):vista==="mispedidos"&&role==='client'?(
+        <div style={{flex:1,overflowY:"auto",padding:24,maxWidth:800,margin:"0 auto"}}>
+          <h2 style={{fontSize:22,fontWeight:800,color:theme.text,marginBottom:16}}>Mis Pedidos</h2>
+          <MisPedidosView theme={theme}/>
+        </div>
       ):vista==="about"?(
         <AboutUs theme={theme}/>
       ):vista==="admin"&&(esJefe||role==='employee')?(
@@ -1244,6 +1289,32 @@ export function authFetch(url, opts = {}) {
     opts.headers = { ...opts.headers, Authorization: 'Bearer ' + token };
   }
   return fetch(url, opts);
+}
+
+function MisPedidosView({theme}){
+  const [pedidos,setPedidos]=useState([]);
+  const [loading,setLoading]=useState(true);
+  useEffect(()=>{
+    authFetch('/api/mis-pedidos').then(r=>r.json()).then(d=>{setPedidos(d.pedidos||[]);setLoading(false)}).catch(()=>setLoading(false));
+  },[]);
+  const statusColors={pendiente:'#eab308',pagado:'#3b82f6',preparando:'#f97316',listo:'#22c55e',enviado:'#a855f7',entregado:'#6b7280',cancelado:'#ef4444'};
+  const statusLabels={pendiente:'Pendiente',pagado:'Pagado',preparando:'Preparando',listo:'Listo',enviado:'Enviado',entregado:'Entregado',cancelado:'Cancelado'};
+  if(loading)return <div style={{textAlign:'center',padding:40,color:theme.textSecondary}}>Cargando...</div>;
+  if(!pedidos.length)return <div style={{textAlign:'center',padding:40,color:theme.textSecondary}}>No tenés pedidos todavía. Buscá un repuesto y hacé tu primer pedido!</div>;
+  return pedidos.map((p,i)=>(
+    <div key={i} className="fw-fadeIn" style={{background:theme.card,border:'1px solid '+theme.cardBorder,borderRadius:12,padding:16,marginBottom:12}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+        <span style={{fontSize:14,fontWeight:700,color:theme.text}}>#{p.id}</span>
+        <span style={{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:6,color:statusColors[p.estado]||'#888',background:(statusColors[p.estado]||'#888')+'18'}}>{statusLabels[p.estado]||p.estado}</span>
+      </div>
+      {p.items?.map((item,j)=><div key={j} style={{fontSize:13,color:theme.textSecondary,marginBottom:2}}>{item.nombre} ({item.numero_parte}) x{item.qty||1}</div>)}
+      <div style={{display:'flex',justifyContent:'space-between',marginTop:10}}>
+        <span style={{fontSize:12,color:theme.textMuted}}>{p.entrega==='envio'?'Envío':'Recoger en local'}</span>
+        <span style={{fontSize:16,fontWeight:800,color:'#16a34a'}}>${(p.total||0).toLocaleString('es-AR')}</span>
+      </div>
+      {p.createdAt&&<div style={{fontSize:10,color:theme.textMuted,marginTop:6}}>{new Date(p.createdAt).toLocaleDateString('es-AR')}</div>}
+    </div>
+  ));
 }
 
 function ModeloCard({modelo,onClick}){const theme = _globalTheme;
