@@ -853,7 +853,7 @@ export default function FordWarnesApp({ user, onLogout }){
 
       {/* Juan flotante — se oculta cuando el chat está abierto */}
       {role==='employee'&&<FloatingHead state={botState} hidden={chatOpen} giftReaction={juanGift}/>}
-      <RadioVieja/>
+      {vista!=='admin'&&!chatOpen&&<RadioVieja/>}
 
       {/* HEADER */}
       <header className="fw-header" style={{background:theme.card,borderBottom:"1px solid "+theme.cardBorder,padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,position:"sticky",top:0,zIndex:20,boxShadow:"0 1px 4px rgba(0,0,0,.06)",overflowX:"auto",overflowY:"hidden"}}>
@@ -1186,7 +1186,7 @@ export default function FordWarnesApp({ user, onLogout }){
 
       {/* RIGHT: Chat Sidebar */}
       {chatOpen&&(
-        <div className="fw-chat-sidebar" style={{position:"fixed",left:0,right:0,top:64,bottom:0,display:"flex",flexDirection:"column",background:theme.bg||"#fafafa",overflow:"hidden",zIndex:30}}>
+        <div className="fw-chat-sidebar" style={{position:"fixed",left:0,right:0,top:64,bottom:0,display:"flex",flexDirection:"column",background:isDark?"#0d1117":"#ffffff",overflow:"hidden",zIndex:100}}>
           {esJefe?(
             /* Juan sees AdminChats inline as sidebar */
             <AdminChats network={network}/>
