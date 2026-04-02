@@ -107,7 +107,7 @@ export function useNetwork() {
             break;
           case 'new_order':
             playNotifSound('alert');
-            if (document.hidden) showBrowserNotif('Nuevo Pedido!', data.order.cliente.nombre + ' - $' + (data.order.total || 0).toLocaleString('es-AR'));
+            if (document.hidden) showBrowserNotif('Nuevo Pedido!', (data.order?.cliente?.nombre || 'Cliente') + ' - $' + (data.order?.total || 0).toLocaleString('es-AR'));
             break;
           case 'order_updated':
             break;

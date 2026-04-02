@@ -297,8 +297,11 @@ const GCSS=`
     .fw-catalog-wrap{padding:12px 8px !important}
     .fw-role-badge{display:none !important}
     .fw-rep-card-img{height:140px !important}
-    .fw-rep-card-btns{flex-direction:column !important}
-    .fw-rep-card-btns button{padding:10px 0 !important}
+    .fw-rep-card-btns{grid-template-columns:1fr !important}
+    .fw-rep-card-btns button,.fw-rep-card-btns a{padding:12px 0 !important;font-size:13px !important}
+    .fw-admin-sidebar{width:60px !important;padding:8px 4px !important}
+    .fw-admin-sidebar button span:last-child{display:none}
+    .fw-admin-sidebar button{padding:10px 8px !important;justify-content:center !important}
   }
   @media(min-width:641px) and (max-width:1024px){
     .fw-cat-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr)) !important}

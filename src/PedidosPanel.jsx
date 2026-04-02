@@ -4,13 +4,13 @@ import { authFetch } from './App.jsx';
 const STATUS_FLOW = ['pendiente', 'pagado', 'preparando', 'listo', 'enviado', 'entregado'];
 
 const STATUS_CONFIG = {
-  pendiente:  { label: 'Pendiente',  color: '#eab308', bg: '#fefce8', icon: '\u23F3' },
-  pagado:     { label: 'Pagado',     color: '#3b82f6', bg: '#eff6ff', icon: '\uD83D\uDCB3' },
-  preparando: { label: 'Preparando', color: '#f97316', bg: '#fff7ed', icon: '\uD83D\uDD27' },
-  listo:      { label: 'Listo',      color: '#22c55e', bg: '#f0fdf4', icon: '\u2705' },
-  enviado:    { label: 'Enviado',    color: '#a855f7', bg: '#faf5ff', icon: '\uD83D\uDE9A' },
-  entregado:  { label: 'Entregado',  color: '#6b7280', bg: '#f3f4f6', icon: '\uD83C\uDFC1' },
-  cancelado:  { label: 'Cancelado',  color: '#ef4444', bg: '#fef2f2', icon: '\u274C' },
+  pendiente:  { label: 'Pendiente',  color: '#eab308', bg: 'rgba(234,179,8,.12)', icon: '\u23F3' },
+  pagado:     { label: 'Pagado',     color: '#3b82f6', bg: 'rgba(59,130,246,.12)', icon: '\uD83D\uDCB3' },
+  preparando: { label: 'Preparando', color: '#f97316', bg: 'rgba(249,115,22,.12)', icon: '\uD83D\uDD27' },
+  listo:      { label: 'Listo',      color: '#22c55e', bg: 'rgba(34,197,94,.12)', icon: '\u2705' },
+  enviado:    { label: 'Enviado',    color: '#a855f7', bg: 'rgba(168,85,247,.12)', icon: '\uD83D\uDE9A' },
+  entregado:  { label: 'Entregado',  color: '#6b7280', bg: 'rgba(107,114,128,.12)', icon: '\uD83C\uDFC1' },
+  cancelado:  { label: 'Cancelado',  color: '#ef4444', bg: 'rgba(239,68,68,.12)', icon: '\u274C' },
 };
 
 const NEXT_ACTION_LABEL = {

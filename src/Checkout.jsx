@@ -247,7 +247,7 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
             display: 'flex', alignItems: 'flex-start', gap: 10, padding: '14px',
             border: `2px solid ${entrega === 'local' ? '#003478' : (t.cardBorder || '#ddd')}`,
             borderRadius: 10, cursor: 'pointer', marginBottom: 10,
-            background: entrega === 'local' ? (t.bg || '#f0f4ff') : 'transparent',
+            background: entrega === 'local' ? 'rgba(0,52,120,.1)' : 'transparent',
           }}>
             <input
               type="radio" name="entrega" value="retiro"
@@ -270,7 +270,7 @@ export default function Checkout({ items, onClose, onOrderComplete, theme, userN
             display: 'flex', alignItems: 'flex-start', gap: 10, padding: '14px',
             border: `2px solid ${entrega === 'envio' ? '#003478' : (t.cardBorder || '#ddd')}`,
             borderRadius: 10, cursor: 'pointer',
-            background: entrega === 'envio' ? (t.bg || '#f0f4ff') : 'transparent',
+            background: entrega === 'envio' ? 'rgba(0,52,120,.1)' : 'transparent',
           }}>
             <input
               type="radio" name="entrega" value="envio"
