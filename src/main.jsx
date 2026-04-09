@@ -29,6 +29,7 @@ function Root() {
       return saved ? JSON.parse(saved) : null;
     } catch { return null; }
   });
+  const [verifying, setVerifying] = useState(!!localStorage.getItem('fw_token'));
 
   // Save user to localStorage when it changes
   useEffect(() => {
@@ -38,6 +39,38 @@ function Root() {
       localStorage.removeItem('fw_user');
     }
   }, [user]);
+
+  // On boot: verify that the stored token is still valid on the server.
+  // If Render restarted and the session was lost, force re-login immediately
+  // instead of showing a broken admin panel with 401 errors everywhere.
+  useEffect(() => {
+    const token = localStorage.getItem('fw_token');
+    if (!token || !user) { setVerifying(false); return; }
+    fetch('/api/verify-session', { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => {
+        if (!r.ok) {
+          // Token is stale — force re-login
+          console.warn('[session] token expired, forcing re-login');
+          localStorage.removeItem('fw_token');
+          localStorage.removeItem('fw_user');
+          setUser(null);
+        }
+      })
+      .catch(() => {
+        // Network error — don't kill the session, let it try to work offline
+      })
+      .finally(() => setVerifying(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (verifying) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0b0f', color: '#fff', fontFamily: 'Inter,system-ui,sans-serif' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: 28, height: 28, border: '3px solid #003478', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto 12px' }} />
+        <div style={{ fontSize: 14 }}>Verificando sesión...</div>
+      </div>
+    </div>
+  );
 
   if (!user) return <Login onLogin={setUser} />;
 

@@ -12,6 +12,7 @@ import AdminDashboard from "./AdminDashboard.jsx";
 import EmpleadoVenta from "./EmpleadoVenta.jsx";
 import TiendaEmpleado from "./TiendaEmpleado.jsx";
 import BuscadorIA from "./BuscadorIA.jsx";
+import BuscadorChat from "./BuscadorChat.jsx";
 import StockProveedores from "./StockProveedores.jsx";
 import RadioVieja from "./RadioVieja.jsx";
 import Checkout from "./Checkout.jsx";
@@ -146,6 +147,25 @@ function stockLabel(n){if(n===0)return"Sin stock";if(n===1)return"Ultimo disponi
 const IMGS_SUB={"junta":"./img/partes/junta.jpg","bomba-agua":"./img/partes/bomba-agua.jpg","bomba-aceite":"./img/partes/bomba-aceite.jpg","piston":"./img/partes/piston.jpg","ciguenal":"./img/partes/ciguenal.jpg","valvula":"./img/partes/valvula.jpg","disco-freno":"./img/partes/disco-freno.jpg","caliper":"./img/partes/caliper.jpg","pastilla":"./img/partes/pastilla.jpg","rotula":"./img/partes/rotula.jpg","espiral":"./img/partes/espiral.jpg","parrilla-susp":"./img/partes/parrilla-susp.jpg","arranque":"./img/partes/arranque.jpg","sonda-lambda":"./img/partes/sonda-lambda.jpg","cable-bujia":"./img/partes/cable-bujia.jpg","manguera":"./img/partes/manguera.jpg","electroventilador":"./img/partes/electroventilador.jpg","disco-embrague":"./img/partes/disco-embrague.jpg","semieje":"./img/partes/semieje.jpg","cremallera":"./img/partes/cremallera.jpg","catalizador":"./img/partes/catalizador.jpg","silenciador":"./img/partes/silenciador.jpg","deposito":"./img/partes/deposito.jpg","sensor":"./img/partes/sensor.jpg","rodamiento":"./img/partes/rodamiento.jpg"};
 // Catálogo cargado desde JSON real de tiendaford.ar (3332 productos)
 import CATALOGO_JSON from './catalogo-ford.json';
+
+// ─── CATALOG PERSISTENCE (Bug #1 fix) ──────────────────────────────────────
+// The catalog is mutable at runtime; staff edits go through onUpdatePart /
+// onBulkPrice. This helper debounces writes to /api/stock so ediciones never
+// quedan solo en memoria. Falla silenciosa con log — no rompe la UX.
+let _persistCatalogoTimer = null;
+function persistCatalogo() {
+  if (_persistCatalogoTimer) clearTimeout(_persistCatalogoTimer);
+  _persistCatalogoTimer = setTimeout(() => {
+    const token = localStorage.getItem('fw_token');
+    fetch('/api/stock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+      body: JSON.stringify({ __catalogo: CATALOGO_COMPLETO, updatedAt: Date.now() }),
+    }).then(r => {
+      if (!r.ok) console.error('[persistCatalogo] server error', r.status);
+    }).catch(e => console.error('[persistCatalogo] network error', e));
+  }, 500);
+}
 
 // Convertir formato JSON a formato que usa la app
 function convertirCatalogo(jsonData){
@@ -813,6 +833,55 @@ export default function FordWarnesApp({ user, onLogout }){
   const [carrito, setCarrito] = useState(()=>{try{return JSON.parse(localStorage.getItem("fw-cart")||"[]");}catch{return[];}});
   const [showCarrito, setShowCarrito] = useState(false);
   useEffect(()=>{try{localStorage.setItem("fw-cart",JSON.stringify(carrito));}catch{}},[carrito]);
+  // Bug #1 fix: on mount, pull server-persisted catalog overrides and merge
+  // into CATALOGO_COMPLETO so staff edits survive reloads/redeploys.
+  useEffect(()=>{
+    fetch('/api/stock').then(r=>r.ok?r.json():null).then(data=>{
+      if(!data || !data.__catalogo) return;
+      for(const [k,v] of Object.entries(data.__catalogo)){
+        if(Array.isArray(v)) CATALOGO_COMPLETO[k]=v;
+      }
+    }).catch(()=>{});
+  },[]);
+  // Bug #2 fix: carrito sincronizado con MongoDB (por cuenta o por key anonima).
+  // On mount: pull server cart and merge (server wins if newer).
+  // On change: debounced POST to /api/cart.
+  const cartKeyRef = useRef(null);
+  if(!cartKeyRef.current){
+    try{
+      let k=localStorage.getItem('fw_cart_key');
+      if(!k){ k=Math.random().toString(36).slice(2,10)+Date.now().toString(36); localStorage.setItem('fw_cart_key',k); }
+      cartKeyRef.current=k;
+    }catch{ cartKeyRef.current='anon'; }
+  }
+  useEffect(()=>{
+    const token=localStorage.getItem('fw_token');
+    const url='/api/cart?key='+encodeURIComponent(cartKeyRef.current);
+    fetch(url,{headers:token?{Authorization:'Bearer '+token}:{}}).then(r=>r.ok?r.json():null).then(data=>{
+      if(!data || !Array.isArray(data.items) || data.items.length===0) return;
+      // Merge: server wins si es mas reciente que el localStorage write time
+      const localTs=Number(localStorage.getItem('fw_cart_ts')||0);
+      if((data.updatedAt||0) > localTs){
+        setCarrito(data.items);
+      }
+    }).catch(()=>{});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
+  const cartSyncTimerRef = useRef(null);
+  useEffect(()=>{
+    if(cartSyncTimerRef.current) clearTimeout(cartSyncTimerRef.current);
+    cartSyncTimerRef.current=setTimeout(()=>{
+      try{ localStorage.setItem('fw_cart_ts', String(Date.now())); }catch{}
+      const token=localStorage.getItem('fw_token');
+      fetch('/api/cart',{
+        method:'POST',
+        headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},
+        body:JSON.stringify({key:cartKeyRef.current,items:carrito}),
+      }).then(r=>{ if(!r.ok) console.error('[cart sync] server error', r.status); })
+        .catch(e=>console.error('[cart sync] network error', e));
+    },700);
+    return ()=>{ if(cartSyncTimerRef.current) clearTimeout(cartSyncTimerRef.current); };
+  },[carrito]);
   const [favoritos, setFavoritos] = useState(()=>{try{return JSON.parse(localStorage.getItem('fw_favs')||'[]');}catch{return[];}});
   useEffect(()=>{try{localStorage.setItem('fw_favs',JSON.stringify(favoritos));}catch{}},[favoritos]);
   const toggleFav=(part)=>{setFavoritos(prev=>prev.find(f=>f.numero_parte===part.numero_parte)?prev.filter(f=>f.numero_parte!==part.numero_parte):[...prev,part]);};
@@ -1104,6 +1173,7 @@ export default function FordWarnesApp({ user, onLogout }){
                 if(!parts)return;
                 const idx=parts.findIndex(p=>p.numero_parte===part.numero_parte);
                 if(idx>=0)parts[idx]={...part};
+                persistCatalogo();
               }}
               onBulkPrice={(pct, modeloId)=>{
                 const factor=1+pct/100;
@@ -1115,6 +1185,7 @@ export default function FordWarnesApp({ user, onLogout }){
                     if(num)p.precio='$'+Math.round(num*factor).toLocaleString('es-AR');
                   }
                 }
+                persistCatalogo();
               }}
             />}
             {adminTab==="cuentas"&&<AccountsPanel/>}
@@ -1166,7 +1237,28 @@ export default function FordWarnesApp({ user, onLogout }){
                 </div>
                 {/* Buscador rapido en home */}
                 <SearchAutocomplete theme={theme} allProducts={repTodos} onSearch={q=>setHomeSearch(q)} onSelect={p=>setParteSel(p)} />
-                <p style={{fontSize:12,color:_globalTheme.textMuted||"#aaa",margin:"0 0 16px"}}>{MOCK_MODELOS.length} modelos · {Object.values(CATALOGO_COMPLETO).flat().length} repuestos · Stock sujeto a disponibilidad</p>
+                {/* Fase 7: Asistente inteligente conversacional */}
+                <BuscadorChat
+                  theme={theme}
+                  userName={user?.name}
+                  role={esJefe?'jefe':(role==='employee'?'employee':'client')}
+                  onOpenPart={(card)=>{
+                    // Find the full part object in the catalog and open the Modal
+                    const full = Object.values(CATALOGO_COMPLETO).flat().find(p=>String(p.sku)===String(card.sku)||String(p.nro)===String(card.sku)||String(p.numero_parte)===String(card.numero_parte));
+                    if(full) setParteSel(full);
+                    else setParteSel({numero_parte:card.numero_parte||card.sku,nombre:card.nombre,precio:card.precio,cat:card.categoria,modelo_nombre:card.modelo||''});
+                  }}
+                  onAddToCart={(item)=>{
+                    const partObj = Object.values(CATALOGO_COMPLETO).flat().find(p=>String(p.sku)===String(item.sku)||String(p.numero_parte)===String(item.numero_parte));
+                    const toAdd = partObj || {numero_parte:item.numero_parte,nombre:item.nombre,precio:item.precio,modelo_nombre:''};
+                    for(let i=0;i<(item.qty||1);i++) addToCart(toAdd);
+                  }}
+                  onOpenChat={(preMsg)=>{
+                    setPendingConsulta(preMsg||'');
+                    setChatOpen(true);
+                  }}
+                />
+                <p style={{fontSize:12,color:_globalTheme.textMuted||"#aaa",margin:"12px 0 16px"}}>{MOCK_MODELOS.length} modelos · {Object.values(CATALOGO_COMPLETO).flat().length} repuestos · Stock sujeto a disponibilidad</p>
 
                 {/* Busquedas recientes */}
                 {searchHistory.length>0&&homeSearch.trim().length<=2&&(
@@ -1448,11 +1540,26 @@ export default function FordWarnesApp({ user, onLogout }){
       <ScrollToTop/>
       {!esJefe&&<Cart items={carrito} onRemove={removeFromCart} onClear={()=>setCarrito([])} onConsultar={(msg)=>{setPendingConsulta(msg);setChatOpen(true);}} onCheckout={()=>setShowCheckout(true)} theme={theme} />}
       {showCheckout&&<Checkout items={carrito} userName={user?.name} theme={theme} onClose={()=>setShowCheckout(false)} onOrderComplete={async(order)=>{
+        // Bug #4/#17 fix: verify res.ok AND d.ok before clearing cart.
+        // If server save falla, el carrito se mantiene para que el cliente reintente.
         try{
           const res=await fetch('/api/pedidos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)});
-          const d=await res.json();
-          if(d.ok){setCarrito([]);setShowCheckout(false);}
-        }catch{}
+          let d=null;
+          try{ d=await res.json(); }catch{}
+          if(res.ok && d && d.ok){
+            setCarrito([]);
+            setShowCheckout(false);
+            return { ok: true, orderId: d.orderId };
+          }
+          const errMsg = (d && d.error) || ('HTTP '+res.status);
+          console.error('[checkout] save failed:', errMsg);
+          alert('No pudimos guardar tu pedido ('+errMsg+'). Tu carrito NO fue borrado. Por favor reintenta o contactanos por WhatsApp.');
+          return { ok: false, error: errMsg };
+        }catch(e){
+          console.error('[checkout] network error:', e);
+          alert('Error de red al enviar el pedido. Tu carrito NO fue borrado. Revisa tu conexion y reintenta.');
+          return { ok: false, error: 'network' };
+        }
       }}/>}
       {!esJefe&&role!=="employee"&&!chatOpen&&(
         <ChatBubble unread={chatUnread} onAction={(action)=>{
@@ -1723,6 +1830,51 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
   const sc=r.stock>0?"#16a34a":"#dc2626";
   const Ic=getIcon(r.cat);
   const pImg=r.foto||(r.img&&IMGS_SUB[r.img])||IMGS_PARTE[r.cat];
+  // ─── Consultar Stock state (Fase 5) ───
+  const [stockQuery,setStockQuery]=useState({state:'idle',data:null,error:null});
+  const handleConsultarStock=async()=>{
+    setStockQuery({state:'loading',data:null,error:null});
+    try{
+      const resp=await fetch('/api/consultar-stock/'+encodeURIComponent(r.numero_parte||r.sku||''),{method:'POST'});
+      const d=await resp.json();
+      if(!resp.ok || !d.ok) { setStockQuery({state:'error',data:null,error:d.error||('HTTP '+resp.status)}); return; }
+      setStockQuery({state:'result',data:d,error:null});
+    }catch(e){ setStockQuery({state:'error',data:null,error:'network'}); }
+  };
+  // Format supplier result for display (handles numeric / thumbs / binary)
+  const renderSupplierResult=(name,info)=>{
+    if(!info) return null;
+    if(info.status==='unavailable'){
+      const reasonLabel={outside_hours:'fuera de horario',daily_cap_reached:'consultas agotadas por hoy',no_credentials:'no configurado',auto_disabled:'temporalmente no disponible',min_gap:'procesando...'}[info.reason]||info.reason;
+      return <div key={name} style={{fontSize:12,color:'#888'}}>· <strong style={{textTransform:'capitalize'}}>{name}</strong>: {reasonLabel}</div>;
+    }
+    if(info.status==='error') return <div key={name} style={{fontSize:12,color:'#c94'}}>· <strong style={{textTransform:'capitalize'}}>{name}</strong>: error temporal</div>;
+    if(info.status==='unknown') return <div key={name} style={{fontSize:12,color:'#888'}}>· <strong style={{textTransform:'capitalize'}}>{name}</strong>: consultar</div>;
+    if(info.status==='available'){
+      let label='Disponible';
+      if(info.mode==='numeric' && info.qty!=null) label=info.qty+' '+(info.qty===1?'unidad':'unidades');
+      else if(info.mode==='thumbs' && info.thumbs!=null) label=info.thumbs>=2?'Stock alto':'Stock disponible';
+      return <div key={name} style={{fontSize:13,color:'#16a34a',fontWeight:600}}>✓ <strong style={{textTransform:'capitalize'}}>{name}</strong>: {label}</div>;
+    }
+    if(info.status==='unavailable_stock'||info.status==='out_of_stock'){
+      return <div key={name} style={{fontSize:12,color:'#dc2626'}}>✗ <strong style={{textTransform:'capitalize'}}>{name}</strong>: sin stock</div>;
+    }
+    return null;
+  };
+  // Does at least one supplier show real availability?
+  const anyAvailable=stockQuery.data && Object.values(stockQuery.data.suppliers||{}).some(s=>s && s.status==='available');
+  const allUnavailable=stockQuery.data && Object.values(stockQuery.data.suppliers||{}).every(s=>!s || s.status!=='available');
+  // Age text for cached results
+  const ageText=(ms)=>{
+    if(!ms) return 'recién';
+    const min=Math.round(ms/60000);
+    if(min<1) return 'hace instantes';
+    if(min<60) return 'hace '+min+' min';
+    const h=Math.round(min/60);
+    return 'hace '+h+' h';
+  };
+  // WhatsApp fallback URL for this specific part
+  const waFallback='https://wa.me/5491162756333?text='+encodeURIComponent(`Hola! Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Gracias!`);
   return(
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
       <div onClick={e=>e.stopPropagation()} style={{background:theme.card,borderRadius:8,maxWidth:820,width:"100%",maxHeight:"90vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,.2)",position:"relative"}}>
@@ -1752,9 +1904,57 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
             {r.precio_oem&&<div style={{fontSize:15,color:_globalTheme.textMuted||"#999",textDecoration:"line-through"}}>{r.precio_oem}</div>}
             <div style={{fontSize:28,fontWeight:800,color:theme.text,margin:"4px 0"}}>{r.precio}</div>
             <div style={{fontSize:12,color:_globalTheme.textMuted||"#999",marginBottom:16}}>Precio La Ford de Warnes (sin imp. nacionales)</div>
-            {/* Stock */}
-            <div style={{fontSize:14,fontWeight:600,color:sc,marginBottom:16}}>
-              {r.stock>0?`${r.stock} disponible${r.stock>1?"s":""}`:"Sin stock — Consultar disponibilidad"}
+            {/* Stock propio */}
+            <div style={{fontSize:14,fontWeight:600,color:sc,marginBottom:10}}>
+              {r.stock>0?`${r.stock} disponible${r.stock>1?"s":""} en nuestro deposito`:"Sin stock propio — Podemos pedirlo a proveedores"}
+            </div>
+            {/* ─── CONSULTAR STOCK (Fase 5) ─── */}
+            <div style={{background:theme.bg,border:"1px solid "+(theme.cardBorder||"#ddd"),borderRadius:8,padding:"12px 14px",marginBottom:16}}>
+              <div style={{fontSize:11,fontWeight:700,color:theme.textSecondary||"#666",textTransform:"uppercase",letterSpacing:".04em",marginBottom:8}}>Stock en proveedores</div>
+              {stockQuery.state==='idle'&&(
+                <>
+                  <button onClick={(e)=>{e.stopPropagation();handleConsultarStock();}} style={{width:"100%",background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 14px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    🔍 Consultar Stock en Proveedores
+                  </button>
+                  <div style={{fontSize:11,color:theme.textMuted||"#999",marginTop:6,lineHeight:1.4}}>Chequeamos en tiempo real. Si un proveedor tiene, podemos pedirlo para vos.</div>
+                </>
+              )}
+              {stockQuery.state==='loading'&&(
+                <div style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0"}}>
+                  <div style={{width:16,height:16,border:"2px solid #003478",borderTopColor:"transparent",borderRadius:"50%",animation:"spin .8s linear infinite"}}/>
+                  <span style={{fontSize:13,color:theme.text}}>Consultando proveedores...</span>
+                </div>
+              )}
+              {stockQuery.state==='result'&&stockQuery.data&&(
+                <>
+                  <div style={{display:"flex",flexDirection:"column",gap:4,marginBottom:10}}>
+                    {Object.entries(stockQuery.data.suppliers||{}).map(([name,info])=>renderSupplierResult(name,info))}
+                  </div>
+                  {stockQuery.data.fromCache&&(
+                    <div style={{fontSize:10,color:theme.textMuted||"#999",fontStyle:"italic",marginBottom:6}}>Consultado {ageText(stockQuery.data.ageMs)} — el stock puede haber cambiado, volvé a consultar si hace varias horas</div>
+                  )}
+                  {anyAvailable?(
+                    <div style={{fontSize:12,color:"#16a34a",fontWeight:600}}>Hay disponibilidad. Podés agregar al carrito o consultar por WhatsApp para coordinar.</div>
+                  ):allUnavailable&&(
+                    <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:6}}>
+                      <div style={{fontSize:12,color:theme.textSecondary||"#666"}}>No pudimos confirmar stock automático. Consultá directo:</div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                        <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>📱 WhatsApp a Juan</a>
+                        <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Pueden conseguirlo?`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💬 Chat con la tienda</button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+              {stockQuery.state==='error'&&(
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  <div style={{fontSize:12,color:"#dc2626"}}>No pudimos consultar en este momento ({stockQuery.error}).</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                    <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>📱 WhatsApp a Juan</a>
+                    <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}.`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💬 Chat con la tienda</button>
+                  </div>
+                </div>
+              )}
             </div>
             {/* Marcas disponibles */}
             <div style={{marginBottom:20}}>
@@ -1797,8 +1997,39 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
         <div style={{padding:"20px 32px",borderTop:"1px solid #eee"}}>
           <h3 style={{fontSize:16,fontWeight:800,color:"#003478",marginBottom:8}}>Descripcion</h3>
           <p style={{fontSize:13,color:_globalTheme.textSecondary||"#666",lineHeight:1.6}}>
-            {r.descripcion||`Repuesto original Ford para ${r.modelo_nombre}. Pieza fabricada bajo los mas altos estandares de calidad Ford. Numero de parte ${r.numero_parte}. Consulte disponibilidad y envio con nuestro equipo.`}
+            {r.descripcion||r.desc||`Repuesto original Ford para ${r.modelo_nombre}. Pieza fabricada bajo los mas altos estandares de calidad Ford. Numero de parte ${r.numero_parte}. Consulte disponibilidad y envio con nuestro equipo.`}
           </p>
+        </div>
+        {/* ─── DETALLES DE COMPATIBILIDAD (Fase 6) ─── */}
+        <div style={{padding:"20px 32px",borderTop:"1px solid #eee"}}>
+          <h3 style={{fontSize:16,fontWeight:800,color:"#003478",marginBottom:12}}>Detalles de compatibilidad</h3>
+          {Array.isArray(r.detalles)&&r.detalles.length>0?(
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              {r.detalles.map((line,i)=>(
+                <div key={i} style={{fontSize:12,color:"#003478",padding:"6px 10px",background:"rgba(0,52,120,.04)",borderLeft:"3px solid #003478",borderRadius:"0 4px 4px 0",lineHeight:1.4}}>{line}</div>
+              ))}
+              <div style={{fontSize:10,color:_globalTheme.textMuted||"#999",marginTop:4,fontStyle:"italic"}}>Información verificada desde el catálogo oficial Ford Argentina.</div>
+            </div>
+          ):Array.isArray(r.modelos_comp)&&r.modelos_comp.length>0?(
+            <>
+              <div style={{fontSize:12,color:_globalTheme.textSecondary||"#666",marginBottom:8}}>Modelos compatibles:</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                {r.modelos_comp.map((m,i)=>(
+                  <span key={i} style={{fontSize:12,background:"#f0f4f8",border:"1px solid #d8e4f0",borderRadius:4,padding:"4px 10px",color:"#003478",fontWeight:500}}>{m}</span>
+                ))}
+              </div>
+              <div style={{fontSize:11,color:_globalTheme.textMuted||"#999",marginTop:10,fontStyle:"italic"}}>Versión detallada (motor, año, cabina) en verificación. ¿Dudas sobre compatibilidad con tu vehículo? <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{color:"#003478",fontWeight:600}}>Consultá por WhatsApp</a>.</div>
+            </>
+          ):(
+            <div style={{display:"flex",flexDirection:"column",gap:10,padding:"16px",background:theme.bg,borderRadius:8,border:"1px dashed "+(theme.cardBorder||"#ddd")}}>
+              <div style={{fontSize:13,color:theme.textSecondary||"#666",lineHeight:1.5}}>No tenemos detalle de compatibilidad verificado para este repuesto aún. <strong>Para evitar errores, nunca publicamos info sin confirmar.</strong></div>
+              <div style={{fontSize:12,color:theme.textSecondary||"#666"}}>Decinos el año, modelo y motor de tu vehículo y te confirmamos al instante:</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>📱 WhatsApp a Juan</a>
+                <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Hola! Necesito confirmar si ${r.nombre} (Cod. ${r.numero_parte}) es compatible con mi vehículo. Año/modelo/motor: ___`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💬 Chat con la tienda</button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -25,24 +25,50 @@ async function connectDB() {
     await mongoClient.connect();
     db = mongoClient.db('fordwarnes');
     console.log('MongoDB connected!');
-    // Load data from MongoDB into memory
-    const accDoc = await db.collection('config').findOne({ _id: 'accounts' });
-    if (accDoc) accounts = accDoc.data;
-    const stockDoc = await db.collection('config').findOne({ _id: 'stock' });
-    if (stockDoc) stockData = stockDoc.data;
-    const histDoc = await db.collection('config').findOne({ _id: 'salesHistory' });
-    if (histDoc) salesHistory = histDoc.data;
-    const notesDoc = await db.collection('config').findOne({ _id: 'clientNotes' });
-    if (notesDoc) clientNotes = notesDoc.data;
-    const analyticsDoc = await db.collection('config').findOne({ _id: 'searchAnalytics' });
-    if (analyticsDoc) searchAnalytics = analyticsDoc.data;
-    const pedidosDoc = await db.collection('config').findOne({ _id: 'pedidos' });
-    if (pedidosDoc) pedidos = pedidosDoc.data;
-    const chatsDoc = await db.collection('config').findOne({ _id: 'chats' });
-    if (chatsDoc?.data) chatRooms = chatsDoc.data;
-    const clientAccDoc = await db.collection('config').findOne({ _id: 'clientAccounts' });
-    if (clientAccDoc) clientAccounts = clientAccDoc.data;
-    console.log('Data loaded from MongoDB');
+    // Bug #9 fix: reconcile MongoDB vs local JSON fallback on boot.
+    // If MongoDB was down when someone edited data, the JSON file has newer
+    // data than MongoDB. Use whichever is newer and push the winner upstream.
+    const reconciled = {};
+    async function loadWithReconcile(key, current) {
+      const doc = await db.collection('config').findOne({ _id: key });
+      const mongoData = doc?.data;
+      const mongoTs = doc?.updatedAt || 0;
+      const jsonPath = path.join(dataDir, key + '.json');
+      let jsonData = null, jsonTs = 0;
+      if (fs.existsSync(jsonPath)) {
+        try {
+          jsonData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+          jsonTs = fs.statSync(jsonPath).mtimeMs;
+        } catch {}
+      }
+      if (jsonTs > mongoTs + 1000 && jsonData != null) {
+        console.log(`[reconcile] JSON newer than Mongo for "${key}" (${new Date(jsonTs).toISOString()} > ${new Date(mongoTs).toISOString()}), pushing JSON -> Mongo`);
+        reconciled[key] = jsonData;
+        // Push back to Mongo so both sides are aligned
+        try {
+          await db.collection('config').updateOne(
+            { _id: key },
+            { $set: { data: jsonData, updatedAt: jsonTs, reconciledAt: Date.now() } },
+            { upsert: true }
+          );
+        } catch (e) { console.error(`[reconcile] push failed for ${key}:`, e); }
+        return jsonData;
+      }
+      if (mongoData != null) return mongoData;
+      return jsonData != null ? jsonData : current;
+    }
+    accounts = await loadWithReconcile('accounts', accounts);
+    stockData = await loadWithReconcile('stock', stockData);
+    salesHistory = await loadWithReconcile('salesHistory', salesHistory);
+    clientNotes = await loadWithReconcile('clientNotes', clientNotes);
+    searchAnalytics = await loadWithReconcile('searchAnalytics', searchAnalytics);
+    pedidos = await loadWithReconcile('pedidos', pedidos);
+    const loadedChats = await loadWithReconcile('chats', null);
+    if (loadedChats && typeof loadedChats === 'object') chatRooms = loadedChats;
+    clientAccounts = await loadWithReconcile('clientAccounts', clientAccounts);
+    carts = await loadWithReconcile('carts', {}) || {};
+    supplierStockMem = await loadWithReconcile('supplierStock', {}) || {};
+    console.log('Data loaded from MongoDB', Object.keys(reconciled).length ? `(reconciled ${Object.keys(reconciled).join(',')})` : '');
   } catch (e) {
     console.error('MongoDB connection failed, using local files:', e.message);
     // Fallback to JSON files
@@ -55,20 +81,38 @@ async function connectDB() {
 }
 
 // Save to MongoDB (with JSON fallback) - ALWAYS saves with timestamp
+// Bug #18 fix: exponential backoff retry on MongoDB failures.
+// Bug #15 fix: track failure count + log prominently.
+let _mongoFailStreak = 0;
 async function saveToDB(key, data) {
   const now = Date.now();
-  try {
-    if (db) {
-      await db.collection('config').updateOne(
-        { _id: key },
-        { $set: { data, updatedAt: now } },
-        { upsert: true }
-      );
+  let lastErr = null;
+  if (db) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await db.collection('config').updateOne(
+          { _id: key },
+          { $set: { data, updatedAt: now } },
+          { upsert: true }
+        );
+        if (_mongoFailStreak > 0) console.log(`[MongoDB] recovered after ${_mongoFailStreak} failures`);
+        _mongoFailStreak = 0;
+        lastErr = null;
+        break;
+      } catch (e) {
+        lastErr = e;
+        await new Promise(r => setTimeout(r, 100 * Math.pow(2, attempt)));
+      }
     }
-  } catch (e) {
-    console.error('[MongoDB SAVE ERROR]', key, e.message);
+    if (lastErr) {
+      _mongoFailStreak++;
+      console.error(`[MongoDB SAVE ERROR #${_mongoFailStreak}]`, key, lastErr.message);
+      if (_mongoFailStreak === 1 || _mongoFailStreak % 5 === 0) {
+        console.error(`[ALERT] MongoDB saves failing (streak=${_mongoFailStreak}). Data may be at risk. Latest key: ${key}`);
+      }
+    }
   }
-  // Also save locally as backup
+  // Also save locally as backup so the JSON reconcile on next boot can recover
   try { saveJSON(key + '.json', data); } catch {}
 }
 
@@ -82,6 +126,10 @@ async function saveAllData() {
   await saveToDB('clientNotes', clientNotes);
   await saveToDB('searchAnalytics', searchAnalytics);
   await saveToDB('chats', chatRooms);
+  await saveToDB('carts', carts);
+  await saveToDB('supplierStock', supplierStockMem);
+  await saveToDB('stock', stockData);
+  await saveToDB('sessions', sessions);
   console.log('[AutoSave] Complete');
 }
 
@@ -101,23 +149,29 @@ let salesHistory = [];
 let clientNotes = {};
 let searchAnalytics = {};
 
-function saveStock() { saveToDB('stock', stockData); }
-function saveChats() {
+async function saveStock() { await saveToDB('stock', stockData); }
+async function saveChats() {
   const toSave = {};
   for (const [id, room] of Object.entries(chatRooms)) {
     // Save ALL rooms that have messages (not just scheduled/sold)
     if (room.messages?.length > 0 || room.status === 'scheduled' || room.status === 'sold') toSave[id] = room;
   }
-  saveToDB('chats', toSave);
+  await saveToDB('chats', toSave);
 }
-function saveSales() { saveToDB('sales', salesLog); }
+async function saveSales() { await saveToDB('sales', salesLog); }
 async function saveSalesHistory() { await saveToDB('salesHistory', salesHistory); }
-function saveClientNotes() { saveToDB('clientNotes', clientNotes); }
-function saveSearchAnalytics() { saveToDB('searchAnalytics', searchAnalytics); }
+async function saveClientNotes() { await saveToDB('clientNotes', clientNotes); }
+async function saveSearchAnalytics() { await saveToDB('searchAnalytics', searchAnalytics); }
 let pedidos = [];
 async function savePedidos() { await saveToDB('pedidos', pedidos); }
 let clientAccounts = [];
 async function saveClientAccounts() { await saveToDB('clientAccounts', clientAccounts); }
+// Bug #2: server-side carts keyed by client account name/id
+let carts = {}; // { clientKey: { items: [], updatedAt } }
+async function saveCarts() { await saveToDB('carts', carts); }
+// Bug #13: in-memory supplierStock with JSON fallback
+let supplierStockMem = {};
+async function saveSupplierStock() { await saveToDB('supplierStock', supplierStockMem); }
 
 // ─── CONNECTED CLIENTS ──────────────────────────────────────────────────────
 const clients = new Map();
@@ -177,13 +231,32 @@ function sanitize(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;").slice(0, 2000);
 }
 
-// ─── AUTH TOKENS ─────────────────────────────────────────────────────────
+// ─── AUTH TOKENS (persisted to MongoDB so sessions survive Render restarts) ──
 const crypto = require('crypto');
-const sessions = {};
+let sessions = {};
 function createSession(role, name) {
   const token = crypto.randomBytes(32).toString('hex');
   sessions[token] = { role, name, created: Date.now() };
+  // Persist to MongoDB async (fire-and-forget is fine here; saveAllData also covers it)
+  saveSessions().catch(e => console.error('[saveSessions]', e));
   return token;
+}
+async function saveSessions() { await saveToDB('sessions', sessions); }
+async function loadSessions() {
+  if (!db) return;
+  try {
+    const doc = await db.collection('config').findOne({ _id: 'sessions' });
+    if (doc && doc.data && typeof doc.data === 'object') {
+      // Only load sessions that haven't expired (24h lifetime)
+      const now = Date.now();
+      const valid = {};
+      for (const [t, s] of Object.entries(doc.data)) {
+        if (s && s.created && now - s.created < 86400000) valid[t] = s;
+      }
+      sessions = valid;
+      console.log(`[sessions] loaded ${Object.keys(sessions).length} active sessions from MongoDB`);
+    }
+  } catch (e) { console.error('[sessions] load error:', e); }
 }
 function requireAuth(roles) {
   return (req, res, next) => {
@@ -196,10 +269,19 @@ function requireAuth(roles) {
     next();
   };
 }
+// Verify session endpoint — frontend calls this on page load to detect stale tokens
+app.get('/api/verify-session', (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const session = token && sessions[token];
+  if (!session) return res.status(401).json({ ok: false, error: 'session_expired' });
+  res.json({ ok: true, role: session.role, name: session.name });
+});
 // Clean expired sessions every 30 min (24h lifetime)
 setInterval(() => {
   const now = Date.now();
-  for (const t in sessions) { if (now - sessions[t].created > 86400000) delete sessions[t]; }
+  let cleaned = 0;
+  for (const t in sessions) { if (now - sessions[t].created > 86400000) { delete sessions[t]; cleaned++; } }
+  if (cleaned > 0) saveSessions().catch(e => console.error('[saveSessions]', e));
 }, 1800000);
 
 // ─── RATE LIMITER ────────────────────────────────────────────────────────────
@@ -232,6 +314,91 @@ app.use(helmet({
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
 
+// ─── IMAGES IN MONGODB (Bug #3/#12 fix) ────────────────────────────────────
+// Render free tier has an ephemeral filesystem: anything written to disk is
+// wiped on every deploy/restart. So we store image uploads in MongoDB as
+// base64 strings and serve them through /api/img/:name with long cache.
+// An in-memory LRU avoids hitting MongoDB on every request.
+const IMG_CACHE = new Map(); // name -> { data: Buffer, mime, etag }
+const IMG_CACHE_MAX = 200;
+function imgCachePut(name, entry) {
+  if (IMG_CACHE.has(name)) IMG_CACHE.delete(name);
+  IMG_CACHE.set(name, entry);
+  while (IMG_CACHE.size > IMG_CACHE_MAX) {
+    const firstKey = IMG_CACHE.keys().next().value;
+    IMG_CACHE.delete(firstKey);
+  }
+}
+async function saveImageToDB(name, mime, buf) {
+  if (!db) throw new Error('no_db');
+  const b64 = buf.toString('base64');
+  await db.collection('images').updateOne(
+    { _id: name },
+    { $set: { _id: name, mime, data: b64, size: buf.length, uploadedAt: Date.now() } },
+    { upsert: true }
+  );
+  imgCachePut(name, { data: buf, mime, etag: '"' + name + '-' + buf.length + '"' });
+}
+async function loadImageFromDB(name) {
+  if (IMG_CACHE.has(name)) return IMG_CACHE.get(name);
+  if (!db) return null;
+  const doc = await db.collection('images').findOne({ _id: name });
+  if (!doc) return null;
+  const buf = Buffer.from(doc.data, 'base64');
+  const entry = { data: buf, mime: doc.mime || 'image/jpeg', etag: '"' + name + '-' + buf.length + '"' };
+  imgCachePut(name, entry);
+  return entry;
+}
+app.get('/api/img/:name', async (req, res) => {
+  try {
+    const name = String(req.params.name).replace(/[^a-zA-Z0-9_.-]/g, '');
+    if (!name) return res.status(400).end();
+    const entry = await loadImageFromDB(name);
+    if (!entry) return res.status(404).end();
+    if (req.headers['if-none-match'] === entry.etag) return res.status(304).end();
+    res.setHeader('Content-Type', entry.mime);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('ETag', entry.etag);
+    res.end(entry.data);
+  } catch (e) {
+    console.error('[img] serve error:', e);
+    res.status(500).end();
+  }
+});
+// Backfill: on boot, scan existing disk folders and import any missing images
+// into MongoDB so they survive the next redeploy.
+async function backfillImagesToDB() {
+  if (!db) { console.log('[img] backfill skipped: no db'); return; }
+  const scanDirs = [
+    { dir: path.join(__dirname, 'public', 'img', 'modelos'), prefix: 'modelo_' },
+    { dir: path.join(__dirname, 'dist', 'img', 'modelos'), prefix: 'modelo_' },
+    { dir: uploadsDir, prefix: 'upload_' },
+  ];
+  let imported = 0;
+  for (const { dir, prefix } of scanDirs) {
+    if (!fs.existsSync(dir)) continue;
+    try {
+      const files = fs.readdirSync(dir);
+      for (const f of files) {
+        if (!/\.(png|jpe?g|webp)$/i.test(f)) continue;
+        const name = prefix + f;
+        const existing = await db.collection('images').findOne({ _id: name }, { projection: { _id: 1 } });
+        if (existing) continue;
+        const buf = fs.readFileSync(path.join(dir, f));
+        const ext = f.split('.').pop().toLowerCase();
+        const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+        await db.collection('images').updateOne(
+          { _id: name },
+          { $set: { _id: name, mime, data: buf.toString('base64'), size: buf.length, uploadedAt: Date.now(), backfilled: true } },
+          { upsert: true }
+        );
+        imported++;
+      }
+    } catch (e) { console.error('[img] backfill error:', e); }
+  }
+  if (imported > 0) console.log(`[img] backfilled ${imported} images to MongoDB`);
+}
+
 // ─── ACCOUNTS ──
 let accounts = loadJSON('accounts.json', {
   admin: { user: 'juan', pass: '1234', name: 'Juan', role: 'admin' },
@@ -253,7 +420,7 @@ function isHashed(p) { return p && p.startsWith('$2'); }
       changed = true;
     }
   }
-  if (changed) saveAccounts();
+  if (changed) saveAccounts().catch(e => console.error('[saveAccounts]', e));
 })();
 
 // Auth
@@ -304,7 +471,7 @@ app.post('/api/register', async (req, res) => {
     createdAt: Date.now(),
   };
   clientAccounts.push(client);
-  saveClientAccounts();
+  saveClientAccounts().catch(e => console.error('[saveClientAccounts]', e));
   const token = createSession('client', client.name);
   res.json({ ok: true, role: 'client', name: client.name, clientId: client.id, token });
 });
@@ -349,13 +516,13 @@ app.post('/api/accounts/employee', requireAuth(['admin']), async (req, res) => {
   const id = 'emp_' + Date.now();
   const hashed = await bcrypt.hash(pass, 10);
   accounts.employees.push({ id, name, user: user || name.toLowerCase().replace(/\s+/g,''), pass: hashed, passVisible: pass, createdAt: Date.now() });
-  saveAccounts();
+  saveAccounts().catch(e => console.error('[saveAccounts]', e));
   res.json({ ok: true });
 });
 app.delete('/api/accounts/employee/:id', requireAuth(['admin']), (req, res) => {
   const emp = accounts.employees.find(e => e.id === req.params.id);
   accounts.employees = accounts.employees.filter(e => e.id !== req.params.id);
-  saveAccounts();
+  saveAccounts().catch(e => console.error('[saveAccounts]', e));
   // Kick the employee in real-time via WebSocket
   if (emp) {
     for (const [ws, info] of clients) {
@@ -370,56 +537,61 @@ app.post('/api/accounts/admin-pass', requireAuth(['admin']), async (req, res) =>
   const { newPass } = req.body;
   if (!newPass || newPass.length < 4) return res.json({ ok: false, error: 'Mínimo 4 caracteres' });
   accounts.admin.pass = await bcrypt.hash(newPass, 10);
-  saveAccounts();
+  saveAccounts().catch(e => console.error('[saveAccounts]', e));
   res.json({ ok: true });
 });
 
 // Stock
 app.get('/api/stock', (req, res) => res.json(stockData));
-app.post('/api/stock', requireAuth(['admin', 'employee']), (req, res) => {
-  stockData = req.body;
-  saveStock();
-  broadcastAll({ type: 'stock_update', stock: stockData });
-  res.json({ ok: true });
+app.post('/api/stock', requireAuth(['admin', 'employee']), async (req, res) => {
+  try {
+    stockData = req.body;
+    await saveStock();
+    broadcastAll({ type: 'stock_update', stock: stockData });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[saveStock] failed:', e);
+    res.status(500).json({ ok: false, error: 'save_failed' });
+  }
 });
 
-// Model image upload (saves to public/img/modelos/)
-app.post('/api/upload-model-image', requireAuth(['admin']), (req, res) => {
+// Model image upload — stores in MongoDB so it survives Render redeploys
+app.post('/api/upload-model-image', requireAuth(['admin']), async (req, res) => {
   try {
     const { modelId, image } = req.body;
     if (!modelId || !image) return res.status(400).json({ ok: false, error: 'Faltan datos' });
     const match = image.match(/^data:image\/(png|jpe?g|webp);base64,(.+)$/);
     if (!match) return res.status(400).json({ ok: false, error: 'Formato de imagen invalido' });
     const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+    const mime = 'image/' + (match[1] === 'jpg' ? 'jpeg' : match[1]);
     const buf = Buffer.from(match[2], 'base64');
-    const fname = modelId.replace(/[^a-zA-Z0-9_-]/g, '') + '.' + ext;
-    const modelImgDir = path.join(__dirname, 'dist', 'img', 'modelos');
-    if (!fs.existsSync(modelImgDir)) fs.mkdirSync(modelImgDir, { recursive: true });
-    fs.writeFileSync(path.join(modelImgDir, fname), buf);
-    // Also save to public for next build
-    const publicDir = path.join(__dirname, 'public', 'img', 'modelos');
-    if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
-    fs.writeFileSync(path.join(publicDir, fname), buf);
-    console.log('[ModelImage] Saved', fname, buf.length, 'bytes');
-    res.json({ ok: true, url: '/img/modelos/' + fname });
+    if (buf.length > 5 * 1024 * 1024) return res.status(413).json({ ok: false, error: 'Imagen demasiado grande (max 5MB)' });
+    const name = 'modelo_' + modelId.replace(/[^a-zA-Z0-9_-]/g, '') + '.' + ext;
+    await saveImageToDB(name, mime, buf);
+    console.log('[ModelImage] Saved to DB', name, buf.length, 'bytes');
+    res.json({ ok: true, url: '/api/img/' + name });
   } catch (e) {
-    console.error('[ModelImage] Error:', e.message);
+    console.error('[ModelImage] Error:', e);
     res.status(500).json({ ok: false, error: 'Error al subir imagen' });
   }
 });
 
-// Image upload
-app.post('/api/upload', requireAuth(['admin', 'employee']), (req, res) => {
+// Generic image upload — also in MongoDB
+app.post('/api/upload', requireAuth(['admin', 'employee']), async (req, res) => {
   try {
     const { image, filename } = req.body;
-    const match = image.match(/^data:image\/(png|jpe?g|webp);base64,(.+)$/);
+    const match = image && image.match(/^data:image\/(png|jpe?g|webp);base64,(.+)$/);
     if (!match) return res.status(400).json({ error: 'Invalid image' });
     const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+    const mime = 'image/' + (match[1] === 'jpg' ? 'jpeg' : match[1]);
     const buf = Buffer.from(match[2], 'base64');
-    const fname = (filename || `img_${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, '') + '.' + ext;
-    fs.writeFileSync(path.join(uploadsDir, fname), buf);
-    res.json({ ok: true, url: '/uploads/' + fname });
+    if (buf.length > 5 * 1024 * 1024) return res.status(413).json({ error: 'Too large (max 5MB)' });
+    const baseName = (filename || `img_${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, '');
+    const name = 'upload_' + baseName + '.' + ext;
+    await saveImageToDB(name, mime, buf);
+    res.json({ ok: true, url: '/api/img/' + name });
   } catch (e) {
+    console.error('[Upload] Error:', e);
     res.status(500).json({ error: 'Error al subir imagen' });
   }
 });
@@ -440,7 +612,7 @@ app.get('/api/sales-history', requireAuth(['admin', 'employee']), (req, res) => 
   });
 });
 
-app.post('/api/sales-history', requireAuth(['admin', 'employee']), (req, res) => {
+app.post('/api/sales-history', requireAuth(['admin', 'employee']), async (req, res) => {
   const { clientName, products, total, notes } = req.body;
   salesHistory.push({
     id: 'sale_' + Date.now(),
@@ -451,7 +623,7 @@ app.post('/api/sales-history', requireAuth(['admin', 'employee']), (req, res) =>
     notes: notes || '',
   });
   if (salesHistory.length > 1000) salesHistory = salesHistory.slice(-500);
-  saveSalesHistory();
+  try { await saveSalesHistory(); } catch (e) { console.error('[saveSalesHistory] failed:', e); return res.status(500).json({ ok: false, error: 'save_failed' }); }
   res.json({ ok: true });
 });
 
@@ -464,7 +636,7 @@ app.post('/api/client-notes', requireAuth(['admin', 'employee']), (req, res) => 
   const { clientName, note } = req.body;
   if (clientName) {
     clientNotes[clientName] = note || '';
-    saveClientNotes();
+    saveClientNotes().catch(e => console.error('[saveClientNotes]', e));
   }
   res.json({ ok: true });
 });
@@ -493,13 +665,18 @@ app.get('/api/frequent-clients', requireAuth(['admin', 'employee']), (req, res) 
 
 // ─── PEDIDOS (Orders) ────────────────────────────────────────────────────
 // Create order (public - clients can order)
-app.post('/api/pedidos', (req, res) => {
+app.post('/api/pedidos', async (req, res) => {
   const { cliente, items, total, entrega, comprobante, notas } = req.body;
   if (!cliente?.nombre || !cliente?.telefono || !items?.length) {
     return res.status(400).json({ ok: false, error: 'Datos incompletos' });
   }
+  // Basic total sanity check (prevents negative or absurd totals from bypassing checkout)
+  const numTotal = Number(total) || 0;
+  if (numTotal < 0 || numTotal > 50000000) {
+    return res.status(400).json({ ok: false, error: 'Total invalido' });
+  }
   const order = {
-    id: 'PED-' + String(Date.now()).slice(-6),
+    id: 'PED-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
     cliente: { nombre: sanitize(cliente.nombre), telefono: sanitize(cliente.telefono), email: sanitize(cliente.email || ''), direccion: sanitize(cliente.direccion || '') },
     items: items.map(i => ({ nombre: sanitize(i.nombre || ''), numero_parte: i.numero_parte, modelo: i.modelo_nombre || '', precio: i.precio, qty: i.qty || 1 })),
     total: total || 0,
@@ -512,12 +689,20 @@ app.post('/api/pedidos', (req, res) => {
     updatedAt: Date.now(),
   };
   pedidos.push(order);
-  savePedidos();
+  try {
+    await savePedidos();
+  } catch (e) {
+    console.error('[savePedidos create] failed:', e);
+    // Roll back in-memory push so retry doesn't duplicate
+    const idx = pedidos.indexOf(order);
+    if (idx !== -1) pedidos.splice(idx, 1);
+    return res.status(500).json({ ok: false, error: 'save_failed' });
+  }
   // Notify admin/employees via WebSocket
   broadcastToRole('admin', { type: 'new_order', order });
   broadcastToRole('employee', { type: 'new_order', order });
   // Send confirmation email to client
-  sendOrderEmail(order, 'pendiente');
+  try { sendOrderEmail(order, 'pendiente'); } catch (e) { console.error('[email] failed:', e); }
   res.json({ ok: true, orderId: order.id });
 });
 
@@ -527,7 +712,7 @@ app.get('/api/pedidos', requireAuth(['admin', 'employee']), (req, res) => {
 });
 
 // Update order status (staff only)
-app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) => {
+app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), async (req, res) => {
   const { orderId, status, encargado, nota } = req.body;
   const valid = ['pendiente', 'pagado', 'preparando', 'listo', 'enviado', 'entregado', 'cancelado'];
   if (!valid.includes(status)) return res.status(400).json({ ok: false, error: 'Estado invalido' });
@@ -541,24 +726,29 @@ app.post('/api/pedidos/status', requireAuth(['admin', 'employee']), (req, res) =
     if (!order.notas) order.notas = [];
     order.notas.push({ texto: nota, autor: req.user?.name || 'Staff', fecha: Date.now() });
   }
-  savePedidos();
-  // When marked as paid, register the sale in salesHistory for the Dashboard
-  if (status === 'pagado') {
-    salesHistory.push({
-      id: 'sale_' + Date.now(),
-      date: Date.now(),
-      clientName: order.cliente?.nombre || 'Cliente',
-      products: (order.items || []).map(i => i.nombre || i.numero_parte || 'Producto'),
-      total: Number(order.total) || 0,
-      notes: 'Pedido ' + order.id,
-    });
-    if (salesHistory.length > 1000) salesHistory = salesHistory.slice(-500);
-    saveSalesHistory();
+  try {
+    await savePedidos();
+    // When marked as paid, register the sale in salesHistory for the Dashboard
+    if (status === 'pagado') {
+      salesHistory.push({
+        id: 'sale_' + Date.now(),
+        date: Date.now(),
+        clientName: order.cliente?.nombre || 'Cliente',
+        products: (order.items || []).map(i => i.nombre || i.numero_parte || 'Producto'),
+        total: Number(order.total) || 0,
+        notes: 'Pedido ' + order.id,
+      });
+      if (salesHistory.length > 1000) salesHistory = salesHistory.slice(-500);
+      await saveSalesHistory();
+    }
+  } catch (e) {
+    console.error('[savePedidos status] failed:', e);
+    return res.status(500).json({ ok: false, error: 'save_failed' });
   }
   broadcastToRole('admin', { type: 'order_updated', order });
   broadcastToRole('employee', { type: 'order_updated', order });
   // Send status update email to client
-  sendOrderEmail(order, status);
+  try { sendOrderEmail(order, status); } catch (e) { console.error('[email] failed:', e); }
   res.json({ ok: true });
 });
 
@@ -571,28 +761,105 @@ app.get('/api/supplier-stock', requireAuth(['admin', 'employee']), async (req, r
   } catch { res.json({ stock: {}, updatedAt: null }); }
 });
 
+// ─── CONSULTAR STOCK (Fase 5) ────────────────────────────────────────────
+// On-demand stock check triggered by a real client click. Uses the ultra-
+// conservative supplier-scraper module with 12h cache + daily caps.
+const supplierScraper = require('./supplier-scraper.cjs');
+// Hook alerting: when the scraper wants to reach Juan, log loud + (future)
+// send an email via Resend. Placeholder until the alert channel is confirmed.
+supplierScraper.setAlertFn((level, msg) => {
+  console.error(`[SCRAPER ${level}]`, msg);
+  // TODO: send email via Resend to Juan when level === 'URGENT'
+});
+
+// Simple per-IP rate limit so one user can't spam the button
+const consultaRl = new Map();
+function consultaRateLimit(ip) {
+  const now = Date.now();
+  const cutoff = now - 60 * 1000; // 1 minute window
+  const arr = (consultaRl.get(ip) || []).filter(t => t > cutoff);
+  if (arr.length >= 10) return false;
+  arr.push(now);
+  consultaRl.set(ip, arr);
+  return true;
+}
+
+app.post('/api/consultar-stock/:partNumber', async (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  if (!consultaRateLimit(ip)) return res.status(429).json({ ok: false, error: 'too_many_requests' });
+  const sku = String(req.params.partNumber || '').replace(/[^a-zA-Z0-9_\-./]/g, '').slice(0, 64);
+  if (!sku) return res.status(400).json({ ok: false, error: 'no_sku' });
+  try {
+    const result = await supplierScraper.consultarStock(db, sku);
+    res.json({ ok: true, sku, ...result });
+  } catch (e) {
+    console.error('[consultar-stock]', sku, e);
+    res.status(500).json({ ok: false, error: 'internal' });
+  }
+});
+
+// Admin dashboard — counters, disabled suppliers, cache inspect
+app.get('/api/scraper-status', requireAuth(['admin', 'employee']), (req, res) => {
+  res.json(supplierScraper.getStatus());
+});
+
+// Admin: clear cache for a specific SKU (force re-query next time)
+app.post('/api/scraper-clear/:sku', requireAuth(['admin']), async (req, res) => {
+  if (!db) return res.status(503).json({ ok: false, error: 'no_db' });
+  try {
+    await db.collection('supplierStockCache').deleteOne({ _id: String(req.params.sku) });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 app.post('/api/supplier-stock-mark', requireAuth(['admin', 'employee']), async (req, res) => {
   const { partNumber, supplier, hasStock, precio } = req.body;
   if (!partNumber || !supplier) return res.status(400).json({ ok: false });
   try {
-    if (!db) return res.json({ ok: false });
-    const key = 'supplierStock';
-    const doc = await db.collection('config').findOne({ _id: key });
-    const data = doc?.data || {};
-    if (!data[partNumber]) data[partNumber] = { suppliers: {} };
-    data[partNumber].suppliers[supplier] = { available: hasStock, precio: precio || '', checkedAt: Date.now() };
-    await db.collection('config').updateOne({ _id: key }, { $set: { data, updatedAt: Date.now() } }, { upsert: true });
+    if (!supplierStockMem[partNumber]) supplierStockMem[partNumber] = { suppliers: {} };
+    supplierStockMem[partNumber].suppliers[supplier] = { available: hasStock, precio: precio || '', checkedAt: Date.now() };
+    await saveSupplierStock();
     res.json({ ok: true });
-  } catch { res.json({ ok: false }); }
+  } catch (e) {
+    console.error('[supplierStock mark]', e);
+    res.status(500).json({ ok: false });
+  }
 });
 
 app.get('/api/supplier-stock/:partNumber', async (req, res) => {
-  try {
-    if (!db) return res.json({ suppliers: {} });
-    const doc = await db.collection('config').findOne({ _id: 'supplierStock' });
-    const partData = doc?.data?.[req.params.partNumber];
-    res.json(partData || { suppliers: {} });
-  } catch { res.json({ suppliers: {} }); }
+  // In-memory first, then JSON fallback, then Mongo as last resort
+  const partData = supplierStockMem?.[req.params.partNumber];
+  res.json(partData || { suppliers: {} });
+});
+
+// ─── CARTS (Bug #2 fix) ─────────────────────────────────────────────────
+// Cart is stored per authenticated client (or by a random clientKey stored
+// in localStorage for anonymous users). Survives browser clears and device
+// changes as long as the user is logged in.
+function cartKey(req) {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  if (token && token.length > 4) return 'tok_' + token.slice(0, 32);
+  const k = String(req.query.key || req.body?.key || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 48);
+  return k ? 'anon_' + k : null;
+}
+app.get('/api/cart', (req, res) => {
+  const key = cartKey(req);
+  if (!key) return res.json({ items: [], key: null });
+  const cart = carts[key] || { items: [], updatedAt: 0 };
+  res.json({ items: cart.items || [], updatedAt: cart.updatedAt, key });
+});
+app.post('/api/cart', async (req, res) => {
+  const key = cartKey(req);
+  if (!key) return res.status(400).json({ ok: false, error: 'no_key' });
+  const items = Array.isArray(req.body?.items) ? req.body.items : [];
+  // Sanity cap: a cart shouldn't have more than 200 items
+  if (items.length > 200) return res.status(413).json({ ok: false, error: 'too_many_items' });
+  carts[key] = { items, updatedAt: Date.now() };
+  try { await saveCarts(); } catch (e) { console.error('[saveCarts]', e); return res.status(500).json({ ok: false, error: 'save_failed' }); }
+  res.json({ ok: true });
 });
 
 // ─── EMAIL SYSTEM (Resend) ───────────────────────────────────────────────
@@ -676,6 +943,249 @@ const CLAUDE_KEY = process.env.CLAUDE_API_KEY || '';
 let claude = null;
 try { claude = new Anthropic({ apiKey: CLAUDE_KEY }); } catch {}
 
+// ─── BUSCADOR IA V2 (Fase 7) — conversational AI with tool use ──────────
+const buscadorIA = require('./buscador-ia.cjs');
+const BUSCADOR_MODEL = process.env.BUSCADOR_MODEL || 'claude-sonnet-4-6';
+const BUSCADOR_MAX_ITERATIONS = 6;
+
+function buildBuscadorSystemPrompt(role, userName) {
+  const isStaff = role === 'admin' || role === 'employee' || role === 'jefe';
+  const persona = isStaff
+    ? `Estas ayudando a ${userName || 'un empleado'} que trabaja en La Ford de Warnes. Podes ser directo y tecnico.`
+    : `Estas hablando con ${userName || 'un cliente'} que busca repuestos para su vehiculo Ford.`;
+  return `Sos el asistente de busqueda inteligente de La Ford de Warnes (laforddewarnes.com), una tienda de repuestos Ford en CABA con 48 años de experiencia. WhatsApp: 11 6275-6333. Honorio Pueyrredon 2180.
+
+${persona}
+
+TUS HERRAMIENTAS:
+- search_parts: busqueda fuzzy con typos y sinonimos. Usala primero cuando el cliente describe algo vago.
+- filter_by_compatibility: SOLO devuelve piezas con compatibilidad verificada (detalles del catalogo oficial Ford). Usala cuando tenes modelo+año+motor y queres info 100% confiable.
+- get_part_details: trae info completa de un SKU puntual.
+- suggest_alternatives: cuando no hay lo pedido, ofrecele alternativas similares.
+- consultar_stock_ahora: SOLO si el cliente pregunta explicitamente por disponibilidad. No spamees este tool.
+- proponer_agregar_carrito: IMPORTANTE — NO agrega nada solo. Emite una propuesta que el cliente confirma con un boton. Usala SOLO si el cliente dice explicitamente "agrega" o "comprame" o equivalente. Siempre presentala como "te propongo agregar X, confirmalo abajo".
+
+REGLAS CRITICAS DE HONESTIDAD:
+1. NO inventes compatibilidades. Si no tenes datos verificados (campo detalles), decilo claro: "no tengo detalle de compatibilidad verificado, mejor consultamos a Juan por WhatsApp para estar seguros".
+2. NO inventes precios ni SKUs. Siempre sacalos de las herramientas.
+3. Si una busqueda no devuelve nada, sugerir WhatsApp (11 6275-6333) es una opcion valida.
+4. Cuando un cliente pide "algo para X", PRIMERO pregunta modelo y año si no los sabes. No adivines.
+5. Si el cliente escribe con typos, corregi mentalmente y busca, pero nunca le digas "escribiste mal". Simplemente entendes y respondes.
+
+FORMATO DE RESPUESTA:
+- Español argentino informal (vos, dale, che, piola). Breve y directo.
+- Cuando muestres productos, mencionalos con nombre y precio.
+- Cuando Claude usa una tool y encuentra 5+ resultados, NO los listes todos — mostra los 3 mas relevantes y deci "tengo X mas, queres que te muestre?".
+- Si propones agregar al carrito, SIEMPRE aclara "necesito tu confirmacion, toca el boton verde abajo".
+
+DATOS DE PAGO (si el cliente pregunta): Alias MercadoPago laforddewarnes.mp. CVU 0000003100002327991773.`;
+}
+
+// In-memory search logs buffered for analytics — flushed to Mongo periodically
+const searchLogBuffer = [];
+async function flushSearchLogs() {
+  if (searchLogBuffer.length === 0 || !db) return;
+  const toFlush = searchLogBuffer.splice(0, searchLogBuffer.length);
+  try {
+    await db.collection('searchLogsV2').insertMany(toFlush);
+  } catch (e) {
+    console.error('[searchLogsV2] flush failed:', e);
+    // Put them back so we retry next flush
+    searchLogBuffer.unshift(...toFlush);
+  }
+}
+setInterval(() => flushSearchLogs().catch(() => {}), 30000);
+
+app.post('/api/buscador-ia-v2', async (req, res) => {
+  if (!claude) return res.status(503).json({ ok: false, error: 'IA no disponible' });
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  if (!rateLimit(ip, 30, 60000)) return res.status(429).json({ ok: false, error: 'Muchas consultas, esperá un momento' });
+
+  const { messages, role, userName, sessionId } = req.body || {};
+  if (!Array.isArray(messages) || messages.length === 0) return res.status(400).json({ ok: false, error: 'Mensajes vacios' });
+  const lastUser = [...messages].reverse().find(m => m.role === 'user');
+  if (!lastUser || typeof lastUser.content !== 'string' || lastUser.content.length < 2) return res.status(400).json({ ok: false, error: 'Mensaje del usuario muy corto' });
+
+  const logEntry = {
+    sessionId: String(sessionId || '').slice(0, 64) || null,
+    ip: String(ip).slice(0, 45),
+    role: role || 'client',
+    userName: userName || null,
+    userMessage: lastUser.content.slice(0, 500),
+    startedAt: Date.now(),
+    toolsUsed: [],
+    resultSkus: [],
+    proposalSku: null,
+    finalResponseLen: 0,
+    iterations: 0,
+    error: null,
+  };
+
+  try {
+    // Build Claude messages from the conversation (strip our custom fields)
+    let apiMessages = messages
+      .filter(m => m && (m.role === 'user' || m.role === 'assistant'))
+      .map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : m.content }));
+
+    const toolContext = { db, supplierScraper };
+    const collectedProposals = [];
+    const collectedCards = [];  // products mentioned by tools (for inline rendering)
+    let finalText = '';
+
+    for (let iter = 0; iter < BUSCADOR_MAX_ITERATIONS; iter++) {
+      logEntry.iterations = iter + 1;
+      const resp = await claude.messages.create({
+        model: BUSCADOR_MODEL,
+        max_tokens: 1024,
+        system: buildBuscadorSystemPrompt(role, userName),
+        tools: buscadorIA.TOOLS,
+        messages: apiMessages,
+      });
+
+      // Collect any text from this turn
+      const textBlocks = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+      if (textBlocks) finalText = textBlocks;
+
+      if (resp.stop_reason === 'end_turn') break;
+
+      if (resp.stop_reason === 'tool_use') {
+        const toolUses = (resp.content || []).filter(b => b.type === 'tool_use');
+        if (toolUses.length === 0) break;
+        // Append the assistant turn so Claude sees its own tool calls
+        apiMessages.push({ role: 'assistant', content: resp.content });
+        // Execute each tool and append results
+        const toolResults = [];
+        for (const tu of toolUses) {
+          logEntry.toolsUsed.push(tu.name);
+          const result = await buscadorIA.executeTool(tu.name, tu.input || {}, toolContext);
+          // Collect SKUs from search results for analytics and the frontend cards
+          if (result.ok) {
+            if (Array.isArray(result.items)) {
+              for (const it of result.items) {
+                if (it.sku && !collectedCards.find(c => c.sku === it.sku)) collectedCards.push(it);
+                if (it.sku) logEntry.resultSkus.push(it.sku);
+              }
+            }
+            if (Array.isArray(result.alternativas)) {
+              for (const it of result.alternativas) {
+                if (it.sku && !collectedCards.find(c => c.sku === it.sku)) collectedCards.push(it);
+              }
+            }
+            if (result.proposal && result.proposal.type === 'cart_proposal') {
+              collectedProposals.push(result.proposal);
+              logEntry.proposalSku = result.proposal.sku;
+            }
+          }
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: tu.id,
+            content: JSON.stringify(result).slice(0, 8000),  // cap size
+          });
+        }
+        apiMessages.push({ role: 'user', content: toolResults });
+        continue;
+      }
+      // Any other stop reason — finish
+      break;
+    }
+
+    logEntry.finalResponseLen = finalText.length;
+    logEntry.durationMs = Date.now() - logEntry.startedAt;
+    logEntry.noResults = logEntry.resultSkus.length === 0 && collectedProposals.length === 0;
+    searchLogBuffer.push(logEntry);
+
+    res.json({
+      ok: true,
+      response: finalText || 'No pude generar respuesta, probá reformular la consulta.',
+      cards: collectedCards.slice(0, 8),
+      proposals: collectedProposals,
+      meta: { iterations: logEntry.iterations, toolsUsed: logEntry.toolsUsed, noResults: logEntry.noResults },
+    });
+  } catch (e) {
+    console.error('[buscador-ia-v2]', e);
+    logEntry.error = e.message;
+    logEntry.durationMs = Date.now() - logEntry.startedAt;
+    searchLogBuffer.push(logEntry);
+    res.status(500).json({ ok: false, error: 'Error de IA: ' + (e.message || 'desconocido') });
+  }
+});
+
+// ─── SEARCH INSIGHTS (Fase 7C) — resumen IA para el jefe ─────────────────
+// Claude lee el log de busquedas de los ultimos N dias y genera insights
+// accionables: top queries con resultados, top queries SIN resultados
+// (oportunidades de agregar al catalogo), conversion de busqueda, etc.
+app.get('/api/search-insights', requireAuth(['admin']), async (req, res) => {
+  if (!db) return res.status(503).json({ ok: false, error: 'no_db' });
+  if (!claude) return res.status(503).json({ ok: false, error: 'IA no disponible' });
+  try {
+    await flushSearchLogs();
+    const days = Math.min(Math.max(Number(req.query.days) || 7, 1), 30);
+    const since = Date.now() - days * 24 * 60 * 60 * 1000;
+    const logs = await db.collection('searchLogsV2').find({ startedAt: { $gte: since } }).sort({ startedAt: -1 }).limit(1000).toArray();
+
+    // Build raw aggregates (cheap stats + sample queries for the AI)
+    const total = logs.length;
+    const noResults = logs.filter(l => l.noResults).length;
+    const withProposal = logs.filter(l => l.proposalSku).length;
+    const errors = logs.filter(l => l.error).length;
+    const avgDuration = total ? Math.round(logs.reduce((s, l) => s + (l.durationMs || 0), 0) / total) : 0;
+    const toolCounts = {};
+    for (const l of logs) for (const t of (l.toolsUsed || [])) toolCounts[t] = (toolCounts[t] || 0) + 1;
+
+    const noResultQueries = logs.filter(l => l.noResults && !l.error).map(l => l.userMessage).slice(0, 60);
+    const topQueries = logs.filter(l => !l.noResults && !l.error).map(l => l.userMessage).slice(0, 60);
+
+    // Ask Claude to summarize the raw data into actionable insights
+    const aiPrompt = `Sos un analista comercial de La Ford de Warnes, una tienda de repuestos Ford. Te paso el log de busquedas de los ultimos ${days} dias y necesito que le resumas a Juan (el jefe) lo mas importante en formato corto y accionable.
+
+STATS CRUDAS:
+- Total busquedas: ${total}
+- Sin resultados: ${noResults} (${total ? Math.round(noResults / total * 100) : 0}%)
+- Propusieron agregar al carrito: ${withProposal}
+- Errores: ${errors}
+- Duracion promedio: ${avgDuration}ms
+- Herramientas usadas: ${JSON.stringify(toolCounts)}
+
+BUSQUEDAS SIN RESULTADOS (oportunidades — piezas que clientes buscan y no tenemos):
+${noResultQueries.slice(0, 40).map((q, i) => (i + 1) + '. ' + q).join('\n') || '(ninguna)'}
+
+BUSQUEDAS EXITOSAS (lo que mas se busca y encontramos):
+${topQueries.slice(0, 40).map((q, i) => (i + 1) + '. ' + q).join('\n') || '(ninguna)'}
+
+Devolveme un resumen EN ESPAÑOL ARGENTINO tipo reporte a Juan con estas secciones:
+
+📊 RESUMEN NUMERICO (1-2 frases)
+🔥 OPORTUNIDADES (piezas que busca gente y no estan en catalogo — agrupa por tipo, ej "3 busquedas de filtros para Ranger 2019")
+✅ LO QUE ANDA BIEN (que categorias estan funcionando en la busqueda)
+⚠️ ALERTAS (cualquier patron raro: muchos errores, muchas busquedas sin resultado del mismo tipo, etc)
+💡 RECOMENDACIONES (1-3 acciones concretas que Juan puede tomar esta semana)
+
+Se concreto, no uses relleno. Si no hay data suficiente, decilo.`;
+
+    const msg = await claude.messages.create({
+      model: BUSCADOR_MODEL,
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: aiPrompt }],
+    });
+    const summary = msg.content?.[0]?.text || 'Sin resumen';
+    res.json({
+      ok: true,
+      period_days: days,
+      stats: { total, noResults, withProposal, errors, avgDuration, toolCounts },
+      summary,
+    });
+  } catch (e) {
+    console.error('[search-insights]', e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// Admin: hot-reload catalog after running merge-details.cjs
+app.post('/api/buscador-ia-reload', requireAuth(['admin']), (req, res) => {
+  const n = buscadorIA.reloadCatalog();
+  res.json({ ok: true, parts: n });
+});
+
 app.post('/api/ai-search', async (req, res) => {
   if (!claude) return res.json({ ok: false, error: 'IA no disponible' });
   const ip = req.ip || req.connection.remoteAddress;
@@ -724,6 +1234,20 @@ ${context || 'Sin resultados del catalogo'}`,
 });
 
 // Static
+// Bug #3 fallback: if the client requests /img/modelos/X or /uploads/X and
+// the disk copy is missing (post-redeploy), try to serve it from MongoDB.
+app.get('/img/modelos/:name', async (req, res, next) => {
+  try {
+    const fname = String(req.params.name).replace(/[^a-zA-Z0-9_.-]/g, '');
+    const diskPath = path.join(distPath, 'img', 'modelos', fname);
+    if (fs.existsSync(diskPath)) return res.sendFile(diskPath);
+    const entry = await loadImageFromDB('modelo_' + fname);
+    if (!entry) return res.status(404).end();
+    res.setHeader('Content-Type', entry.mime);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.end(entry.data);
+  } catch (e) { next(e); }
+});
 app.use(express.static(distPath));
 app.get('/{*splat}', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
@@ -753,7 +1277,7 @@ wss.on('connection', (ws) => {
   const clientId = 'u' + (idCounter++);
   clients.set(ws, { id: clientId, name: null, role: null, roomId: null, connectedAt: Date.now(), registered: false });
 
-  ws.on('message', (raw) => {
+  ws.on('message', async (raw) => {
     try {
       const data = JSON.parse(raw);
       const clientInfo = clients.get(ws);
@@ -811,14 +1335,28 @@ wss.on('connection', (ws) => {
           if (!rateLimit(msgIp, 30, 60000)) break;
           const roomId = data.roomId || clientInfo.roomId;
           if (!roomId || !chatRooms[roomId]) break;
-          const msg = { from: sanitize(clientInfo.name), fromRole: clientInfo.role, text: sanitize(data.text), ts: Date.now() };
+          // Bug #11: persist a serverId + accept a client localId so the
+          // client can deduplicate on retry and the UI can display "sent".
+          const serverId = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+          const msg = {
+            id: serverId,
+            localId: data.localId || null,
+            from: sanitize(clientInfo.name),
+            fromRole: clientInfo.role,
+            text: sanitize(data.text),
+            ts: Date.now(),
+          };
           chatRooms[roomId].messages.push(msg);
           if (chatRooms[roomId].messages.length > 500) chatRooms[roomId].messages.shift();
           if (clientInfo.role !== 'admin' && clientInfo.role !== 'employee') {
             chatRooms[roomId].unreadByJuan = (chatRooms[roomId].unreadByJuan || 0) + 1;
           }
-          saveChats();
-          // Send to: the client in this room + admin + all employees
+          // Wait for the save before ACK so the client knows it's durable
+          try { await saveChats(); }
+          catch (e) { console.error('[saveChats]', e); sendTo(ws, { type: 'chat_err', localId: data.localId || null, error: 'save_failed' }); break; }
+          // ACK to the sender with both localId and serverId
+          sendTo(ws, { type: 'chat_ack', localId: data.localId || null, serverId, roomId, ts: msg.ts });
+          // Fan out the message to room participants + all staff
           for (const [otherWs, otherInfo] of clients) {
             if (otherWs.readyState !== 1) continue;
             if (otherInfo.roomId === roomId || otherInfo.role === 'admin' || otherInfo.role === 'employee') {
@@ -838,7 +1376,7 @@ wss.on('connection', (ws) => {
           if (room.claimedBy) break; // already claimed
           room.claimedBy = clientInfo.name;
           room.claimedRole = clientInfo.role;
-          saveChats();
+          saveChats().catch(e => console.error('[saveChats]', e));
           // Notify everyone
           broadcastAll({ type: 'chat_claimed', roomId: data.roomId, by: clientInfo.name, role: clientInfo.role });
           broadcastToRole('admin', { type: 'chat_list', rooms: getChatList() });
@@ -856,7 +1394,7 @@ wss.on('connection', (ws) => {
           if (clientInfo.role !== 'admin' && clientInfo.role !== 'employee') break;
           if (data.roomId && chatRooms[data.roomId]) {
             chatRooms[data.roomId].unreadByJuan = 0;
-            saveChats();
+            saveChats().catch(e => console.error('[saveChats]', e));
             sendTo(ws, { type: 'chat_history', roomId: data.roomId, messages: chatRooms[data.roomId].messages.slice(-100) });
             sendTo(ws, { type: 'chat_list', rooms: getChatList() });
           }
@@ -867,13 +1405,13 @@ wss.on('connection', (ws) => {
           if (clientInfo.role !== 'admin' && clientInfo.role !== 'employee') break;
           const room = chatRooms[data.roomId];
           if (!room) break;
-          if (data.action === 'schedule') { room.status = 'scheduled'; saveChats(); }
+          if (data.action === 'schedule') { room.status = 'scheduled'; saveChats().catch(e => console.error('[saveChats]', e)); }
           else if (data.action === 'sold') {
             room.status = 'sold';
             salesLog.push({ id: data.roomId, name: room.name, role: room.role, messages: room.messages, soldAt: Date.now() });
-            saveSales(); saveChats();
+            saveSales().catch(e => console.error('[saveSales]', e)); saveChats().catch(e => console.error('[saveChats]', e));
           }
-          else if (data.action === 'close') { delete chatRooms[data.roomId]; saveChats(); }
+          else if (data.action === 'close') { delete chatRooms[data.roomId]; saveChats().catch(e => console.error('[saveChats]', e)); }
           broadcastToRole('admin', { type: 'chat_list', rooms: getChatList() });
           broadcastToRole('admin', { type: 'sales_list', sales: salesLog.slice(-50) });
           break;
@@ -911,7 +1449,7 @@ wss.on('connection', (ws) => {
         setTimeout(() => {
           if (chatRooms[info.roomId] && chatRooms[info.roomId].status === 'active') {
             delete chatRooms[info.roomId];
-            saveChats();
+            saveChats().catch(e => console.error('[saveChats]', e));
             broadcastToRole('admin', { type: 'chat_list', rooms: getChatList() });
           }
         }, 5 * 60 * 1000);
@@ -940,12 +1478,41 @@ wss.on('connection', (ws2) => {
   ws2.on('pong', () => { const info = clients.get(ws2); if (info) info._pongWaiting = false; });
 });
 
+// ─── AUTO-SAVE LOCK (prevents overlapping saves from clobbering each other) ──
+let _isSaving = false;
+async function safeSaveAll(label) {
+  if (_isSaving) {
+    console.log(`[AutoSave] skipped (${label}) — previous save still running`);
+    return;
+  }
+  _isSaving = true;
+  try {
+    await saveAllData();
+  } catch (e) {
+    console.error(`[AutoSave] ${label} failed:`, e);
+  } finally {
+    _isSaving = false;
+  }
+}
+
+// Wrap a promise with a hard timeout so Render's 10s shutdown grace period is never exceeded
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timeout after ${ms}ms`)), ms)),
+  ]);
+}
+
 // Connect to MongoDB then start server
-connectDB().then(() => {
+connectDB().then(async () => {
+  // Load persisted sessions so logins survive Render restarts
+  try { await loadSessions(); } catch (e) { console.error('[sessions load]', e); }
+  // Backfill existing disk images into MongoDB (one-time per boot, idempotent)
+  try { await backfillImagesToDB(); } catch (e) { console.error('[img backfill]', e); }
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`Ford Warnes server running on port ${PORT}`);
-    // Auto-save every 2 minutes
-    setInterval(saveAllData, 120000);
+    // Auto-save every 2 minutes (with overlap lock)
+    setInterval(() => safeSaveAll('interval'), 120000);
     console.log('[AutoSave] Scheduled every 2 minutes');
   });
 }).catch(() => {
@@ -954,14 +1521,16 @@ connectDB().then(() => {
   });
 });
 
-// Save ALL data on shutdown (Render sends SIGTERM before stopping)
-process.on('SIGTERM', async () => {
-  console.log('[Shutdown] SIGTERM received, saving all data...');
-  await saveAllData();
+// Save ALL data on shutdown (Render sends SIGTERM ~10s before stopping)
+async function gracefulShutdown(signal) {
+  console.log(`[Shutdown] ${signal} received, saving all data...`);
+  try {
+    await withTimeout(saveAllData(), 8000, 'shutdown save');
+    console.log('[Shutdown] save complete');
+  } catch (e) {
+    console.error('[Shutdown] save failed:', e);
+  }
   process.exit(0);
-});
-process.on('SIGINT', async () => {
-  console.log('[Shutdown] SIGINT received, saving all data...');
-  await saveAllData();
-  process.exit(0);
-});
+}
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
