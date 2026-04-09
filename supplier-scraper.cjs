@@ -313,15 +313,58 @@ const adapters = {
     hasCredentials() { return !!process.env.TARABORELLI_COOKIE; },
     async warmUp() {
       if (!this.hasCredentials()) return;
-      await httpRequest('https://repuestos.fordtaraborelli.com/', { headers: { Cookie: process.env.TARABORELLI_COOKIE } });
+      await httpRequest('http://repuestos.fordtaraborelli.com/v2/', {
+        headers: { Cookie: process.env.TARABORELLI_COOKIE, Referer: 'http://repuestos.fordtaraborelli.com/v2/' },
+      });
     },
     async check(sku) {
       if (!this.hasCredentials()) return { status: 'unknown', reason: 'no_credentials' };
-      const searchUrl = (process.env.TARABORELLI_SEARCH_URL || 'https://repuestos.fordtaraborelli.com/buscar?codigo={SKU}').replace('{SKU}', encodeURIComponent(sku));
-      const res = await httpRequest(searchUrl, { headers: { Cookie: process.env.TARABORELLI_COOKIE } });
+      // Taraborelli uses a multipart POST to listado-repuestos.php
+      const boundary = '----FormBound' + Date.now();
+      const body = `--${boundary}\r\nContent-Disposition: form-data; name="busqueda"\r\n\r\n${sku}\r\n--${boundary}\r\nContent-Disposition: form-data; name="tipoBusqueda"\r\n\r\ncodigo\r\n--${boundary}--\r\n`;
+      const res = await httpRequest('http://repuestos.fordtaraborelli.com/lib/backend/listado-repuestos.php', {
+        method: 'POST',
+        headers: {
+          Cookie: process.env.TARABORELLI_COOKIE,
+          'Content-Type': 'multipart/form-data; boundary=' + boundary,
+          Origin: 'http://repuestos.fordtaraborelli.com',
+          Referer: 'http://repuestos.fordtaraborelli.com/v2/',
+          Accept: '*/*',
+        },
+        body,
+      });
       const fatal = detectFatal(res);
       if (fatal) return { status: 'error', fatal: true, fatalReason: fatal };
-      return { status: 'unknown', mode: 'thumbs', thumbs: null, precio: null, note: 'parser_pending' };
+      try {
+        const json = JSON.parse(res.body);
+        if (json.state !== 200 || !Array.isArray(json.data) || json.data.length === 0) {
+          return { status: 'unavailable_stock', mode: 'binary', qty: null, precio: null, note: 'no_results' };
+        }
+        // Parse the first matching result
+        const item = json.data[0];
+        const precioNeto = Number(item.precio) || 0;
+        // stock_ce contains HTML: '<span class="text-gray">...Sin Stock</span>' or a number/green icon
+        const stockCeHtml = String(item.stock_ce || '');
+        const stockFabrica = String(item.stock_fabrica || '');
+        const hasCeStock = !stockCeHtml.toLowerCase().includes('sin stock');
+        const hasFabricaStock = stockFabrica.toLowerCase().includes('s');
+        const available = hasCeStock || hasFabricaStock;
+        // Extract numeric stock from HTML if present (some results show a number)
+        const numMatch = stockCeHtml.match(/>(\d+)</);
+        const numericQty = numMatch ? Number(numMatch[1]) : null;
+        return {
+          status: available ? 'available' : 'unavailable_stock',
+          mode: numericQty != null ? 'numeric' : 'binary',
+          qty: numericQty,
+          precio: precioNeto > 0 ? precioNeto : null, // costo neto (admin only — never shown to clients)
+          hasCeStock,
+          hasFabricaStock,
+          descripcion: (item.descripcion || '').trim(),
+        };
+      } catch (e) {
+        console.error('[taraborelli parser]', e.message);
+        return { status: 'error', error: 'parse_failed: ' + e.message };
+      }
     },
   },
 };
