@@ -1841,29 +1841,36 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
       setStockQuery({state:'result',data:d,error:null});
     }catch(e){ setStockQuery({state:'error',data:null,error:'network'}); }
   };
-  // Format supplier result for display (handles numeric / thumbs / binary)
-  const renderSupplierResult=(name,info)=>{
+  // Format supplier results for display — NEVER show real supplier names to clients.
+  // Clients see generic labels: "Proveedor 1" etc. Only admin/employee sees real names.
+  const isStaff = esJefe || role==='employee';
+  const renderSupplierResult=(name,info,idx)=>{
     if(!info) return null;
+    const displayName = isStaff ? name : ('Proveedor '+(idx+1));
+    // Hide entirely if no credentials configured (nothing useful to show)
+    if(info.status==='unavailable' && info.reason==='no_credentials') return null;
     if(info.status==='unavailable'){
-      const reasonLabel={outside_hours:'fuera de horario',daily_cap_reached:'consultas agotadas por hoy',no_credentials:'no configurado',auto_disabled:'temporalmente no disponible',min_gap:'procesando...'}[info.reason]||info.reason;
-      return <div key={name} style={{fontSize:12,color:'#888'}}>· <strong style={{textTransform:'capitalize'}}>{name}</strong>: {reasonLabel}</div>;
+      const reasonLabel={outside_hours:'fuera de horario',daily_cap_reached:'consultas agotadas por hoy',auto_disabled:'temporalmente no disponible',min_gap:'procesando...'}[info.reason]||'no disponible';
+      return <div key={name} style={{fontSize:12,color:'#888'}}>· <strong>{displayName}</strong>: {reasonLabel}</div>;
     }
-    if(info.status==='error') return <div key={name} style={{fontSize:12,color:'#c94'}}>· <strong style={{textTransform:'capitalize'}}>{name}</strong>: error temporal</div>;
-    if(info.status==='unknown') return <div key={name} style={{fontSize:12,color:'#888'}}>· <strong style={{textTransform:'capitalize'}}>{name}</strong>: consultar</div>;
+    if(info.status==='error') return <div key={name} style={{fontSize:12,color:'#c94'}}>· <strong>{displayName}</strong>: error temporal</div>;
+    if(info.status==='unknown') return <div key={name} style={{fontSize:12,color:'#888'}}>· <strong>{displayName}</strong>: consultar</div>;
     if(info.status==='available'){
       let label='Disponible';
       if(info.mode==='numeric' && info.qty!=null) label=info.qty+' '+(info.qty===1?'unidad':'unidades');
       else if(info.mode==='thumbs' && info.thumbs!=null) label=info.thumbs>=2?'Stock alto':'Stock disponible';
-      return <div key={name} style={{fontSize:13,color:'#16a34a',fontWeight:600}}>✓ <strong style={{textTransform:'capitalize'}}>{name}</strong>: {label}</div>;
+      return <div key={name} style={{fontSize:13,color:'#16a34a',fontWeight:600}}>✓ <strong>{displayName}</strong>: {label}</div>;
     }
     if(info.status==='unavailable_stock'||info.status==='out_of_stock'){
-      return <div key={name} style={{fontSize:12,color:'#dc2626'}}>✗ <strong style={{textTransform:'capitalize'}}>{name}</strong>: sin stock</div>;
+      return <div key={name} style={{fontSize:12,color:'#dc2626'}}>✗ <strong>{displayName}</strong>: sin stock</div>;
     }
     return null;
   };
   // Does at least one supplier show real availability?
   const anyAvailable=stockQuery.data && Object.values(stockQuery.data.suppliers||{}).some(s=>s && s.status==='available');
   const allUnavailable=stockQuery.data && Object.values(stockQuery.data.suppliers||{}).every(s=>!s || s.status!=='available');
+  // Are ALL suppliers just "no_credentials"? If so, skip the entire supplier list and go straight to fallback
+  const allNoCredentials=stockQuery.data && Object.values(stockQuery.data.suppliers||{}).every(s=>s && s.status==='unavailable' && s.reason==='no_credentials');
   // Age text for cached results
   const ageText=(ms)=>{
     if(!ms) return 'recién';
@@ -1925,10 +1932,10 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
                   <span style={{fontSize:13,color:theme.text}}>Consultando proveedores...</span>
                 </div>
               )}
-              {stockQuery.state==='result'&&stockQuery.data&&(
+              {stockQuery.state==='result'&&stockQuery.data&&!allNoCredentials&&(
                 <>
                   <div style={{display:"flex",flexDirection:"column",gap:4,marginBottom:10}}>
-                    {Object.entries(stockQuery.data.suppliers||{}).map(([name,info])=>renderSupplierResult(name,info))}
+                    {Object.entries(stockQuery.data.suppliers||{}).map(([name,info],idx)=>renderSupplierResult(name,info,idx)).filter(Boolean)}
                   </div>
                   {stockQuery.data.fromCache&&(
                     <div style={{fontSize:10,color:theme.textMuted||"#999",fontStyle:"italic",marginBottom:6}}>Consultado {ageText(stockQuery.data.ageMs)} — el stock puede haber cambiado, volvé a consultar si hace varias horas</div>
@@ -1945,6 +1952,15 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
                     </div>
                   )}
                 </>
+              )}
+              {stockQuery.state==='result'&&allNoCredentials&&(
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  <div style={{fontSize:12,color:theme.textSecondary||"#666",lineHeight:1.5}}>¿Querés saber si hay stock? Contactanos y te confirmamos al toque:</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                    <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>📱 WhatsApp a Juan</a>
+                    <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Tienen stock?`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💬 Chat con la tienda</button>
+                  </div>
+                </div>
               )}
               {stockQuery.state==='error'&&(
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
