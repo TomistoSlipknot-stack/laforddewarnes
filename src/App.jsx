@@ -1841,6 +1841,15 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
       setStockQuery({state:'result',data:d,error:null});
     }catch(e){ setStockQuery({state:'error',data:null,error:'network'}); }
   };
+  // Auto-check on mount: if there's a cached result on the server, show it
+  // immediately without requiring a click. The server returns fromCache=true
+  // if the result is <12h old, so no extra request to suppliers happens.
+  useEffect(()=>{
+    const sku=r.numero_parte||r.sku||'';
+    if(!sku) return;
+    handleConsultarStock();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
   // Format supplier results for display — NEVER show real supplier names to clients.
   // Clients see generic labels: "Proveedor 1" etc. Only admin/employee sees real names.
   // Modal is always client-facing — never expose real supplier names here.
