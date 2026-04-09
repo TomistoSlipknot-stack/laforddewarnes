@@ -1843,7 +1843,8 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
   };
   // Format supplier results for display — NEVER show real supplier names to clients.
   // Clients see generic labels: "Proveedor 1" etc. Only admin/employee sees real names.
-  const isStaff = esJefe || role==='employee';
+  // Modal is always client-facing — never expose real supplier names here.
+  const isStaff = false;
   const renderSupplierResult=(name,info,idx)=>{
     if(!info) return null;
     const displayName = isStaff ? name : ('Proveedor '+(idx+1));
