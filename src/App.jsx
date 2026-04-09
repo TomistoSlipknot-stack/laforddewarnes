@@ -1916,39 +1916,46 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
             <div style={{fontSize:14,fontWeight:600,color:sc,marginBottom:10}}>
               {r.stock>0?`${r.stock} disponible${r.stock>1?"s":""} en nuestro deposito`:"Sin stock propio — Podemos pedirlo a proveedores"}
             </div>
-            {/* ─── CONSULTAR STOCK (Fase 5) ─── */}
+            {/* ─── CONSULTAR DISPONIBILIDAD (Fase 5) ─── */}
             <div style={{background:theme.bg,border:"1px solid "+(theme.cardBorder||"#ddd"),borderRadius:8,padding:"12px 14px",marginBottom:16}}>
-              <div style={{fontSize:11,fontWeight:700,color:theme.textSecondary||"#666",textTransform:"uppercase",letterSpacing:".04em",marginBottom:8}}>Stock en proveedores</div>
+              <div style={{fontSize:11,fontWeight:700,color:theme.textSecondary||"#666",textTransform:"uppercase",letterSpacing:".04em",marginBottom:8}}>Disponibilidad</div>
               {stockQuery.state==='idle'&&(
                 <>
                   <button onClick={(e)=>{e.stopPropagation();handleConsultarStock();}} style={{width:"100%",background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 14px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                    🔍 Consultar Stock en Proveedores
+                    Consultar disponibilidad
                   </button>
-                  <div style={{fontSize:11,color:theme.textMuted||"#999",marginTop:6,lineHeight:1.4}}>Chequeamos en tiempo real. Si un proveedor tiene, podemos pedirlo para vos.</div>
+                  <div style={{fontSize:11,color:theme.textMuted||"#999",marginTop:6,lineHeight:1.4}}>Verificamos en tiempo real si podemos conseguirte este repuesto.</div>
                 </>
               )}
               {stockQuery.state==='loading'&&(
                 <div style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0"}}>
                   <div style={{width:16,height:16,border:"2px solid #003478",borderTopColor:"transparent",borderRadius:"50%",animation:"spin .8s linear infinite"}}/>
-                  <span style={{fontSize:13,color:theme.text}}>Consultando proveedores...</span>
+                  <span style={{fontSize:13,color:theme.text}}>Verificando disponibilidad...</span>
                 </div>
               )}
               {stockQuery.state==='result'&&stockQuery.data&&!allNoCredentials&&(
                 <>
-                  <div style={{display:"flex",flexDirection:"column",gap:4,marginBottom:10}}>
-                    {Object.entries(stockQuery.data.suppliers||{}).map(([name,info],idx)=>renderSupplierResult(name,info,idx)).filter(Boolean)}
-                  </div>
-                  {stockQuery.data.fromCache&&(
-                    <div style={{fontSize:10,color:theme.textMuted||"#999",fontStyle:"italic",marginBottom:6}}>Consultado {ageText(stockQuery.data.ageMs)} — el stock puede haber cambiado, volvé a consultar si hace varias horas</div>
-                  )}
                   {anyAvailable?(
-                    <div style={{fontSize:12,color:"#16a34a",fontWeight:600}}>Hay disponibilidad. Podés agregar al carrito o consultar por WhatsApp para coordinar.</div>
-                  ):allUnavailable&&(
-                    <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:6}}>
-                      <div style={{fontSize:12,color:theme.textSecondary||"#666"}}>No pudimos confirmar stock automático. Consultá directo:</div>
+                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div style={{width:10,height:10,borderRadius:"50%",background:"#16a34a",flexShrink:0}}/>
+                        <div style={{fontSize:14,fontWeight:700,color:"#16a34a"}}>Disponible para pedido</div>
+                      </div>
+                      <div style={{fontSize:12,color:theme.textSecondary||"#666",lineHeight:1.5}}>Podemos conseguir este repuesto. Agregalo al carrito o consultanos para coordinar la entrega.</div>
+                      {stockQuery.data.fromCache&&(
+                        <div style={{fontSize:10,color:theme.textMuted||"#999",fontStyle:"italic"}}>Verificado {ageText(stockQuery.data.ageMs)}</div>
+                      )}
+                    </div>
+                  ):(
+                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div style={{width:10,height:10,borderRadius:"50%",background:"#dc2626",flexShrink:0}}/>
+                        <div style={{fontSize:14,fontWeight:700,color:"#dc2626"}}>Sin disponibilidad confirmada</div>
+                      </div>
+                      <div style={{fontSize:12,color:theme.textSecondary||"#666",lineHeight:1.5}}>No encontramos stock en este momento, pero puede haber cambiado. Consultanos directo:</div>
                       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                        <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>📱 WhatsApp a Juan</a>
-                        <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Pueden conseguirlo?`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💬 Chat con la tienda</button>
+                        <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>WhatsApp</a>
+                        <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Pueden conseguirlo?`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>Chat con la tienda</button>
                       </div>
                     </div>
                   )}
@@ -1956,19 +1963,19 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
               )}
               {stockQuery.state==='result'&&allNoCredentials&&(
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  <div style={{fontSize:12,color:theme.textSecondary||"#666",lineHeight:1.5}}>¿Querés saber si hay stock? Contactanos y te confirmamos al toque:</div>
+                  <div style={{fontSize:12,color:theme.textSecondary||"#666",lineHeight:1.5}}>Consultanos la disponibilidad y te confirmamos al toque:</div>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                    <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>📱 WhatsApp a Juan</a>
-                    <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Tienen stock?`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💬 Chat con la tienda</button>
+                    <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>WhatsApp</a>
+                    <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}. Tienen stock?`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>Chat con la tienda</button>
                   </div>
                 </div>
               )}
               {stockQuery.state==='error'&&(
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  <div style={{fontSize:12,color:"#dc2626"}}>No pudimos consultar en este momento ({stockQuery.error}).</div>
+                  <div style={{fontSize:12,color:theme.textSecondary||"#666"}}>No pudimos verificar en este momento. Consultanos directo:</div>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                    <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>📱 WhatsApp a Juan</a>
-                    <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}.`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💬 Chat con la tienda</button>
+                    <a href={waFallback} target="_blank" rel="noopener noreferrer" style={{background:"#25d366",color:"#fff",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,textDecoration:"none",textAlign:"center"}}>WhatsApp</a>
+                    <button onClick={(e)=>{e.stopPropagation();if(onConsultar){onConsultar({...r,consultaTexto:`Quería consultar disponibilidad de: ${r.nombre} (Cod. ${r.numero_parte}) para ${r.modelo_nombre}.`});onClose();}}} style={{background:"#003478",color:"#fff",border:"none",borderRadius:6,padding:"10px 8px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>Chat con la tienda</button>
                   </div>
                 </div>
               )}
