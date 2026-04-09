@@ -18,11 +18,30 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 // ─── MONGODB CONNECTION ─────────────────────────────────────────────────────
 let db;
-const mongoClient = new MongoClient(MONGO_URI);
+const mongoClient = new MongoClient(MONGO_URI, {
+  tls: true,
+  // Tolerate Atlas TLS hiccups (the SSL alert 80 error)
+  tlsAllowInvalidCertificates: false,
+  serverSelectionTimeoutMS: 10000,
+  connectTimeoutMS: 10000,
+  retryWrites: true,
+  retryReads: true,
+});
 
 async function connectDB() {
+  // Retry connection up to 3 times with backoff (Atlas sometimes rejects
+  // the first TLS handshake on cold starts or IP changes)
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      await mongoClient.connect();
+      break; // success
+    } catch (e) {
+      console.error(`[MongoDB] connection attempt ${attempt}/3 failed:`, e.message);
+      if (attempt === 3) throw e;
+      await new Promise(r => setTimeout(r, 2000 * attempt));
+    }
+  }
   try {
-    await mongoClient.connect();
     db = mongoClient.db('fordwarnes');
     console.log('MongoDB connected!');
     // Bug #9 fix: reconcile MongoDB vs local JSON fallback on boot.
@@ -269,13 +288,6 @@ function requireAuth(roles) {
     next();
   };
 }
-// Verify session endpoint — frontend calls this on page load to detect stale tokens
-app.get('/api/verify-session', (req, res) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  const session = token && sessions[token];
-  if (!session) return res.status(401).json({ ok: false, error: 'session_expired' });
-  res.json({ ok: true, role: session.role, name: session.name });
-});
 // Clean expired sessions every 30 min (24h lifetime)
 setInterval(() => {
   const now = Date.now();
@@ -313,6 +325,14 @@ app.use(helmet({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
+
+// Verify session endpoint — frontend calls this on page load to detect stale tokens
+app.get('/api/verify-session', (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const session = token && sessions[token];
+  if (!session) return res.status(401).json({ ok: false, error: 'session_expired' });
+  res.json({ ok: true, role: session.role, name: session.name });
+});
 
 // ─── IMAGES IN MONGODB (Bug #3/#12 fix) ────────────────────────────────────
 // Render free tier has an ephemeral filesystem: anything written to disk is
