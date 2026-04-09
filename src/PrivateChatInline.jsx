@@ -41,19 +41,23 @@ export default function PrivateChatInline({ network, userName, pendingConsulta, 
     }
   }, [pendingConsulta]);
 
-  // Show real messages from asesor
+  // Show real messages from asesor — merge chronologically with local msgs
   const allMessages = [...msgs];
   for (const rm of realMessages) {
     if (rm.fromRole === 'admin' || rm.fromRole === 'employee') {
-      // Only add if not already in msgs
       const exists = allMessages.some(m => m.ts === rm.ts && m.text === rm.text);
       if (!exists) {
         allMessages.push({ id: rm.ts, from: 'asesor', fromRole: rm.fromRole, text: rm.text, ts: rm.ts });
       }
     }
   }
+  // Sort all messages chronologically so asesor replies appear in the right position
+  allMessages.sort((a, b) => (a.ts || a.id || 0) - (b.ts || b.id || 0));
 
-  const addMsg = (from, text) => setMsgs(prev => [...prev, { id: Date.now() + Math.random(), from, text, ts: Date.now() }]);
+  const addMsg = (from, text) => {
+    const now = Date.now();
+    setMsgs(prev => [...prev, { id: now + Math.random(), from, text, ts: now }]);
+  };
 
   const askAI = async (userText) => {
     setTyping(true);
