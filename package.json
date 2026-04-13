@@ -18,7 +18,8 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "resend": "^6.10.0",
-    "ws": "^8.20.0"
+    "ws": "^8.20.0",
+    "@google/generative-ai": "^0.24.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.1",
