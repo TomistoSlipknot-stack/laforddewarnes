@@ -963,16 +963,35 @@ const CLAUDE_KEY = process.env.CLAUDE_API_KEY || '';
 let claude = null;
 try { claude = new Anthropic({ apiKey: CLAUDE_KEY }); } catch {}
 
-// ─── BUSCADOR IA V2 (Fase 7) — conversational AI with tool use ──────────
+// ─── BUSCADOR IA V2 (Fase 7) — Gemini with function calling ──────────────
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const buscadorIA = require('./buscador-ia.cjs');
-const BUSCADOR_MODEL = process.env.BUSCADOR_MODEL || 'claude-sonnet-4-6';
+const GEMINI_KEY = process.env.GEMINI_API_KEY || '';
+let gemini = null;
+let geminiModel = null;
+try {
+  if (GEMINI_KEY) {
+    gemini = new GoogleGenerativeAI(GEMINI_KEY);
+    geminiModel = gemini.getGenerativeModel({
+      model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+      tools: [{
+        functionDeclarations: buscadorIA.TOOLS.map(t => ({
+          name: t.name,
+          description: t.description,
+          parameters: t.input_schema,
+        })),
+      }],
+    });
+  }
+} catch (e) { console.error('[gemini init]', e.message); }
+
 const BUSCADOR_MAX_ITERATIONS = 6;
 
 function buildBuscadorSystemPrompt(role, userName) {
   const isStaff = role === 'admin' || role === 'employee' || role === 'jefe';
   const persona = isStaff
-    ? `Estas ayudando a ${userName || 'un empleado'} que trabaja en La Ford de Warnes. Podes ser directo y tecnico.`
-    : `Estas hablando con ${userName || 'un cliente'} que busca repuestos para su vehiculo Ford.`;
+    ? `Estas ayudando a ${userName || 'un empleado'} que trabaja en La Ford de Warnes. Es tu compañero de equipo — se amable, claro y colaborativo. Ayudalo a encontrar lo que necesita rapidamente.`
+    : `Estas hablando con ${userName || 'un cliente'} que visita la tienda online. Tratalo con amabilidad y paciencia, como si fuera un cliente importante que entro al local.`;
   return `Sos el asistente de busqueda inteligente de La Ford de Warnes (laforddewarnes.com), una tienda de repuestos Ford en CABA con 48 años de experiencia. WhatsApp: 11 6275-6333. Honorio Pueyrredon 2180.
 
 ${persona}
@@ -993,10 +1012,11 @@ REGLAS CRITICAS DE HONESTIDAD:
 5. Si el cliente escribe con typos, corregi mentalmente y busca, pero nunca le digas "escribiste mal". Simplemente entendes y respondes.
 
 FORMATO DE RESPUESTA:
-- Español argentino informal (vos, dale, che, piola). Breve y directo.
+- Español amable y profesional. Podes usar "vos" pero siempre con respeto y buena onda. Nada de insultos, groserias ni jerga agresiva.
 - Cuando muestres productos, mencionalos con nombre y precio.
-- Cuando Claude usa una tool y encuentra 5+ resultados, NO los listes todos — mostra los 3 mas relevantes y deci "tengo X mas, queres que te muestre?".
+- Cuando encuentres 5+ resultados, NO los listes todos — mostra los 3 mas relevantes y ofrece "tengo mas opciones, queres que te muestre?".
 - Si propones agregar al carrito, SIEMPRE aclara "necesito tu confirmacion, toca el boton verde abajo".
+- Se siempre paciente, incluso si el cliente pregunta algo obvio o repite la misma pregunta.
 
 DATOS DE PAGO (si el cliente pregunta): Alias MercadoPago laforddewarnes.mp. CVU 0000003100002327991773.`;
 }
@@ -1010,14 +1030,13 @@ async function flushSearchLogs() {
     await db.collection('searchLogsV2').insertMany(toFlush);
   } catch (e) {
     console.error('[searchLogsV2] flush failed:', e);
-    // Put them back so we retry next flush
     searchLogBuffer.unshift(...toFlush);
   }
 }
 setInterval(() => flushSearchLogs().catch(() => {}), 30000);
 
 app.post('/api/buscador-ia-v2', async (req, res) => {
-  if (!claude) return res.status(503).json({ ok: false, error: 'IA no disponible' });
+  if (!geminiModel) return res.status(503).json({ ok: false, error: 'IA no disponible — falta GEMINI_API_KEY' });
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
   if (!rateLimit(ip, 30, 60000)) return res.status(429).json({ ok: false, error: 'Muchas consultas, esperá un momento' });
 
@@ -1042,71 +1061,79 @@ app.post('/api/buscador-ia-v2', async (req, res) => {
   };
 
   try {
-    // Build Claude messages from the conversation (strip our custom fields)
-    let apiMessages = messages
-      .filter(m => m && (m.role === 'user' || m.role === 'assistant'))
-      .map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : m.content }));
+    // Convert conversation to Gemini format
+    // Gemini uses "user" and "model" roles (not "assistant")
+    const geminiHistory = [];
+    for (const m of messages) {
+      if (!m || !m.content) continue;
+      if (m.role === 'user') geminiHistory.push({ role: 'user', parts: [{ text: m.content }] });
+      else if (m.role === 'assistant') geminiHistory.push({ role: 'model', parts: [{ text: m.content }] });
+    }
+    // Remove the last user message — it goes into sendMessage, not history
+    const lastUserMsg = geminiHistory.pop();
+    if (!lastUserMsg) return res.status(400).json({ ok: false, error: 'No user message' });
+
+    const chat = geminiModel.startChat({
+      history: geminiHistory,
+      systemInstruction: buildBuscadorSystemPrompt(role, userName),
+    });
 
     const toolContext = { db, supplierScraper };
     const collectedProposals = [];
-    const collectedCards = [];  // products mentioned by tools (for inline rendering)
+    const collectedCards = [];
     let finalText = '';
+
+    // First message to Gemini
+    let result = await chat.sendMessage(lastUserMsg.parts);
+    let response = result.response;
 
     for (let iter = 0; iter < BUSCADOR_MAX_ITERATIONS; iter++) {
       logEntry.iterations = iter + 1;
-      const resp = await claude.messages.create({
-        model: BUSCADOR_MODEL,
-        max_tokens: 1024,
-        system: buildBuscadorSystemPrompt(role, userName),
-        tools: buscadorIA.TOOLS,
-        messages: apiMessages,
-      });
 
-      // Collect any text from this turn
-      const textBlocks = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
-      if (textBlocks) finalText = textBlocks;
+      // Check for text in the response
+      const text = response.text && response.text() ? response.text() : '';
+      if (text) finalText = text;
 
-      if (resp.stop_reason === 'end_turn') break;
+      // Check for function calls
+      const fnCalls = response.functionCalls ? response.functionCalls() : null;
+      if (!fnCalls || fnCalls.length === 0) break; // No more tools to call, done
 
-      if (resp.stop_reason === 'tool_use') {
-        const toolUses = (resp.content || []).filter(b => b.type === 'tool_use');
-        if (toolUses.length === 0) break;
-        // Append the assistant turn so Claude sees its own tool calls
-        apiMessages.push({ role: 'assistant', content: resp.content });
-        // Execute each tool and append results
-        const toolResults = [];
-        for (const tu of toolUses) {
-          logEntry.toolsUsed.push(tu.name);
-          const result = await buscadorIA.executeTool(tu.name, tu.input || {}, toolContext);
-          // Collect SKUs from search results for analytics and the frontend cards
-          if (result.ok) {
-            if (Array.isArray(result.items)) {
-              for (const it of result.items) {
-                if (it.sku && !collectedCards.find(c => c.sku === it.sku)) collectedCards.push(it);
-                if (it.sku) logEntry.resultSkus.push(it.sku);
-              }
-            }
-            if (Array.isArray(result.alternativas)) {
-              for (const it of result.alternativas) {
-                if (it.sku && !collectedCards.find(c => c.sku === it.sku)) collectedCards.push(it);
-              }
-            }
-            if (result.proposal && result.proposal.type === 'cart_proposal') {
-              collectedProposals.push(result.proposal);
-              logEntry.proposalSku = result.proposal.sku;
+      // Execute each function call
+      const fnResponses = [];
+      for (const fc of fnCalls) {
+        logEntry.toolsUsed.push(fc.name);
+        const toolResult = await buscadorIA.executeTool(fc.name, fc.args || {}, toolContext);
+        // Collect cards/proposals for frontend
+        if (toolResult.ok) {
+          if (Array.isArray(toolResult.items)) {
+            for (const it of toolResult.items) {
+              if (it.sku && !collectedCards.find(c => c.sku === it.sku)) collectedCards.push(it);
+              if (it.sku) logEntry.resultSkus.push(it.sku);
             }
           }
-          toolResults.push({
-            type: 'tool_result',
-            tool_use_id: tu.id,
-            content: JSON.stringify(result).slice(0, 8000),  // cap size
-          });
+          if (Array.isArray(toolResult.alternativas)) {
+            for (const it of toolResult.alternativas) {
+              if (it.sku && !collectedCards.find(c => c.sku === it.sku)) collectedCards.push(it);
+            }
+          }
+          if (toolResult.proposal && toolResult.proposal.type === 'cart_proposal') {
+            collectedProposals.push(toolResult.proposal);
+            logEntry.proposalSku = toolResult.proposal.sku;
+          }
         }
-        apiMessages.push({ role: 'user', content: toolResults });
-        continue;
+        fnResponses.push({
+          functionResponse: {
+            name: fc.name,
+            response: toolResult,
+          },
+        });
       }
-      // Any other stop reason — finish
-      break;
+      // Send function results back to Gemini
+      result = await chat.sendMessage(fnResponses);
+      response = result.response;
+      // Capture the final text after tool results
+      const afterText = response.text && response.text() ? response.text() : '';
+      if (afterText) finalText = afterText;
     }
 
     logEntry.finalResponseLen = finalText.length;
@@ -1136,7 +1163,7 @@ app.post('/api/buscador-ia-v2', async (req, res) => {
 // (oportunidades de agregar al catalogo), conversion de busqueda, etc.
 app.get('/api/search-insights', requireAuth(['admin']), async (req, res) => {
   if (!db) return res.status(503).json({ ok: false, error: 'no_db' });
-  if (!claude) return res.status(503).json({ ok: false, error: 'IA no disponible' });
+  if (!gemini) return res.status(503).json({ ok: false, error: 'IA no disponible' });
   try {
     await flushSearchLogs();
     const days = Math.min(Math.max(Number(req.query.days) || 7, 1), 30);
@@ -1182,12 +1209,9 @@ Devolveme un resumen EN ESPAÑOL ARGENTINO tipo reporte a Juan con estas seccion
 
 Se concreto, no uses relleno. Si no hay data suficiente, decilo.`;
 
-    const msg = await claude.messages.create({
-      model: BUSCADOR_MODEL,
-      max_tokens: 1200,
-      messages: [{ role: 'user', content: aiPrompt }],
-    });
-    const summary = msg.content?.[0]?.text || 'Sin resumen';
+    const insightsModel = gemini.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
+    const msg = await insightsModel.generateContent(aiPrompt);
+    const summary = msg.response?.text?.() || 'Sin resumen';
     res.json({
       ok: true,
       period_days: days,
@@ -1207,45 +1231,44 @@ app.post('/api/buscador-ia-reload', requireAuth(['admin']), (req, res) => {
 });
 
 app.post('/api/ai-search', async (req, res) => {
-  if (!claude) return res.json({ ok: false, error: 'IA no disponible' });
+  if (!gemini) return res.json({ ok: false, error: 'IA no disponible' });
   const ip = req.ip || req.connection.remoteAddress;
   if (!rateLimit(ip, 20, 60000)) return res.status(429).json({ ok: false, error: 'Muchas consultas, espera un momento' });
   const { query, context, role, userName } = req.body;
   if (!query || query.length < 2) return res.json({ ok: false, error: 'Consulta muy corta' });
 
-  // Different personality based on who's talking
   const isJefe = role === 'jefe';
   const isStaff = role === 'empleado' || isJefe;
   const personContext = isJefe
-    ? `Estas hablando con JUAN, el JEFE y duenio de La Ford de Warnes. Tratalo con respeto pero informal, como un asistente de confianza. Podes ayudarlo con: buscar piezas, ver stock, registrar ventas, crear empleados, ajustar precios, ver estadisticas. NO le hables como si fuera un cliente.`
+    ? `Estas hablando con Juan, el dueño de La Ford de Warnes. Es tu jefe — tratalo con respeto y confianza. Ayudalo con buscar piezas, ver stock, registrar ventas, crear empleados, ajustar precios, estadisticas. No le hables como cliente.`
     : isStaff
-    ? `Estas hablando con ${userName || 'un empleado'}, un TRABAJADOR de La Ford de Warnes. Ayudalo a buscar piezas para atender clientes, consultar precios, ver stock. Habla como un companiero de trabajo.`
-    : `Estas hablando con ${userName || 'un cliente'} que visita la tienda online. Ayudalo a encontrar repuestos, consultar precios y resolver dudas sobre su vehiculo Ford.`;
+    ? `Estas hablando con ${userName || 'un empleado'} que trabaja en La Ford de Warnes. Es tu compañero de equipo — ayudalo a buscar piezas para atender clientes, consultar precios, ver stock. Se amable y colaborativo.`
+    : `Estas hablando con ${userName || 'un cliente'} que visita la tienda online. Ayudalo con amabilidad a encontrar repuestos, consultar precios y resolver dudas sobre su vehiculo Ford.`;
 
   try {
-    const msg = await claude.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 500,
-      system: `Sos el asistente virtual de La Ford de Warnes, una casa de repuestos Ford en Buenos Aires con mas de 48 anios de experiencia. Ubicacion: Av. Honorio Pueyrredon 2180, CABA. WhatsApp: 11 6275-6333. Horarios: Lunes a Viernes 8-18, Sabados 8-13.
+    const aiModel = gemini.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
+    const prompt = `Sos el asistente virtual de La Ford de Warnes, una casa de repuestos Ford en Buenos Aires con mas de 48 años de experiencia. Ubicacion: Av. Honorio Pueyrredon 2180, CABA. WhatsApp: 11 6275-6333. Horarios: Lunes a Viernes 8-18, Sabados 8-13.
 
 ${personContext}
 
-PERSONALIDAD: Hablas en espaniol argentino informal (vos, dale, piola, etc). Sos directo y eficiente.
+PERSONALIDAD: Hablas en español, sos amable, respetuoso y servicial. Tenes buena onda pero siempre profesional. Nada de insultos ni groserias. Sos claro y eficiente.
 
 REGLAS:
-- Si hay productos en el contexto, MENCIONALOS con nombre y precio
-- Si piden algo vago, pregunta modelo y anio del vehiculo
-- Si no encontras nada, sugeri WhatsApp o probar con otro termino
+- Si hay productos en el contexto, mencionalos con nombre y precio
+- Si piden algo vago, pregunta modelo y año del vehiculo con amabilidad
+- Si no encontras nada, sugeri WhatsApp (11 6275-6333) o probar con otro termino
 - Respuestas cortas (2-4 oraciones) a menos que necesites detallar productos
-- Respuestas cortas (2-4 oraciones max) a menos que necesite detallar productos
 - Si te preguntan algo que no es de repuestos, responde amablemente y redirigilo
+- Se siempre amable y respetuoso, sin importar como te hablen
 
 DATOS DE PAGO: Alias MercadoPago: laforddewarnes.mp | CVU: 0000003100002327991773
 
-${context || 'Sin resultados del catalogo'}`,
-      messages: [{ role: 'user', content: query }],
-    });
-    const text = msg.content?.[0]?.text || 'No pude procesar tu consulta';
+${context || 'Sin resultados del catalogo'}
+
+CONSULTA DEL USUARIO: ${query}`;
+
+    const result = await aiModel.generateContent(prompt);
+    const text = result.response?.text?.() || 'No pude procesar tu consulta';
     res.json({ ok: true, response: text });
   } catch (e) {
     console.error('[AI]', e.message);

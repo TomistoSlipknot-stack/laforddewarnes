@@ -1950,7 +1950,24 @@ function Modal({parte:r,onClose,onConsultar,onAddCart}){const theme=_globalTheme
                         <div style={{width:10,height:10,borderRadius:"50%",background:"#16a34a",flexShrink:0}}/>
                         <div style={{fontSize:14,fontWeight:700,color:"#16a34a"}}>Disponible para pedido</div>
                       </div>
-                      <div style={{fontSize:12,color:theme.textSecondary||"#666",lineHeight:1.5}}>Podemos conseguir este repuesto. Agregalo al carrito o consultanos para coordinar la entrega.</div>
+                      {/* Brand type badges */}
+                      {stockQuery.data.brandSummary&&(
+                        <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                          {(stockQuery.data.brandSummary==='original'||stockQuery.data.brandSummary==='original_y_alternativo')&&(
+                            <span style={{fontSize:11,fontWeight:700,padding:"4px 10px",borderRadius:4,background:"rgba(0,52,120,.1)",border:"1px solid rgba(0,52,120,.25)",color:"#003478"}}>Ford Original / Motorcraft</span>
+                          )}
+                          {(stockQuery.data.brandSummary==='alternativo'||stockQuery.data.brandSummary==='original_y_alternativo')&&(
+                            <span style={{fontSize:11,fontWeight:700,padding:"4px 10px",borderRadius:4,background:"rgba(245,158,11,.1)",border:"1px solid rgba(245,158,11,.3)",color:"#b45309"}}>Marca alternativa</span>
+                          )}
+                        </div>
+                      )}
+                      <div style={{fontSize:12,color:theme.textSecondary||"#666",lineHeight:1.5}}>
+                        {stockQuery.data.brandSummary==='original_y_alternativo'
+                          ?'Tenemos disponible en marca original y alternativa. Consultanos para comparar precios.'
+                          :stockQuery.data.brandSummary==='alternativo'
+                          ?'Disponible en marca alternativa. Consultanos si necesitás original Ford.'
+                          :'Podemos conseguir este repuesto. Agregalo al carrito o consultanos para coordinar.'}
+                      </div>
                       {stockQuery.data.fromCache&&(
                         <div style={{fontSize:10,color:theme.textMuted||"#999",fontStyle:"italic"}}>Verificado {ageText(stockQuery.data.ageMs)}</div>
                       )}

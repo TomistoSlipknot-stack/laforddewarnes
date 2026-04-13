@@ -149,12 +149,26 @@ async function consultarStock(db, partNumber) {
         result.suppliers[supplier] = { status: 'error', error: e.message };
       }
     }
+    // Build a brand summary from all available suppliers
+    const brands = new Set();
+    for (const info of Object.values(result.suppliers)) {
+      if (info && info.status === 'available' && info.brand) {
+        if (info.brand === 'original' || info.brand === 'original_probable') brands.add('original');
+        else if (info.brand === 'alternativo') brands.add('alternativo');
+        else if (info.brand === 'ambos') { brands.add('original'); brands.add('alternativo'); }
+      }
+    }
+    result.brandSummary = brands.size === 0 ? null
+      : brands.has('original') && brands.has('alternativo') ? 'original_y_alternativo'
+      : brands.has('original') ? 'original'
+      : 'alternativo';
+
     // Write to cache
     if (db) {
       try {
         await db.collection('supplierStockCache').updateOne(
           { _id: sku },
-          { $set: { _id: sku, suppliers: result.suppliers, updatedAt: Date.now() } },
+          { $set: { _id: sku, suppliers: result.suppliers, brandSummary: result.brandSummary, updatedAt: Date.now() } },
           { upsert: true }
         );
       } catch (e) { console.error('[scraper] cache write error:', e.message); }
@@ -264,19 +278,41 @@ const adapters = {
     hasCredentials() { return !!process.env.FORCOR_COOKIE; },
     async warmUp() {
       if (!this.hasCredentials()) return;
-      await httpRequest('https://wayre.forcor.com.ar/', { headers: { Cookie: process.env.FORCOR_COOKIE } });
+      await httpRequest('https://wayre.forcor.com.ar/extranet/productos', { headers: { Cookie: process.env.FORCOR_COOKIE } });
     },
     async check(sku) {
       if (!this.hasCredentials()) return { status: 'unknown', reason: 'no_credentials' };
-      const searchUrl = (process.env.FORCOR_SEARCH_URL || 'https://wayre.forcor.com.ar/buscar?q={SKU}').replace('{SKU}', encodeURIComponent(sku));
-      const res = await httpRequest(searchUrl, { headers: { Cookie: process.env.FORCOR_COOKIE } });
+      // Forcor search by nombre field (their part number system uses prefijo/basico/sufijo which doesn't match our SKUs)
+      const searchUrl = 'https://wayre.forcor.com.ar/extranet/productos?producto_filter%5Bprefijo%5D=&producto_filter%5Bbasico%5D=&producto_filter%5Bsufijo1%5D=&producto_filter%5Bsufijo2%5D=&producto_filter%5Bnombre%5D=' + encodeURIComponent(sku) + '&producto_filter%5Bdescripcion%5D=';
+      const res = await httpRequest(searchUrl, { headers: { Cookie: process.env.FORCOR_COOKIE, Accept: 'text/html' } });
       const fatal = detectFatal(res);
       if (fatal) return { status: 'error', fatal: true, fatalReason: fatal };
-      // TODO: parse response body to extract stock qty / precio.
-      // Forcor uses the "wayre" ERP (B2B portal) — likely has a product card
-      // with stock number. Once Juan gives us a sample SKU + expected response,
-      // fill in the selector here.
-      return { status: 'unknown', mode: 'numeric', qty: null, precio: null, note: 'parser_pending' };
+      try {
+        const body = res.body || '';
+        if (body.includes('No hay piezas') || body.includes('0 resultados')) {
+          return { status: 'unavailable_stock', mode: 'thumbs', thumbs: 0, precio: null };
+        }
+        // Stock shown as thumbs-up/thumbs-down icons. 2 per row: FORCOR + FORD depot
+        const thumbsUp = (body.match(/fa-thumbs-up/g) || []).length;
+        const hasStock = thumbsUp > 0;
+        // Extract first "Precio de Venta" (3rd price in each row group)
+        const priceMatches = body.match(/\$\s*[\d,.]+/g) || [];
+        const precioVenta = priceMatches.length >= 3 ? Number(priceMatches[2].replace(/[$\s.]/g, '').replace(',', '.')) : null;
+        // Description from first result
+        const descMatch = body.match(/<td>\s*\n?\s*([A-Z][A-Z\s]+?)\s*\n/m);
+        const desc = descMatch ? descMatch[1].trim() : '';
+        return {
+          status: hasStock ? 'available' : 'unavailable_stock',
+          mode: 'thumbs',
+          thumbs: thumbsUp,
+          precio: precioVenta,
+          brand: detectBrand(desc, sku),
+          descripcion: desc,
+        };
+      } catch (e) {
+        console.error('[forcor parser]', e.message);
+        return { status: 'error', error: 'parse_failed: ' + e.message };
+      }
     },
   },
   fordmata: {
@@ -352,14 +388,17 @@ const adapters = {
         // Extract numeric stock from HTML if present (some results show a number)
         const numMatch = stockCeHtml.match(/>(\d+)</);
         const numericQty = numMatch ? Number(numMatch[1]) : null;
+        const desc = (item.descripcion || '').trim();
+        const codigo = (item.codigo || '').trim();
         return {
           status: available ? 'available' : 'unavailable_stock',
           mode: numericQty != null ? 'numeric' : 'binary',
           qty: numericQty,
-          precio: precioNeto > 0 ? precioNeto : null, // costo neto (admin only — never shown to clients)
+          precio: precioNeto > 0 ? precioNeto : null,
+          brand: detectBrand(desc, codigo),
           hasCeStock,
           hasFabricaStock,
-          descripcion: (item.descripcion || '').trim(),
+          descripcion: desc,
         };
       } catch (e) {
         console.error('[taraborelli parser]', e.message);
@@ -369,4 +408,21 @@ const adapters = {
   },
 };
 
-module.exports = { consultarStock, getStatus, setAlertFn, SUPPLIERS, DAILY_CAP, CACHE_TTL_MS };
+// ─── BRAND DETECTION ──────────────────────────────────────────────────────
+// Detect whether a part description / code indicates Original Ford or aftermarket.
+// This runs on the description returned by each supplier.
+const ORIGINAL_KEYWORDS = ['original', 'motorcraft', 'genuino', 'genuina', 'ford original', 'oem', 'fomoco'];
+const AFTERMARKET_KEYWORDS = ['alternativ', 'generico', 'generica', 'reemplazo', 'competencia', 'economy'];
+function detectBrand(desc, codigo) {
+  const text = ((desc || '') + ' ' + (codigo || '')).toLowerCase();
+  const isOriginal = ORIGINAL_KEYWORDS.some(k => text.includes(k));
+  const isAftermarket = AFTERMARKET_KEYWORDS.some(k => text.includes(k));
+  if (isOriginal && !isAftermarket) return 'original';
+  if (isAftermarket && !isOriginal) return 'alternativo';
+  if (isOriginal && isAftermarket) return 'ambos';
+  // Default: if it's from a Ford-specific supplier catalog and no keyword,
+  // it's likely original (these are Ford OEM part numbers)
+  return 'original_probable';
+}
+
+module.exports = { consultarStock, getStatus, setAlertFn, detectBrand, SUPPLIERS, DAILY_CAP, CACHE_TTL_MS };
